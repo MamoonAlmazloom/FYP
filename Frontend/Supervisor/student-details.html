@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Top Header */
+        .top-header {
+            background-color: #0056b3;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sign-out {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sign-out:hover {
+            background-color: #c82333;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .details-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .section {
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: aliceblue;
+            
+
+        }
+
+        .section h3 {
+            margin: 0;
+            background-color: #343a40;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            color: #0056b3;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentName = urlParams.get("student") || "Unknown Student";
+            const projectTitle = urlParams.get("title") || "Unknown Title";
+
+            document.getElementById("student-name").innerText = studentName;
+            document.getElementById("project-title").innerText = projectTitle;
+        };
+    </script>
+</head>
+
+<body>
+
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="logo">📘 Supervisor Dashboard</div>
+        <div class="nav-links">
+            <a href="monitor-student-progress.html">Home</a>
+            <a href="#">Students</a>
+            <a href="#">Logs</a>
+            <a href="#">Reports</a>
+        </div>
+        <button class="sign-out">Sign Out</button>
+    </div>
+
+    <div class="container">
+        <h2>Student Details</h2>
+
+        <!-- Student Information -->
+        <div class="details-box">
+            <p><strong>Student Name:</strong> <span id="student-name"></span></p>
+            <p><strong>Project Title:</strong> <span id="project-title"></span></p>
+            <p><strong>Supervisor Feedback:</strong> This student is progressing well but needs more refinement in their
+                research methodology.</p>
+        </div>
+
+        <!-- Sections -->
+        <div  class="section">
+            <h3>Progress Logs</h3>
+            <a href="view-progress-log.html?student=" class="back-link">View Logs</a>
+        </div>
+
+        <div class="section">
+            <h3>Reports</h3>
+            <a href="view-progress-report.html?student=" class="back-link">View Reports</a>
+        </div>
+            <br>
+        <a href="my-students.html" class="back-link">← Back to My Students List</a>
+    </div>
+
+</body>
+
+</html>

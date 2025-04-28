@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposed Titles List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Top Header */
+        .top-header {
+            background-color: #343a40;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sign-out {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sign-out:hover {
+            background-color: #c82333;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background-color: #138496;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="logo">🔍 Moderator Dashboard</div>
+        <div class="nav-links">
+            <a href="monitor-student-progress.html">Home</a>
+            <a href="#">Students</a>
+            <a href="#">Logs</a>
+            <a href="#">Reports</a>
+        </div>
+        <button class="sign-out">Sign Out</button>
+    </div>
+
+    <div class="container">
+        <h2>Review Proposed Titles</h2>
+        <p>Select a proposal to review and take action.</p>
+
+        <!-- Proposed Titles Table -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Proposed Title</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>John Doe</td>
+                    <td>AI-Based Medical Diagnosis System</td>
+                    <td><a href="proposal-action.html?title=AI-Based%20Medical%20Diagnosis%20System&student=John%20Doe"
+                            <a
+                            href="proposal-action.html?title=AI-Based%20Medical%20Diagnosis%20System&student=John%20Doe"
+                            class="action-btn">Action</a>
+                </tr>
+                <tr>
+                    <td>Jane Smith</td>
+                    <td>Blockchain for Secure Voting</td>
+                    <td><a href="proposal-action.html?title=Blockchain%20for%20Secure%20Voting&student=Jane%20Smith"
+                            class="action-btn">Action</a></td>
+                </tr>
+                <tr>
+                    <td>Mike Johnson</td>
+                    <td>Automated Inventory Management</td>
+                    <td><a href="proposal-action.html?title=Automated%20Inventory%20Management&student=Mike%20Johnson"
+                            class="action-btn">Action</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="moderator-dashboard.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+</body>
+
+</html>

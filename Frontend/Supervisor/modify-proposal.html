@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Proposal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            color: white;
+            background-color: #ffc107;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            background-color: #e0a800;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            color: #0056b3;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            // Simulate retrieving the existing proposal data (this would come from a database in a real application)
+            document.getElementById("title").value = "AI-Based Medical Diagnosis System";
+            document.getElementById("description").value = "The project aims to develop an AI model that assists doctors in diagnosing diseases based on patient symptoms and test results. Current challenges include data sourcing and model accuracy tuning.";
+        };
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Modify Proposal</h2>
+        <p>Edit your submitted proposal before resubmitting.</p>
+        <form action="#" method="POST">
+            <div class="form-group">
+                <label for="title">Proposal Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Proposal Description:</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="file">Upload Updated Proposal (PDF):</label>
+                <input type="file" id="file" name="file" accept=".pdf">
+            </div>
+            <button type="submit" class="btn-submit">Submit Modified Proposal</button>
+        </form>
+        <a href="monitor-student-progress.html" class="back-link">← Back to Project Work</a>
+    </div>
+
+</body>
+
+</html>

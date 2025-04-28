@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Top Header */
+        .top-header {
+            background-color: #343a40;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sign-out {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sign-out:hover {
+            background-color: #c82333;
+        }
+
+        /* Manager Info Header */
+        .header {
+            background-color: #6c757d;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .btn {
+            display: block;
+            width: 95%;
+            padding: 15px;
+            margin: 10px 0;
+            text-decoration: none;
+            font-size: 16px;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .btn.users,
+        .btn.examiners,
+        .btn.projects,
+        .btn.archive {
+            background-color: #007BFF;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Notification Center */
+        .notifications {
+            background-color: #ffeb3b;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: black;
+            border: 1px solid #d4b300;
+            text-align: left;
+        }
+
+        .notifications h3 {
+            margin: 0 0 10px;
+            background-color: transparent;
+            color: black;
+            padding: 0;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="logo">📊 Manager Dashboard</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Students</a>
+            <a href="#">Moderation</a>
+            <a href="#">Reports</a>
+        </div>
+        <button class="sign-out">Sign Out</button>
+    </div>
+
+    <!-- Manager Info Header -->
+    <div class="header">
+        <span><strong>Manager Name:</strong> Dr. Emily Carter</span>
+        <span><strong>Department:</strong> FYP Committee</span>
+        <span><strong>Supervised Projects:</strong> 120</span>
+    </div>
+
+    <div class="container">
+        <h2>Manager Dashboard</h2>
+        <p>Oversee and manage the Final Year Project process.</p>
+
+        <!-- Action Buttons -->
+        <a href="manage-users.html" class="btn users">Manage Users</a>
+        <a href="assign-examiners.html" class="btn examiners">Assign Examiners</a>
+        <a href="approved-projects-logs.html" class="btn projects">View Approved Projects</a>
+        <a href="previous-projects.html" class="btn archive">Previous Project Archive</a>
+
+        <!-- Notification Center -->
+        <div class="notifications">
+            <h3>🔔 Notification Center</h3>
+            <p><strong>Reminder:</strong> Approve final year project examiners.</p>
+            <p><strong>Update:</strong> New student registrations need approval.</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

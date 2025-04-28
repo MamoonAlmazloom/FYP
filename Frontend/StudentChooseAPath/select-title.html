@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select a Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            width: 350px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .title-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .title-list li {
+            padding: 10px;
+            background: #007bff;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .title-list li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+
+        .title-list li:hover {
+            background: #0056b3;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Select a Project Title</h2>
+        <ul class="title-list">
+            <li><a href="project-title.html?title=Project%20Title%201">Project Title 1</a></li>
+            <li><a href="project-title.html?title=Project%20Title%202">Project Title 2</a></li>
+            <li><a href="project-title.html?title=Project%20Title%203">Project Title 3</a></li>
+            <li><a href="project-title.html?title=Project%20Title%204">Project Title 4</a></li>
+        </ul>
+
+        <a href="index.html" class="back-button">Back to Select Path</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Proposal Decision</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Top Header */
+        .top-header {
+            background-color: #0056b3;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sign-out {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sign-out:hover {
+            background-color: #c82333;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .proposal-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .decision-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .decision-btn {
+            width: 30%;
+            padding: 12px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .approve {
+            background-color: #28a745;
+        }
+
+        .approve:hover {
+            background-color: #218838;
+        }
+
+        .reject {
+            background-color: #dc3545;
+        }
+
+        .reject:hover {
+            background-color: #c82333;
+        }
+
+        .modify {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .modify:hover {
+            background-color: #e0a800;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            color: #0056b3;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentName = urlParams.get("student") || "Unknown Student";
+            const projectTitle = urlParams.get("title") || "Unknown Title";
+
+            document.getElementById("student-name").innerText = studentName;
+            document.getElementById("project-title").innerText = projectTitle;
+        };
+    </script>
+</head>
+
+<body>
+
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="logo">📘 Supervisor Dashboard</div>
+        <div class="nav-links">
+            <a href="monitor-student-progress.html">Home</a>
+            <a href="#">Students</a>
+            <a href="#">Logs</a>
+            <a href="#">Reports</a>
+        </div>
+        <button class="sign-out">Sign Out</button>
+    </div>
+
+    <div class="container">
+        <h2>Submit Proposal Decision</h2>
+
+        <div class="proposal-details">
+            <p><strong>Student Name:</strong> <span id="student-name"></span></p>
+            <p><strong>Project Title:</strong> <span id="project-title"></span></p>
+            <p><strong>Proposal Summary:</strong> The student has submitted a proposal for review. Review the details
+                and take the appropriate action.</p>
+        </div>
+
+        <!-- Decision Buttons -->
+        <div class="decision-buttons">
+            <button class="decision-btn approve">Approve</button>
+            <button class="decision-btn modify">Request Modification</button>
+            <button class="decision-btn reject">Reject</button>
+        </div>
+
+        <a href="proposed-titles.html" class="back-link">← Back to Proposed Titles</a>
+    </div>
+
+</body>
+
+</html>

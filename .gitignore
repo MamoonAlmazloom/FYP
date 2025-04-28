@@ -1,0 +1,9 @@
+# Ignore files in /Backend directory
+/Backend/node_modules/
+/Backend/.env
+/Backend/dist/
+
+# Ignore files in /Frontend directory
+/Frontend/node_modules/
+/Frontend/.env
+/Frontend/build/

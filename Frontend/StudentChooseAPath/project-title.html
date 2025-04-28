@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Title Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            width: 400px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .details {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .apply-button {
+            display: inline-block;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .apply-button:hover {
+            background: #0056b3;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-button:hover {
+            background: #555;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectTitle = urlParams.get("title") || "Unknown Project";
+
+            document.getElementById("project-title").innerText = projectTitle;
+            document.getElementById("project-description").innerText = "This is a brief description of " + projectTitle + ". More details about the project will go here.";
+        };
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h2 id="project-title">Project Title</h2>
+        <div class="details">
+            <p><strong>Description:</strong></p>
+            <p id="project-description">Loading...</p>
+        </div>
+        <a href="#" class="apply-button">Apply for this Project</a>
+        <br>
+        <a href="select-title.html" class="back-button">Back to Select Title</a>
+    </div>
+</body>
+
+</html>
