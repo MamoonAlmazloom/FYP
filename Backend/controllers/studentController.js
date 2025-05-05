@@ -4,7 +4,7 @@ import projectModel from "../models/projectModel.js";
 import progressModel from "../models/progressModel.js";
 import feedbackModel from "../models/feedbackModel.js";
 
-/**
+/**   
  * List all proposals for a student
  */
 const listProposals = async (req, res, next) => {
@@ -23,16 +23,19 @@ const listProposals = async (req, res, next) => {
 const submitProposal = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
-    const { projectId } = req.body;
+    const { project_id, title, proposal_description } = req.body; 
+    
 
-    if (!projectId) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Project ID is required" });
+
+    if(!title || !proposal_description || !project_id) {
+      return res.status(400).json({
+        success: false,
+        error: "Title and proposal description are required"
+      });
     }
 
-    const id = await proposalModel.createProposal(studentId, projectId);
-    res.status(201).json({ success: true, proposalId: id });
+    const id = await proposalModel.createProposal(studentId, project_id, title, proposal_description);
+    res.status(201).json({ success: true, project_id: id });
   } catch (err) {
     next(err);
   }

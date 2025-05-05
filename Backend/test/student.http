@@ -1,0 +1,44 @@
+@baseUrl = http://localhost/api/studentS
+
+### Get all students
+GET {{baseUrl}}/1/progress-logs
+Content-Type: application/json
+
+{
+}
+
+###
+
+### Get a student by ID
+GET {{baseUrl}}/1
+Content-Type: application/json
+
+###
+
+### Create a new student
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "age": 22,
+    "email": "johndoe@example.com"
+}
+
+###
+
+### Update a student by ID
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+    "name": "Jane Doe",
+    "age": 23,
+    "email": "janedoe@example.com"
+}
+
+###
+
+### Delete a student by ID
+DELETE {{baseUrl}}/1
+Content-Type: application/json

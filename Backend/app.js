@@ -9,12 +9,19 @@ import { fileURLToPath } from "url";
 // Initialize dotenv
 dotenv.config();
 
-// Import routes
-import studentRoutes from "./routes/studentRoutes.js";
-
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Import database configuration
+import db from "./db.js";
+
+// Test database connection
+db.getConnection();
+
+// Import routes
+import studentRoutes from "./routes/studentRoutes.js";
+
 
 // Initialize app
 const app = express();
@@ -30,6 +37,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 app.use("/api/students", studentRoutes);
+
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
