@@ -1,38 +1,72 @@
 // app.js
-import "dotenv/config"; // 1️⃣ load .env variables
-import express from "express"; // 2️⃣ Express framework
-import morgan from "morgan"; // 3️⃣ HTTP request logger
-import cors from "cors"; // 4️⃣ enable CORS
+import dotenv from "dotenv"; // Load environment variables
+import express from "express";
+import morgan from "morgan"; // HTTP request logger
+import cors from "cors"; // Enable CORS
+import path from "path";
+import { fileURLToPath } from "url";
 
-// 5️⃣ route modules
+// Initialize dotenv
+dotenv.config();
+
+// Import routes
 import studentRoutes from "./routes/studentRoutes.js";
 
+// Get directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Initialize app
 const app = express();
 
-// 6️⃣ middleware
-app.use(morgan("dev")); // → logs each request to console
-app.use(cors()); // → allows cross-origin requests
-app.use(express.json()); // → parses JSON bodies
+// Middleware
+app.use(morgan("dev")); // Log HTTP requests
+app.use(cors()); // Enable CORS for all routes
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
 
-// 7️⃣ mount your student endpoints
-//    all routes in routes/studentRoutes.js will be prefixed with /students
-app.use("/students", studentRoutes);
+// Static files (if needed)
+app.use(express.static(path.join(__dirname, "public")));
 
-// 8️⃣ health‐check endpoint
-app.get("/", (req, res) => {
-  res.json({ message: "FYP Management API is up and running!" });
+// Routes
+app.use("/api/students", studentRoutes);
+
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    message: "FYP Management API is running",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// 9️⃣ global error handler
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    error: "Not Found",
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
+
+// Global error handler
 app.use((err, req, res, next) => {
+  console.error(`Error: ${err.message}`);
   console.error(err.stack);
-  res
-    .status(err.status || 500)
-    .json({ error: err.message || "Internal Server Error" });
+
+  res.status(err.status || 500).json({
+    success: false,
+    error: err.message || "Internal Server Error",
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
 });
 
-// 🔟 start the server
-const PORT = process.env.PORT || 3000;
+// Start server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
+  console.log(`🩺 Health check: http://localhost:${PORT}/api/health`);
 });
+
+export default app;
