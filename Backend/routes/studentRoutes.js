@@ -8,25 +8,9 @@ router.get("/:studentId/proposals", studentController.listProposals);
 
 router.post("/:studentId/proposals", studentController.submitProposal);
 
-router.put(
-  "/:studentId/proposals/:proposalId",
-  studentController.modifyProposal
-);
+router.put("/:studentId/proposals/:proposalId", studentController.updateProposal);
 
-router.get(
-  "/:studentId/approved-projects",
-  studentController.listApprovedProjects
-);
 
-router.post(
-  "/:studentId/approved-projects/:projectId",
-  studentController.selectApprovedProject
-);
 
-router.get("/:studentId/progress-logs", studentController.listProgressLogs);
-
-router.post("/:studentId/progress-logs", studentController.submitProgressLog);
-
-router.get("/:studentId/feedback", studentController.getStudentFeedback);
 
 export default router;

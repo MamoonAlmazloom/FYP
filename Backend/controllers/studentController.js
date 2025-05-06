@@ -1,8 +1,5 @@
 // controllers/studentController.js
 import proposalModel from "../models/proposalModel.js";
-import projectModel from "../models/projectModel.js";
-import progressModel from "../models/progressModel.js";
-import feedbackModel from "../models/feedbackModel.js";
 
 /**   
  * List all proposals for a student
@@ -23,18 +20,18 @@ const listProposals = async (req, res, next) => {
 const submitProposal = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
-    const { project_id, title, proposal_description } = req.body; 
+    const { title, proposal_description } = req.body; 
     
 
 
-    if(!title || !proposal_description || !project_id) {
+    if(!title || !proposal_description) {
       return res.status(400).json({
         success: false,
         error: "Title and proposal description are required"
       });
     }
 
-    const id = await proposalModel.createProposal(studentId, project_id, title, proposal_description);
+    const id = await proposalModel.createProposal(studentId , title, proposal_description);
     res.status(201).json({ success: true, project_id: id });
   } catch (err) {
     next(err);
@@ -42,133 +39,30 @@ const submitProposal = async (req, res, next) => {
 };
 
 /**
- * Modify an existing proposal
- */
-const modifyProposal = async (req, res, next) => {
-  try {
-    const { proposalId, studentId } = req.params;
-    const { projectId } = req.body;
-
-    if (!projectId) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Project ID is required" });
-    }
-
-    const updated = await proposalModel.updateProposal(proposalId, projectId);
-    if (!updated) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Proposal not found" });
-    }
-    res
-      .status(200)
-      .json({ success: true, message: "Proposal updated successfully" });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * List all approved projects
- */
-const listApprovedProjects = async (req, res, next) => {
-  try {
-    const projects = await projectModel.getApprovedProjects();
-    res.status(200).json({ success: true, projects });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * Select an approved project
- */
-const selectApprovedProject = async (req, res, next) => {
-  try {
+ * Update a proposal
+ */ const updateProposal = async (req, res, next) => {
+   try {
     const studentId = req.params.studentId;
-    const projectId = req.params.projectId;
+    const proposalId = req.params.proposalId;
+    const { title, proposal_description } = req.body; 
 
-    if (!projectId) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Project ID is required" });
-    }
-
-    const assignmentId = await projectModel.selectProject(studentId, projectId);
-    res.status(201).json({ success: true, assignmentId });
-  } catch (err) {
-    if (err.message === "Project not found") {
-      return res.status(404).json({ success: false, error: err.message });
-    }
-    next(err);
-  }
-};
-
-/**
- * List all progress logs for a student
- */
-const listProgressLogs = async (req, res, next) => {
-  try {
-    const studentId = req.params.studentId;
-    const logs = await progressModel.getProgressLogs(studentId);
-    res.status(200).json({ success: true, logs });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * Submit a new progress log
- */
-const submitProgressLog = async (req, res, next) => {
-  try {
-    const studentId = req.params.studentId;
-    const { projectId, submissionDate } = req.body;
-
-    if (!projectId || !submissionDate) {
+    if(!title || !proposal_description) {
       return res.status(400).json({
         success: false,
-        error: "Project ID and submission date are required",
+        error: "Title and proposal description are required"
       });
     }
 
-    const logId = await progressModel.createProgressLog(
-      studentId,
-      projectId,
-      submissionDate
-    );
-    res.status(201).json({ success: true, logId });
+    const id = await proposalModel.updateProposal(proposalId, title, proposal_description);
+    res.status(200).json({ success: true , project_id: id });
   } catch (err) {
-    if (
-      err.message === "Project is not assigned to this student or not approved"
-    ) {
-      return res.status(400).json({ success: false, error: err.message });
-    }
     next(err);
   }
-};
+}
 
-/**
- * Get feedback for a student
- */
-const getStudentFeedback = async (req, res, next) => {
-  try {
-    const studentId = req.params.studentId;
-    const feedback = await feedbackModel.getFeedbackForStudent(studentId);
-    res.status(200).json({ success: true, feedback });
-  } catch (err) {
-    next(err);
-  }
-};
 
 export default {
   listProposals,
   submitProposal,
-  modifyProposal,
-  listApprovedProjects,
-  selectApprovedProject,
-  listProgressLogs,
-  submitProgressLog,
-  getStudentFeedback,
+  updateProposal
 };
