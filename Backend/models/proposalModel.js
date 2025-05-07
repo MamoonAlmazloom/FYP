@@ -55,8 +55,8 @@ const createProposal = async (studentId, title, description) => {
 const updateProposal = async (proposalId, title, description) => {
   try {
     console.log("Updating proposal with ID:", proposalId);
-    console.log("New title:", title); 
-    
+    console.log("New title:", title);
+
     console.log("New description:", description);
     const [result] = await pool.query(
       `UPDATE Proposal

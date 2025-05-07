@@ -21,7 +21,10 @@ db.getConnection();
 
 // Import routes
 import studentRoutes from "./routes/studentRoutes.js";
-
+import supervisorRoutes from "./routes/supervisorRoutes.js";
+import moderatorRoutes from "./routes/moderatorRoutes.js";
+import managerRoutes from "./routes/managerRoutes.js";
+import examinerRoutes from "./routes/examinerRoutes.js";
 
 // Initialize app
 const app = express();
@@ -37,7 +40,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 app.use("/api/students", studentRoutes);
-
+app.use("/api/supervisors", supervisorRoutes);
+app.use("/api/moderators", moderatorRoutes);
+app.use("/api/managers", managerRoutes);
+app.use("/api/examiners", examinerRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
