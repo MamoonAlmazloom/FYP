@@ -2,6 +2,7 @@
 import supervisorModel from "../models/supervisorModel.js";
 import proposalModel from "../models/proposalModel.js";
 import studentModel from "../models/studentModel.js";
+import pool from "../db.js";
 
 /**
  * Get students under supervision
@@ -60,9 +61,6 @@ const getProposalDetails = async (req, res, next) => {
 /**
  * Submit proposal decision
  */
-/**
- * Submit proposal decision
- */
 const submitProposalDecision = async (req, res, next) => {
   try {
     const supervisorId = req.params.supervisorId;
@@ -73,6 +71,19 @@ const submitProposalDecision = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         error: "Invalid decision. Must be 'approve', 'reject', or 'modify'",
+      });
+    }
+
+    // Get the proposal to check if it exists and was submitted to this supervisor
+    const [proposalRows] = await pool.query(
+      `SELECT * FROM Proposal WHERE proposal_id = ? AND submitted_to = ?`,
+      [proposalId, supervisorId]
+    );
+
+    if (proposalRows.length === 0) {
+      return res.status(403).json({
+        success: false,
+        error: "You don't have permission to make decisions on this proposal",
       });
     }
 
@@ -88,16 +99,6 @@ const submitProposalDecision = async (req, res, next) => {
       case "modify":
         statusId = 1; // Pending (will be handled as "requires modification")
         break;
-    }
-
-    // Get the proposal to check if it exists
-    const proposal = await proposalModel.getProposalById(proposalId);
-
-    if (!proposal) {
-      return res.status(404).json({
-        success: false,
-        error: "Proposal not found",
-      });
     }
 
     // Update the proposal status
@@ -281,21 +282,32 @@ const getProjectDetails = async (req, res, next) => {
 const proposeProject = async (req, res, next) => {
   try {
     const supervisorId = req.params.supervisorId;
-    const { title, description } = req.body;
+    const { title, description, type, specialization, outcome } = req.body;
 
-    if (!title || !description) {
+    if (!title || !description || !type || !specialization || !outcome) {
       return res.status(400).json({
         success: false,
-        error: "Title and description are required",
+        error: "Title, description, type, specialization, and outcome are required",
       });
     }
 
-    const projectId = await supervisorModel.createProject(
+    // Validate type enum
+    if (!['Research', 'Application', 'Both'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: "Type must be one of: Research, Application, Both",
+      });
+    }
+
+    const proposalId = await supervisorModel.createProposal(
       supervisorId,
       title,
-      description
+      description,
+      type,
+      specialization,
+      outcome
     );
-    res.status(201).json({ success: true, project_id: projectId });
+    res.status(201).json({ success: true, proposal_id: proposalId });
   } catch (err) {
     next(err);
   }
@@ -334,12 +346,20 @@ const updateProposal = async (req, res, next) => {
   try {
     const supervisorId = req.params.supervisorId;
     const proposalId = req.params.proposalId;
-    const { title, description } = req.body;
+    const { title, description, type, specialization, outcome } = req.body;
 
-    if (!title || !description) {
+    if (!title || !description || !type || !specialization || !outcome) {
       return res.status(400).json({
         success: false,
-        error: "Title and description are required",
+        error: "Title, description, type, specialization, and outcome are required",
+      });
+    }
+
+    // Validate type enum
+    if (!['Research', 'Application', 'Both'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: "Type must be one of: Research, Application, Both",
       });
     }
 
@@ -356,7 +376,7 @@ const updateProposal = async (req, res, next) => {
       });
     }
 
-    await proposalModel.updateProposal(proposalId, title, description);
+    await proposalModel.updateProposal(proposalId, title, description, type, specialization, outcome);
     res
       .status(200)
       .json({ success: true, message: "Proposal updated successfully" });

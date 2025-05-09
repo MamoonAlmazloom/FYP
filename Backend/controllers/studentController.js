@@ -21,21 +21,33 @@ const listProposals = async (req, res, next) => {
 const submitProposal = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
-    const { title, proposal_description } = req.body;
+    const { title, description, type, specialization, outcome, submitted_to } = req.body;
 
-    if (!title || !proposal_description) {
+    if (!title || !description || !type || !specialization || !outcome || !submitted_to) {
       return res.status(400).json({
         success: false,
-        error: "Title and proposal description are required",
+        error: "Title, description, type, specialization, outcome, and submitted_to are required",
       });
     }
 
-    const id = await proposalModel.createProposal(
+    // Validate type enum
+    if (!['Research', 'Application', 'Both'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: "Type must be one of: Research, Application, Both",
+      });
+    }
+
+    const proposalId = await proposalModel.createProposal(
       studentId,
       title,
-      proposal_description
+      description,
+      type,
+      specialization,
+      outcome,
+      submitted_to
     );
-    res.status(201).json({ success: true, project_id: id });
+    res.status(201).json({ success: true, proposal_id: proposalId });
   } catch (err) {
     next(err);
   }
@@ -48,21 +60,59 @@ const updateProposal = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
     const proposalId = req.params.proposalId;
-    const { title, proposal_description } = req.body;
+    const { title, description, type, specialization, outcome } = req.body;
 
-    if (!title || !proposal_description) {
+    if (!title || !description || !type || !specialization || !outcome) {
       return res.status(400).json({
         success: false,
-        error: "Title and proposal description are required",
+        error: "Title, description, type, specialization, and outcome are required",
       });
     }
 
-    const id = await proposalModel.updateProposal(
+    // Validate type enum
+    if (!['Research', 'Application', 'Both'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: "Type must be one of: Research, Application, Both",
+      });
+    }
+
+    // Verify the proposal belongs to the student
+    const proposal = await proposalModel.getProposalById(proposalId);
+    if (!proposal) {
+      return res.status(404).json({
+        success: false,
+        error: "Proposal not found",
+      });
+    }
+
+    if (proposal.submitted_by !== parseInt(studentId)) {
+      return res.status(403).json({
+        success: false,
+        error: "You don't have permission to update this proposal",
+      });
+    }
+
+    const success = await proposalModel.updateProposal(
       proposalId,
       title,
-      proposal_description
+      description,
+      type,
+      specialization,
+      outcome
     );
-    res.status(200).json({ success: true, project_id: id });
+
+    if (success) {
+      res.status(200).json({ 
+        success: true, 
+        message: "Proposal updated successfully" 
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: "Failed to update proposal"
+      });
+    }
   } catch (err) {
     next(err);
   }
@@ -262,8 +312,7 @@ const getProposalStatus = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      status: proposal.status_name,
-      proposal,
+      proposal
     });
   } catch (err) {
     next(err);

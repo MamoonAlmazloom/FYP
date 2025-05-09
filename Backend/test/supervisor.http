@@ -26,7 +26,7 @@ Content-Type: application/json
 }
 
 ### Submit proposal decision - Reject
-POST {{baseUrl}}/1/proposal-decision/2
+POST {{baseUrl}}/1/proposal-decision/1
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 }
 
 ### Submit proposal decision - Request Modification
-POST {{baseUrl}}/1/proposal-decision/3
+POST {{baseUrl}}/1/proposal-decision/1
 Content-Type: application/json
 
 {
@@ -44,15 +44,15 @@ Content-Type: application/json
 }
 
 ### Get specific student details
-GET {{baseUrl}}/1/students/2
+GET {{baseUrl}}/1/students/1
 Content-Type: application/json
 
 ### Get student logs
-GET {{baseUrl}}/1/students/2/logs
+GET {{baseUrl}}/1/students/1/logs
 Content-Type: application/json
 
 ### Get student logs with date filter
-GET {{baseUrl}}/1/students/2/logs?startDate=2023-01-01&endDate=2023-12-31
+GET {{baseUrl}}/1/students/1/logs?startDate=2023-01-01&endDate=2023-12-31
 Content-Type: application/json
 
 ### Provide feedback on log
@@ -80,7 +80,7 @@ GET {{baseUrl}}/1/previous-projects
 Content-Type: application/json
 
 ### Get specific project details
-GET {{baseUrl}}/1/previous-projects/3
+GET {{baseUrl}}/1/previous-projects/1
 Content-Type: application/json
 
 ### Propose a new project
@@ -88,20 +88,25 @@ POST {{baseUrl}}/1/propose-project
 Content-Type: application/json
 
 {
-    "proposal_id": 222,
     "title": "AI-Based Medical Diagnosis System",
-    "description": "Develop an AI system to assist in medical diagnosis using machine learning techniques."
+    "description": "Develop an AI system to assist in medical diagnosis using machine learning techniques.",
+    "type": "Application",
+    "specialization": "Machine Learning",
+    "outcome": "A working AI system that can assist doctors in diagnosing medical conditions"
 }
 
 ### Get supervisor's proposal
-GET {{baseUrl}}/1/my-proposals/8
+GET {{baseUrl}}/1/my-proposals/2
 Content-Type: application/json
 
 ### Update proposal
-PUT {{baseUrl}}/1/my-proposals/1
+PUT {{baseUrl}}/1/my-proposals/2
 Content-Type: application/json
 
 {
-    "title": "Enhanced AI-Based Medical Diagnosis System",
-    "description": "Develop an AI system to assist in medical diagnosis using advanced machine learning and deep learning techniques with focus on respiratory diseases."
+    "title": "Your Title",
+    "description": "Your Description",
+    "type": "Research",
+    "specialization": "Your Specialization",
+    "outcome": "Your Expected Outcome"
 }

@@ -7,6 +7,7 @@ const router = express.Router();
 // Proposal routes
 router.get("/:studentId/proposals", studentController.listProposals);
 router.post("/:studentId/proposals", studentController.submitProposal);
+router.get("/:studentId/proposals/:proposalId", studentController.getProposalStatus);
 router.put(
   "/:studentId/proposals/:proposalId",
   studentController.updateProposal

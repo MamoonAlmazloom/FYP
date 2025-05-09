@@ -44,14 +44,7 @@ const getProposalsBySupervisor = async (supervisorId) => {
        FROM Proposal p
        JOIN Proposal_Status ps ON p.status_id = ps.status_id
        JOIN User u ON p.submitted_by = u.user_id
-       LEFT JOIN Supervisor_Project sp ON p.project_id = sp.project_id
-       WHERE sp.supervisor_id = ? OR p.submitted_by IN (
-         SELECT u.user_id
-         FROM User u
-         JOIN User_Roles ur ON u.user_id = ur.user_id
-         JOIN Role r ON ur.role_id = r.role_id
-         WHERE r.role_name = 'Student'
-       )
+       WHERE p.submitted_to = ?
        ORDER BY p.proposal_id DESC`,
       [supervisorId]
     );
@@ -351,11 +344,18 @@ const getSupervisorProposal = async (supervisorId, proposalId) => {
       `SELECT 
          p.proposal_id,
          p.project_id,
+         p.submitted_by,
+         p.submitted_to,
          p.title,
          p.proposal_description,
-         ps.status_name
+         p.type,
+         p.specialization,
+         p.outcome,
+         ps.status_name,
+         u.name as submitted_by_name
        FROM Proposal p
        JOIN Proposal_Status ps ON p.status_id = ps.status_id
+       LEFT JOIN User u ON p.submitted_by = u.user_id
        LEFT JOIN Supervisor_Project sp ON p.project_id = sp.project_id
        WHERE p.proposal_id = ?
          AND (
@@ -376,14 +376,37 @@ const getSupervisorProposal = async (supervisorId, proposalId) => {
  * @param {number} supervisorId - The ID of the supervisor
  * @param {string} title - The proposal title
  * @param {string} description - The proposal description
+ * @param {string} type - The proposal type
+ * @param {string} specialization - The proposal specialization
+ * @param {string} outcome - The proposal outcome
  * @returns {Promise<number>} - The ID of the created proposal
  */
-const createProposal = async (supervisorId, title, description) => {
+const createProposal = async (supervisorId, title, description, type, specialization, outcome) => {
   try {
     const [result] = await pool.query(
-      `INSERT INTO Proposal (project_id, submitted_by, status_id, title, proposal_description)
-       VALUES (NULL, ?, (SELECT status_id FROM Proposal_Status WHERE status_name='Pending'), ?, ?)`,
-      [supervisorId, title, description]
+      `INSERT INTO Proposal (
+        project_id,
+        submitted_by,
+        submitted_to,
+        status_id,
+        title,
+        proposal_description,
+        type,
+        specialization,
+        outcome
+      )
+      VALUES (
+        NULL,
+        ?,
+        NULL,
+        (SELECT status_id FROM Proposal_Status WHERE status_name='Pending'),
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+      )`,
+      [supervisorId, title, description, type, specialization, outcome]
     );
     return result.insertId;
   } catch (error) {

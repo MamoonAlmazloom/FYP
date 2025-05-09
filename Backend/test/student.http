@@ -1,4 +1,4 @@
-@baseUrl = http://localhost/api/studentS
+@baseUrl = http://localhost:5000/api/students
 
 ### Get all students
 GET {{baseUrl}}/1/progress-logs
@@ -13,32 +13,73 @@ Content-Type: application/json
 GET {{baseUrl}}/1
 Content-Type: application/json
 
-###
 
-### Create a new student
-POST {{baseUrl}}
+### Get student's proposals
+GET {{baseUrl}}/1/proposals
+Content-Type: application/json
+
+### Get specific proposal details
+GET {{baseUrl}}/1/proposals/1
+Content-Type: application/json
+
+### Submit a new proposal
+POST {{baseUrl}}/1/proposals
 Content-Type: application/json
 
 {
-    "name": "John Doe",
-    "age": 22,
-    "email": "johndoe@example.com"
+    "title": "AI-Based Medical Diagnosis System",
+    "description": "Develop an AI system to assist in medical diagnosis using machine learning techniques.",
+    "type": "Application",
+    "specialization": "Machine Learning",
+    "outcome": "A working AI system that can assist doctors in diagnosing medical conditions",
+    "submitted_to": 2
 }
 
-###
-
-### Update a student by ID
-PUT {{baseUrl}}/1
+### Update a proposal
+PUT {{baseUrl}}/1/proposals/1
 Content-Type: application/json
 
 {
-    "name": "Jane Doe",
-    "age": 23,
-    "email": "janedoe@example.com"
+    "title": "Enhanced AI-Based Medical Diagnosis System",
+    "description": "Develop an AI system to assist in medical diagnosis using advanced machine learning and deep learning techniques with focus on respiratory diseases.",
+    "type": "Application",
+    "specialization": "Deep Learning",
+    "outcome": "An advanced AI system that can assist doctors in diagnosing respiratory diseases"
 }
 
-###
-
-### Delete a student by ID
-DELETE {{baseUrl}}/1
+### Submit progress log
+POST {{baseUrl}}/1/progress-logs
 Content-Type: application/json
+
+{
+    "project_id": 1,
+    "details": "Completed the initial research phase and started implementing the basic ML model structure."
+}
+
+### Get progress logs
+GET {{baseUrl}}/1/progress-logs
+Content-Type: application/json
+
+### Get progress logs with date filter
+GET {{baseUrl}}/1/progress-logs?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+
+### Submit progress report
+POST {{baseUrl}}/1/progress-reports
+Content-Type: application/json
+
+{
+    "project_id": 1,
+    "title": "Initial Implementation Report",
+    "details": "Completed the basic implementation of the ML model and started testing phase."
+}
+
+### Get progress reports
+GET {{baseUrl}}/1/progress-reports
+Content-Type: application/json
+
+### Get progress reports with date filter
+GET {{baseUrl}}/1/progress-reports?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+
+
