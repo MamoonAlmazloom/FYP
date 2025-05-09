@@ -1,0 +1,107 @@
+@baseUrl = http://localhost:5000/api/supervisors
+
+### Get students enrolled under supervisor
+GET {{baseUrl}}/1/students
+Content-Type: application/json
+
+### Get students with active filter
+GET {{baseUrl}}/1/students?active=true
+Content-Type: application/json
+
+### Get all proposed titles for review
+GET {{baseUrl}}/1/proposals
+Content-Type: application/json
+
+### Get specific proposal details
+GET {{baseUrl}}/1/proposals/1
+Content-Type: application/json
+
+### Submit proposal decision - Approve
+POST {{baseUrl}}/1/proposal-decision/1
+Content-Type: application/json
+
+{
+    "decision": "approve",
+    "comments": "Proposal is well structured and aligns with department goals."
+}
+
+### Submit proposal decision - Reject
+POST {{baseUrl}}/1/proposal-decision/2
+Content-Type: application/json
+
+{
+    "decision": "reject",
+    "comments": "The scope is too broad for a final year project."
+}
+
+### Submit proposal decision - Request Modification
+POST {{baseUrl}}/1/proposal-decision/3
+Content-Type: application/json
+
+{
+    "decision": "modify",
+    "comments": "Please narrow down your research objectives and add more details on methodology."
+}
+
+### Get specific student details
+GET {{baseUrl}}/1/students/2
+Content-Type: application/json
+
+### Get student logs
+GET {{baseUrl}}/1/students/2/logs
+Content-Type: application/json
+
+### Get student logs with date filter
+GET {{baseUrl}}/1/students/2/logs?startDate=2023-01-01&endDate=2023-12-31
+Content-Type: application/json
+
+### Provide feedback on log
+POST {{baseUrl}}/1/feedback/log/1
+Content-Type: application/json
+
+{
+    "comments": "Good progress, but please be more specific about implementation challenges."
+}
+
+### Get student reports
+GET {{baseUrl}}/1/students/1/reports
+Content-Type: application/json
+
+### Provide feedback on report
+POST {{baseUrl}}/1/feedback/report/1
+Content-Type: application/json
+
+{
+    "comments": "Well-written report. Consider adding more details about testing methodology."
+}
+
+### View previous projects archive
+GET {{baseUrl}}/1/previous-projects
+Content-Type: application/json
+
+### Get specific project details
+GET {{baseUrl}}/1/previous-projects/3
+Content-Type: application/json
+
+### Propose a new project
+POST {{baseUrl}}/1/propose-project
+Content-Type: application/json
+
+{
+    "proposal_id": 222,
+    "title": "AI-Based Medical Diagnosis System",
+    "description": "Develop an AI system to assist in medical diagnosis using machine learning techniques."
+}
+
+### Get supervisor's proposal
+GET {{baseUrl}}/1/my-proposals/8
+Content-Type: application/json
+
+### Update proposal
+PUT {{baseUrl}}/1/my-proposals/1
+Content-Type: application/json
+
+{
+    "title": "Enhanced AI-Based Medical Diagnosis System",
+    "description": "Develop an AI system to assist in medical diagnosis using advanced machine learning and deep learning techniques with focus on respiratory diseases."
+}

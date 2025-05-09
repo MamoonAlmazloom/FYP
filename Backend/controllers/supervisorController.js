@@ -1,0 +1,383 @@
+// controllers/supervisorController.js
+import supervisorModel from "../models/supervisorModel.js";
+import proposalModel from "../models/proposalModel.js";
+import studentModel from "../models/studentModel.js";
+
+/**
+ * Get students under supervision
+ */
+const getStudents = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const activeOnly = req.query.active === "true";
+
+    const students = await supervisorModel.getStudentsBySupervisor(
+      supervisorId,
+      activeOnly
+    );
+    res.status(200).json({ success: true, students });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * View project proposals
+ */
+const viewProjectProposals = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const proposals = await supervisorModel.getProposalsBySupervisor(
+      supervisorId
+    );
+    res.status(200).json({ success: true, proposals });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get proposal details
+ */
+const getProposalDetails = async (req, res, next) => {
+  try {
+    const proposalId = req.params.proposalId;
+    const proposal = await proposalModel.getProposalById(proposalId);
+
+    if (!proposal) {
+      return res.status(404).json({
+        success: false,
+        error: "Proposal not found",
+      });
+    }
+
+    res.status(200).json({ success: true, proposal });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Submit proposal decision
+ */
+/**
+ * Submit proposal decision
+ */
+const submitProposalDecision = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const proposalId = req.params.proposalId;
+    const { decision, comments } = req.body;
+
+    if (!["approve", "reject", "modify"].includes(decision)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid decision. Must be 'approve', 'reject', or 'modify'",
+      });
+    }
+
+    // Map decision to status id
+    let statusId;
+    switch (decision) {
+      case "approve":
+        statusId = 2; // Approved
+        break;
+      case "reject":
+        statusId = 3; // Rejected
+        break;
+      case "modify":
+        statusId = 1; // Pending (will be handled as "requires modification")
+        break;
+    }
+
+    // Get the proposal to check if it exists
+    const proposal = await proposalModel.getProposalById(proposalId);
+
+    if (!proposal) {
+      return res.status(404).json({
+        success: false,
+        error: "Proposal not found",
+      });
+    }
+
+    // Update the proposal status
+    await proposalModel.updateProposalStatus(proposalId, statusId);
+
+    // Add feedback if comments are provided
+    if (comments) {
+      await supervisorModel.provideFeedback(proposalId, supervisorId, comments);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Proposal ${
+        decision === "modify" ? "sent back for modification" : decision + "d"
+      } successfully`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get student details
+ */
+const getStudentDetails = async (req, res, next) => {
+  try {
+    const studentId = req.params.studentId;
+    const student = await studentModel.getStudentById(studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: "Student not found",
+      });
+    }
+
+    // Get student's project
+    const projects = await supervisorModel.getStudentProjects(studentId);
+
+    res.status(200).json({
+      success: true,
+      student,
+      projects,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get student logs
+ */
+const getStudentLogs = async (req, res, next) => {
+  try {
+    const studentId = req.params.studentId;
+    const { startDate, endDate } = req.query;
+
+    const logs = await supervisorModel.getStudentLogs(
+      studentId,
+      startDate,
+      endDate
+    );
+    res.status(200).json({ success: true, logs });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Provide feedback on logs
+ */
+const provideFeedbackOnLog = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const logId = req.params.logId;
+    const { comments } = req.body;
+
+    if (!comments) {
+      return res.status(400).json({
+        success: false,
+        error: "Feedback comments are required",
+      });
+    }
+
+    await supervisorModel.provideFeedbackOnLog(logId, supervisorId, comments);
+    res.status(200).json({
+      success: true,
+      message: "Feedback provided successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get student reports
+ */
+const getStudentReports = async (req, res, next) => {
+  try {
+    const studentId = req.params.studentId;
+    const { startDate, endDate } = req.query;
+
+    const reports = await supervisorModel.getStudentReports(
+      studentId,
+      startDate,
+      endDate
+    );
+    res.status(200).json({ success: true, reports });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Provide feedback on reports
+ */
+const provideFeedbackOnReport = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const reportId = req.params.reportId;
+    const { comments } = req.body;
+
+    if (!comments) {
+      return res.status(400).json({
+        success: false,
+        error: "Feedback comments are required",
+      });
+    }
+
+    await supervisorModel.provideFeedbackOnReport(
+      reportId,
+      supervisorId,
+      comments
+    );
+    res.status(200).json({
+      success: true,
+      message: "Feedback provided successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get previous projects archive
+ */
+const getPreviousProjects = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const projects = await supervisorModel.getPreviousProjects(supervisorId);
+    res.status(200).json({ success: true, projects });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get project details
+ */
+const getProjectDetails = async (req, res, next) => {
+  try {
+    const projectId = req.params.projectId;
+    const project = await supervisorModel.getProjectById(projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        error: "Project not found",
+      });
+    }
+
+    res.status(200).json({ success: true, project });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Propose a new project
+ */
+const proposeProject = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({
+        success: false,
+        error: "Title and description are required",
+      });
+    }
+
+    const projectId = await supervisorModel.createProject(
+      supervisorId,
+      title,
+      description
+    );
+    res.status(201).json({ success: true, project_id: projectId });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get supervisor's proposal
+ */
+const getSupervisorProposal = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const proposalId = req.params.proposalId;
+
+    const proposal = await supervisorModel.getSupervisorProposal(
+      supervisorId,
+      proposalId
+    );
+
+    if (!proposal) {
+      return res.status(404).json({
+        success: false,
+        error: "Proposal not found",
+      });
+    }
+
+    res.status(200).json({ success: true, proposal });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Update proposal
+ */
+const updateProposal = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const proposalId = req.params.proposalId;
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({
+        success: false,
+        error: "Title and description are required",
+      });
+    }
+
+    // Verify the proposal belongs to the supervisor
+    const proposal = await supervisorModel.getSupervisorProposal(
+      supervisorId,
+      proposalId
+    );
+
+    if (!proposal) {
+      return res.status(403).json({
+        success: false,
+        error: "You don't have permission to update this proposal",
+      });
+    }
+
+    await proposalModel.updateProposal(proposalId, title, description);
+    res
+      .status(200)
+      .json({ success: true, message: "Proposal updated successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default {
+  getStudents,
+  viewProjectProposals,
+  getProposalDetails,
+  submitProposalDecision,
+  getStudentDetails,
+  getStudentLogs,
+  provideFeedbackOnLog,
+  getStudentReports,
+  provideFeedbackOnReport,
+  getPreviousProjects,
+  getProjectDetails,
+  proposeProject,
+  getSupervisorProposal,
+  updateProposal,
+};

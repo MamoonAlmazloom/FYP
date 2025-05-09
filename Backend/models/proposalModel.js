@@ -94,10 +94,32 @@ const getProposalById = async (proposalId) => {
     throw error;
   }
 };
+/**
+ * Update only the status of a proposal
+ * @param {number} proposalId
+ * @param {number} statusId
+ * @returns {Promise<boolean>}
+ */
+const updateProposalStatus = async (proposalId, statusId) => {
+  try {
+    const [result] = await pool.query(
+      `UPDATE Proposal
+         SET status_id = ?
+       WHERE proposal_id = ?`,
+      [statusId, proposalId]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("Error in updateProposalStatus:", error);
+    throw error;
+  }
+};
+
 
 export default {
   getProposalsByStudent,
   createProposal,
   updateProposal,
   getProposalById,
+  updateProposalStatus,
 };
