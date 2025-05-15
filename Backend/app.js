@@ -16,6 +16,14 @@ const __dirname = path.dirname(__filename);
 // Import database configuration
 import db from "./db.js";
 
+// Import auth model to initialize admin
+import authModel from "./models/authModel.js";
+
+// Initialize admin user
+authModel.initializeAdmin()
+  .then(() => console.log("Admin initialization attempted"))
+  .catch(err => console.error("Error during admin initialization:", err));
+
 // Test database connection
 db.getConnection();
 
@@ -25,6 +33,7 @@ import supervisorRoutes from "./routes/supervisorRoutes.js";
 import moderatorRoutes from "./routes/moderatorRoutes.js";
 import managerRoutes from "./routes/managerRoutes.js";
 import examinerRoutes from "./routes/examinerRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // Initialize app
 const app = express();
@@ -39,6 +48,7 @@ app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/supervisors", supervisorRoutes);
 app.use("/api/moderators", moderatorRoutes);

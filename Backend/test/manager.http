@@ -1,0 +1,165 @@
+@baseUrl = http://localhost:5000/api
+@managerId = 6
+
+### Login as Admin (Manager)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin"
+}
+
+### Store the auth token from login response
+@authToken = {{login.response.body.token}}
+
+### Get All Users
+GET {{baseUrl}}/managers/{{managerId}}/users
+Authorization: Bearer {{authToken}}
+
+### Get All Roles
+GET {{baseUrl}}/managers/{{managerId}}/roles
+Authorization: Bearer {{authToken}}
+
+### Register a New User - Student
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "John wick",
+  "email": "john.wick@example.com",
+  "password": "password123",
+  "roles": ["Student"]
+}
+
+### Register a New User - Supervisor
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Dr. Sarah Johnson",
+  "email": "sarah.johnson@example.com",
+  "password": "password123",
+  "roles": ["Supervisor"]
+}
+
+### Register a New User - Examiner
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Prof. Robert Brown",
+  "email": "robert.brown@example.com",
+  "password": "password123",
+  "roles": ["Examiner"]
+}
+
+### Register a New User - Moderator
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Dr. Emily Carter",
+  "email": "emily.carter@example.com",
+  "password": "password123",
+  "roles": ["Moderator"]
+}
+
+### Register a New User with Multiple Roles
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Alex Wilson",
+  "email": "alex.wilson@example.com",
+  "password": "password123",
+  "roles": ["Supervisor", "Examiner"]
+}
+
+### Update User Eligibility - Set Inactive
+PUT {{baseUrl}}/managers/{{managerId}}/user-eligibility/2
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": false
+}
+
+### Update User Eligibility - Set Active
+PUT {{baseUrl}}/managers/{{managerId}}/user-eligibility/2
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": true
+}
+
+### Get Approved Projects
+GET {{baseUrl}}/managers/{{managerId}}/approved-projects
+Authorization: Bearer {{authToken}}
+
+### Get All Examiners
+GET {{baseUrl}}/managers/{{managerId}}/examiners
+Authorization: Bearer {{authToken}}
+
+### Assign Examiner to Project
+# Note: You'll need valid project_id and examiner_id values from your database
+POST {{baseUrl}}/managers/{{managerId}}/assign-examiner
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "project_id": 1,
+  "examiner_id": 1
+}
+
+### Get Student Logs
+# Note: Replace 2 with an actual student_id from your database
+GET {{baseUrl}}/managers/{{managerId}}/student-logs/1
+Authorization: Bearer {{authToken}}
+
+### Register a user with invalid role (should fail)
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test.user@example.com",
+  "password": "password123",
+  "roles": ["InvalidRole"]
+}
+
+### Try to access without token (should fail with 401)
+GET {{baseUrl}}/managers/{{managerId}}/users
+
+### Try to access with invalid token (should fail with 401)
+GET {{baseUrl}}/managers/{{managerId}}/users
+Authorization: Bearer invalid_token_here
+
+### Login with incorrect credentials (should fail with 401)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "wrongpassword"
+}
+
+### Register a User with Duplicate Email (should fail with 409)
+POST {{baseUrl}}/managers/{{managerId}}/register-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Duplicate User",
+  "email": "admin@gmail.com",
+  "password": "password123",
+  "roles": ["Student"]
+}

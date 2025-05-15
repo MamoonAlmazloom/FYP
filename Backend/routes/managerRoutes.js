@@ -1,13 +1,19 @@
 // routes/managerRoutes.js
 import express from "express";
+import managerController from "../controllers/managerController.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// TODO: Import the manager controller
-// import managerController from "../controllers/managerController.js";
+// Apply auth middleware to all manager routes
+router.use(auth.verifyToken, auth.hasRole("Manager"));
 
-// Placeholder routes for manager functionality
+// Get all users (new route for the requirement)
+router.get("/:managerId/users", managerController.getUsers);
+
+// Your existing routes
 router.get("/:managerId/students", (req, res) => {
+  // Your existing implementation or call managerController.getStudents
   res.status(200).json({
     success: true,
     message: "This endpoint will list all students for eligibility management",
@@ -15,52 +21,16 @@ router.get("/:managerId/students", (req, res) => {
   });
 });
 
-router.put("/:managerId/user-eligibility/:userId", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "This endpoint will update user eligibility status",
-    manager_id: req.params.managerId,
-    user_id: req.params.userId,
-    status: req.body.status,
-  });
-});
+router.put("/:managerId/user-eligibility/:userId", managerController.updateUserEligibility);
+router.post("/:managerId/register-user", managerController.registerUser);
+router.post("/:managerId/assign-examiner", managerController.assignExaminer);
+router.get("/:managerId/approved-projects", managerController.getApprovedProjects);
+router.get("/:managerId/student-logs/:studentId", managerController.getStudentLogs);
 
-router.post("/:managerId/register-user", (req, res) => {
-  res.status(201).json({
-    success: true,
-    message: "This endpoint will register a new user",
-    manager_id: req.params.managerId,
-    name: req.body.name,
-    email: req.body.email,
-    role: req.body.role,
-  });
-});
+// Get all roles
+router.get("/:managerId/roles", managerController.getRoles);
 
-router.post("/:managerId/assign-examiner", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "This endpoint will assign an examiner to a project",
-    manager_id: req.params.managerId,
-    examiner_id: req.body.examiner_id,
-    project_id: req.body.project_id,
-  });
-});
-
-router.get("/:managerId/approved-projects", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "This endpoint will list all approved projects",
-    manager_id: req.params.managerId,
-  });
-});
-
-router.get("/:managerId/student-logs/:studentId", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "This endpoint will list all logs for a specific student",
-    manager_id: req.params.managerId,
-    student_id: req.params.studentId,
-  });
-});
+// Get all examiners
+router.get("/:managerId/examiners", managerController.getExaminers);
 
 export default router;

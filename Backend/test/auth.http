@@ -1,0 +1,99 @@
+@baseUrl = http://localhost:5000/api
+
+### Login as Admin (Manager)
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin"
+}
+
+### Store the auth token and admin ID from login response
+@adminToken = {{adminLogin.response.body.token}}
+@adminId = {{adminLogin.response.body.user.id}}
+
+### Register a Student user (using admin token)
+# @name registerStudent
+POST {{baseUrl}}/managers/{{adminId}}/register-user
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "John Student",
+  "email": "john.student@example.com",
+  "password": "student123",
+  "roles": ["Student"]
+}
+
+### Register a Supervisor
+# @name registerSupervisor
+POST {{baseUrl}}/managers/{{adminId}}/register-user
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dr. Smith",
+  "email": "dr.smith@example.com",
+  "password": "supervisor123",
+  "roles": ["Supervisor"]
+}
+
+### Login as Student
+# @name studentLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.student@example.com",
+  "password": "student123"
+}
+
+### Store the student token
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Login as Supervisor
+# @name supervisorLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "dr.smith@example.com",
+  "password": "supervisor123"
+}
+
+### Store the supervisor token
+@supervisorToken = {{supervisorLogin.response.body.token}}
+@supervisorId = {{supervisorLogin.response.body.user.id}}
+
+### Test failed login with wrong email
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "anypassword"
+}
+
+### Test failed login with wrong password
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "wrongpassword"
+}
+
+### Test accessing manager route with student token (should fail)
+GET {{baseUrl}}/managers/{{adminId}}/users
+Authorization: Bearer {{studentToken}}
+
+### Test accessing manager route with supervisor token (should fail)
+GET {{baseUrl}}/managers/{{adminId}}/users
+Authorization: Bearer {{supervisorToken}}
+
+### Test accessing manager route with admin token (should succeed)
+GET {{baseUrl}}/managers/{{adminId}}/users
+Authorization: Bearer {{adminToken}}
