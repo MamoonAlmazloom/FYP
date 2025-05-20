@@ -120,6 +120,17 @@ const assignExaminer = async (req, res, next) => {
       assignmentId,
     });
   } catch (err) {
+    if (err.message && err.message.includes("Only projects with approved proposals")) {
+      return res.status(400).json({
+        success: false,
+        error: err.message,
+      });
+    } else if (err.message && err.message.includes("already assigned")) {
+      return res.status(409).json({
+        success: false,
+        error: err.message,
+      });
+    }
     next(err);
   }
 };

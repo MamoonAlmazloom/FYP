@@ -1,0 +1,124 @@
+@baseUrl = http://localhost:5000/api
+@studentsUrl = {{baseUrl}}/students
+@supervisorsUrl = {{baseUrl}}/supervisors
+@moderatorsUrl = {{baseUrl}}/moderators
+@authUrl = {{baseUrl}}/auth
+
+#####################################################################
+### COMPREHENSIVE TEST CASE: PROPOSAL SUBMISSION AND REVIEW FLOW ###
+#####################################################################
+
+### Step 1: Login as Student
+# @name studentLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nabil@example.com",
+  "password": "password123"
+}
+
+### Step 2: Store the student token and ID
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Step 3: Student submits a new proposal specifying a supervisor
+# @name submitProposal
+POST {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+  "title": "nabil new proposal",
+  "description": "This project aims to develop an advanced machine learning system for analyzing medical images, particularly MRI and CT scans, to assist in early detection of abnormalities.",
+  "type": "Application",
+  "specialization": "Machine Learning, Medical Imaging",
+  "outcome": "A working prototype that can analyze medical images and highlight potential areas of concern for medical professionals to review",
+  "submitted_to": "8"
+}
+
+### Step 4: Store the new proposal ID
+@proposalId = {{submitProposal.response.body.proposal.proposal_id}}
+
+### Step 5: Student checks the status of their proposal
+GET {{studentsUrl}}/{{studentId}}/proposals/20
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 6: Login as the Supervisor
+# @name supervisorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "sarah.johnson@example.com",
+  "password": "password123"
+}
+
+### Step 7: Store the supervisor token and ID
+@supervisorToken = {{supervisorLogin.response.body.token}}
+@supervisorId = {{supervisorLogin.response.body.user.id}}
+
+### Step 8: Supervisor checks proposals submitted to them
+GET {{supervisorsUrl}}/{{supervisorId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{supervisorToken}}
+
+### Step 9: Supervisor reviews the specific proposal
+GET {{supervisorsUrl}}/{{supervisorId}}/proposals/20
+Content-Type: application/json
+Authorization: Bearer {{supervisorToken}}
+
+### Step 10: Supervisor approves the proposal
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/20
+Content-Type: application/json
+Authorization: Bearer {{supervisorToken}}
+
+{
+  "decision": "approve",
+  "comments": "This proposal is well-structured and feasible. The project aligns well with our department's research interests."
+}
+
+### Step 11: Student checks the updated status (should be "Supervisor_Approved")
+GET {{studentsUrl}}/{{studentId}}/proposals/21
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 12: Login as Moderator
+# @name moderatorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "emily.carter@example.com",
+  "password": "password123"
+}
+
+### Step 13: Store the moderator token and ID
+@moderatorToken = {{moderatorLogin.response.body.token}}
+@moderatorId = {{moderatorLogin.response.body.user.id}}
+
+### Step 14: Moderator checks pending proposals
+GET {{moderatorsUrl}}/{{moderatorId}}/pending-proposals
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}
+
+### Step 15: Moderator approves the proposal
+POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/20
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}
+
+{
+  "decision": "approve",
+  "comments": "Approved. This project meets all departmental criteria and has been appropriately scoped."
+}
+
+### Step 16: Student checks the final status (should be "Approved")
+GET {{studentsUrl}}/{{studentId}}/proposals/20
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 17: Student checks if a project has been created
+GET {{studentsUrl}}/{{studentId}}/projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}

@@ -1,23 +1,28 @@
-@baseUrl = http://localhost:5000/api/supervisors
+@baseUrl = http://localhost:5000/api
+@supervisorsUrl = {{baseUrl}}/supervisors
+@authUrl = {{baseUrl}}/auth
 
 ### Get students enrolled under supervisor
-GET {{baseUrl}}/1/students
+GET {{supervisorsUrl}}/8/students
 Content-Type: application/json
 
 ### Get students with active filter
-GET {{baseUrl}}/1/students?active=true
+GET {{supervisorsUrl}}/1/students?active=true
 Content-Type: application/json
 
+
+
+##TODO its not working
 ### Get all proposed titles for review
-GET {{baseUrl}}/1/proposals
+GET {{supervisorsUrl}}/1/proposals
 Content-Type: application/json
 
 ### Get specific proposal details
-GET {{baseUrl}}/1/proposals/1
+GET {{supervisorsUrl}}/1/proposals/23
 Content-Type: application/json
 
 ### Submit proposal decision - Approve
-POST {{baseUrl}}/1/proposal-decision/1
+POST {{supervisorsUrl}}/1/proposal-decision/1
 Content-Type: application/json
 
 {
@@ -26,7 +31,7 @@ Content-Type: application/json
 }
 
 ### Submit proposal decision - Reject
-POST {{baseUrl}}/1/proposal-decision/1
+POST {{supervisorsUrl}}/1/proposal-decision/1
 Content-Type: application/json
 
 {
@@ -35,7 +40,7 @@ Content-Type: application/json
 }
 
 ### Submit proposal decision - Request Modification
-POST {{baseUrl}}/1/proposal-decision/1
+POST {{supervisorsUrl}}/1/proposal-decision/1
 Content-Type: application/json
 
 {
@@ -44,19 +49,19 @@ Content-Type: application/json
 }
 
 ### Get specific student details
-GET {{baseUrl}}/1/students/1
+GET {{supervisorsUrl}}/1/students/1
 Content-Type: application/json
 
 ### Get student logs
-GET {{baseUrl}}/1/students/1/logs
+GET {{supervisorsUrl}}/1/students/1/logs
 Content-Type: application/json
 
 ### Get student logs with date filter
-GET {{baseUrl}}/1/students/1/logs?startDate=2023-01-01&endDate=2023-12-31
+GET {{supervisorsUrl}}/1/students/1/logs?startDate=2023-01-01&endDate=2023-12-31
 Content-Type: application/json
 
 ### Provide feedback on log
-POST {{baseUrl}}/1/feedback/log/1
+POST {{supervisorsUrl}}/1/feedback/log/1
 Content-Type: application/json
 
 {
@@ -64,11 +69,11 @@ Content-Type: application/json
 }
 
 ### Get student reports
-GET {{baseUrl}}/1/students/1/reports
+GET {{supervisorsUrl}}/1/students/1/reports
 Content-Type: application/json
 
 ### Provide feedback on report
-POST {{baseUrl}}/1/feedback/report/1
+POST {{supervisorsUrl}}/1/feedback/report/1
 Content-Type: application/json
 
 {
@@ -76,15 +81,15 @@ Content-Type: application/json
 }
 
 ### View previous projects archive
-GET {{baseUrl}}/1/previous-projects
+GET {{supervisorsUrl}}/1/previous-projects
 Content-Type: application/json
 
 ### Get specific project details
-GET {{baseUrl}}/1/previous-projects/1
+GET {{supervisorsUrl}}/1/previous-projects/1
 Content-Type: application/json
 
 ### Propose a new project
-POST {{baseUrl}}/1/propose-project
+POST {{supervisorsUrl}}/1/propose-project
 Content-Type: application/json
 
 {
@@ -96,11 +101,11 @@ Content-Type: application/json
 }
 
 ### Get supervisor's proposal
-GET {{baseUrl}}/1/my-proposals/2
+GET {{supervisorsUrl}}/1/my-proposals/2
 Content-Type: application/json
 
 ### Update proposal
-PUT {{baseUrl}}/1/my-proposals/2
+PUT {{supervisorsUrl}}/1/my-proposals/2
 Content-Type: application/json
 
 {
@@ -109,4 +114,52 @@ Content-Type: application/json
     "type": "Research",
     "specialization": "Your Specialization",
     "outcome": "Your Expected Outcome"
+}
+
+
+
+
+
+### Login as Supervisor
+# @name supervisorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "sarah.johnson@example.com",
+  "password": "password123"
+}
+
+### Store the supervisor token
+@supervisorToken = {{supervisorLogin.response.body.token}}
+@supervisorId = {{supervisorLogin.response.body.user.id}}
+
+### Review Student Proposal (Approve)
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/3
+Authorization: Bearer {{supervisorToken}}
+Content-Type: application/json
+
+{
+  "decision": "approve",
+  "comments": "This proposal is well-structured and feasible. Approved."
+}
+
+### Review Student Proposal (Reject)
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/2
+Authorization: Bearer {{supervisorToken}}
+Content-Type: application/json
+
+{
+  "decision": "reject",
+  "comments": "The scope is too broad and not feasible within the timeframe."
+}
+
+### Review Student Proposal (Request Modifications)
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/21
+Authorization: Bearer {{supervisorToken}}
+Content-Type: application/json
+
+{
+  "decision": "modify",
+  "comments": "The proposal is promising but needs more detail in the methodology section."
 }

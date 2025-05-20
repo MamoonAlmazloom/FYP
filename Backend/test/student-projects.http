@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:5000/api
+@studentsUrl = {{baseUrl}}/students
+@supervisorsUrl = {{baseUrl}}/supervisors
+@moderatorsUrl = {{baseUrl}}/moderators
+@authUrl = {{baseUrl}}/auth
+
+### Login as Student
+# @name studentLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "john.wick@example.com",
+  "password": "password123"
+}
+
+### Store student token and ID
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Get Student Projects
+# This endpoint retrieves all projects that belong to the student
+# Projects are those with approved proposals submitted by this student
+GET {{studentsUrl}}/{{studentId}}/projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Get Available Projects
+# This endpoint retrieves all projects available for selection
+GET {{studentsUrl}}/{{studentId}}/available-projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Get Student's Proposals
+# This endpoint retrieves all proposals submitted by the student
+GET {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}

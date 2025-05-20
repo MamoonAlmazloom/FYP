@@ -287,12 +287,13 @@ const proposeProject = async (req, res, next) => {
     if (!title || !description || !type || !specialization || !outcome) {
       return res.status(400).json({
         success: false,
-        error: "Title, description, type, specialization, and outcome are required",
+        error:
+          "Title, description, type, specialization, and outcome are required",
       });
     }
 
     // Validate type enum
-    if (!['Research', 'Application', 'Both'].includes(type)) {
+    if (!["Research", "Application", "Both"].includes(type)) {
       return res.status(400).json({
         success: false,
         error: "Type must be one of: Research, Application, Both",
@@ -351,12 +352,13 @@ const updateProposal = async (req, res, next) => {
     if (!title || !description || !type || !specialization || !outcome) {
       return res.status(400).json({
         success: false,
-        error: "Title, description, type, specialization, and outcome are required",
+        error:
+          "Title, description, type, specialization, and outcome are required",
       });
     }
 
     // Validate type enum
-    if (!['Research', 'Application', 'Both'].includes(type)) {
+    if (!["Research", "Application", "Both"].includes(type)) {
       return res.status(400).json({
         success: false,
         error: "Type must be one of: Research, Application, Both",
@@ -376,10 +378,93 @@ const updateProposal = async (req, res, next) => {
       });
     }
 
-    await proposalModel.updateProposal(proposalId, title, description, type, specialization, outcome);
+    await proposalModel.updateProposal(
+      proposalId,
+      title,
+      description,
+      type,
+      specialization,
+      outcome
+    );
     res
       .status(200)
       .json({ success: true, message: "Proposal updated successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Review student proposal
+ */
+const reviewStudentProposal = async (req, res, next) => {
+  try {
+    const supervisorId = parseInt(req.params.supervisorId);
+    const proposalId = parseInt(req.params.proposalId);
+    const { decision, comments } = req.body;
+
+    if (!["approve", "reject", "modify"].includes(decision)) {
+      return res.status(400).json({
+        success: false,
+        error: "Decision must be 'approve', 'reject', or 'modify'",
+      });
+    } // Get proposal details
+    const proposal = await proposalModel.getProposalWithStatus(proposalId);
+
+    if (!proposal) {
+      return res.status(404).json({
+        success: false,
+        error: "Proposal not found",
+      });
+    }
+
+    // Check if this supervisor is the assigned reviewer
+    if (parseInt(proposal.submitted_to) !== supervisorId) {
+      return res.status(403).json({
+        success: false,
+        error: "You are not authorized to review this proposal",
+      });
+    }
+
+    // Update status based on decision
+    let statusName;
+    switch (decision) {
+      case "approve":
+        statusName = "Supervisor_Approved";
+        break;
+      case "reject":
+        statusName = "Supervisor_Rejected";
+        break;
+      case "modify":
+        statusName = "Modifications_Required";
+        break;
+    }
+
+    await proposalModel.updateProposalStatus(proposalId, statusName);
+
+    // Add feedback if provided
+    if (comments) {
+      await supervisorModel.provideFeedback(proposalId, supervisorId, comments);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Proposal ${
+        decision === "modify" ? "sent back for modification" : decision + "d"
+      } successfully`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get all supervisors
+ */
+const getAllSupervisors = async (req, res, next) => {
+  try {
+    const supervisors = await supervisorModel.getAllSupervisors();
+    res.status(200).json({ success: true, supervisors });
   } catch (err) {
     next(err);
   }
@@ -400,4 +485,6 @@ export default {
   proposeProject,
   getSupervisorProposal,
   updateProposal,
+  reviewStudentProposal,
+  getAllSupervisors,
 };

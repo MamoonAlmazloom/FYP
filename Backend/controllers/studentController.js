@@ -21,17 +21,26 @@ const listProposals = async (req, res, next) => {
 const submitProposal = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
-    const { title, description, type, specialization, outcome, submitted_to } = req.body;
+    const { title, description, type, specialization, outcome, submitted_to } =
+      req.body;
 
-    if (!title || !description || !type || !specialization || !outcome || !submitted_to) {
+    if (
+      !title ||
+      !description ||
+      !type ||
+      !specialization ||
+      !outcome ||
+      !submitted_to
+    ) {
       return res.status(400).json({
         success: false,
-        error: "Title, description, type, specialization, outcome, and submitted_to are required",
+        error:
+          "Title, description, type, specialization, outcome, and submitted_to are required",
       });
     }
 
     // Validate type enum
-    if (!['Research', 'Application', 'Both'].includes(type)) {
+    if (!["Research", "Application", "Both"].includes(type)) {
       return res.status(400).json({
         success: false,
         error: "Type must be one of: Research, Application, Both",
@@ -65,12 +74,13 @@ const updateProposal = async (req, res, next) => {
     if (!title || !description || !type || !specialization || !outcome) {
       return res.status(400).json({
         success: false,
-        error: "Title, description, type, specialization, and outcome are required",
+        error:
+          "Title, description, type, specialization, and outcome are required",
       });
     }
 
     // Validate type enum
-    if (!['Research', 'Application', 'Both'].includes(type)) {
+    if (!["Research", "Application", "Both"].includes(type)) {
       return res.status(400).json({
         success: false,
         error: "Type must be one of: Research, Application, Both",
@@ -103,14 +113,14 @@ const updateProposal = async (req, res, next) => {
     );
 
     if (success) {
-      res.status(200).json({ 
-        success: true, 
-        message: "Proposal updated successfully" 
+      res.status(200).json({
+        success: true,
+        message: "Proposal updated successfully",
       });
     } else {
       res.status(400).json({
         success: false,
-        error: "Failed to update proposal"
+        error: "Failed to update proposal",
       });
     }
   } catch (err) {
@@ -184,7 +194,13 @@ const submitProgressLog = async (req, res, next) => {
 const getProgressReports = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
-    const reports = await studentModel.getProgressReports(studentId);
+    const { startDate, endDate } = req.query;
+
+    const reports = await studentModel.getProgressReports(
+      studentId,
+      startDate,
+      endDate
+    );
     res.status(200).json({ success: true, reports });
   } catch (err) {
     next(err);
@@ -312,8 +328,24 @@ const getProposalStatus = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      proposal
+      proposal,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get student's projects
+ */
+const getStudentProjects = async (req, res, next) => {
+  try {
+    const studentId = req.params.studentId;
+
+    // Get projects from the database
+    const projects = await studentModel.getStudentProjects(studentId);
+
+    res.status(200).json({ success: true, projects });
   } catch (err) {
     next(err);
   }
@@ -332,4 +364,5 @@ export default {
   selectProject,
   getFeedback,
   getProposalStatus,
+  getStudentProjects,
 };

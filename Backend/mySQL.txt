@@ -1,0 +1,136 @@
+Use FYP;
+
+CREATE TABLE User (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Role (
+    role_id INT PRIMARY KEY AUTO_INCREMENT,
+    role_name ENUM('Student', 'Supervisor', 'Moderator', 'Manager', 'Examiner') NOT NULL
+);
+
+CREATE TABLE User_Roles (
+    user_id INT,
+    role_id INT,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (role_id) REFERENCES Role(role_id)
+);
+
+CREATE TABLE Project (
+    project_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE Supervisor_Project (
+    supervisor_id INT,
+    project_id INT,
+
+    PRIMARY KEY (supervisor_id, project_id),
+    FOREIGN KEY (supervisor_id) REFERENCES User(user_id),
+    FOREIGN KEY (project_id) REFERENCES Project(project_id)
+);
+
+CREATE TABLE Proposal_Status (
+    status_id INT PRIMARY KEY AUTO_INCREMENT,
+    status_name ENUM('Pending', 'Approved', 'Rejected') NOT NULL
+);
+
+CREATE TABLE Proposal (
+    proposal_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NULL,
+    submitted_by INT NOT NULL,
+    submitted_to INT NULL,
+    status_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    proposal_description TEXT NOT NULL,
+    type ENUM('Research', 'Application', 'Both') NOT NULL,
+    specialization VARCHAR(255) NOT NULL,
+    outcome TEXT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (submitted_by) REFERENCES User(user_id),
+    FOREIGN KEY (submitted_to) REFERENCES User(user_id),
+    FOREIGN KEY (status_id) REFERENCES Proposal_Status(status_id)
+);
+CREATE TABLE Feedback (
+    feedback_id INT PRIMARY KEY AUTO_INCREMENT,
+    proposal_id INT NULL,
+    reviewer_id INT NOT NULL,
+    comments TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    log_id INT NULL,
+    report_id INT NULL,
+    CONSTRAINT fk_feedback_proposal FOREIGN KEY (proposal_id) REFERENCES Proposal(proposal_id),
+    CONSTRAINT fk_feedback_reviewer FOREIGN KEY (reviewer_id) REFERENCES User(user_id),
+    CONSTRAINT fk_feedback_log FOREIGN KEY (log_id) REFERENCES Progress_Log(log_id),
+    CONSTRAINT fk_feedback_report FOREIGN KEY (report_id) REFERENCES Progress_Report(report_id)
+);
+CREATE TABLE Progress_Log (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT,
+    student_id INT,
+    submission_date DATE,
+    details TEXT,
+    FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (student_id) REFERENCES User(user_id)
+);
+
+CREATE TABLE Event_Type (
+    event_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Notification (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    event_type_id INT,
+    message TEXT,
+    timestamp DATETIME,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (event_type_id) REFERENCES Event_Type(event_type_id)
+);
+
+CREATE TABLE Examiner_Assignment (
+    assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT,
+    examiner_id INT,
+    status ENUM('Pending', 'Evaluated') NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (examiner_id) REFERENCES User(user_id)
+);
+
+CREATE TABLE Progress_Report (
+    report_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NOT NULL,
+    student_id INT NOT NULL,
+    submission_date DATE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    details TEXT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (student_id) REFERENCES User(user_id)
+);
+
+
+
+USE FYP;
+select * from user;
+
+-- Update Proposal_Status to include more statuses
+ALTER TABLE Proposal_Status MODIFY status_name ENUM(
+  'Pending', 
+  'Supervisor_Approved', 
+  'Supervisor_Rejected',
+  'Modifications_Required', 
+  'Approved', 
+  'Rejected'
+) NOT NULL;
+
+-- Insert the new statuses
+INSERT INTO Proposal_Status (status_name) VALUES
+('Supervisor_Approved'),
+('Supervisor_Rejected'),
+('Modifications_Required');

@@ -1,8 +1,12 @@
 // routes/supervisorRoutes.js
 import express from "express";
 import supervisorController from "../controllers/supervisorController.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
+
+// Get all supervisors (this route doesn't need the supervisorId parameter)
+router.get("/", supervisorController.getAllSupervisors);
 
 // Get current students enrolled under the supervisor
 router.get("/:supervisorId/students", supervisorController.getStudents);
@@ -83,6 +87,14 @@ router.get(
 router.put(
   "/:supervisorId/my-proposals/:proposalId",
   supervisorController.updateProposal
+);
+
+// Review student proposal
+router.post(
+  "/:supervisorId/review-proposal/:proposalId",
+  auth.verifyToken,
+  auth.hasRole("Supervisor"),
+  supervisorController.reviewStudentProposal
 );
 
 export default router;

@@ -78,17 +78,38 @@ const createProgressLog = async (studentId, projectId, details) => {
  * @param {number} studentId - The ID of the student
  * @returns {Promise<Array>} - Array of progress reports
  */
-const getProgressReports = async (studentId) => {
+/**
+ * Get progress reports for a student
+ * @param {number} studentId - The ID of the student
+ * @param {string} startDate - Optional start date for filtering (YYYY-MM-DD)
+ * @param {string} endDate - Optional end date for filtering (YYYY-MM-DD)
+ * @returns {Promise<Array>} - Array of progress reports
+ */
+const getProgressReports = async (studentId, startDate, endDate) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT pr.report_id, pr.project_id, pr.submission_date, pr.details, 
-              p.title as project_title 
-       FROM Progress_Report pr
-       JOIN Project p ON pr.project_id = p.project_id
-       WHERE pr.student_id = ?
-       ORDER BY pr.submission_date DESC`,
-      [studentId]
-    );
+    let query = `
+      SELECT pr.report_id, pr.project_id, pr.submission_date, pr.title, pr.details, 
+             p.title as project_title 
+      FROM Progress_Report pr
+      JOIN Project p ON pr.project_id = p.project_id
+      WHERE pr.student_id = ?
+    `;
+
+    const params = [studentId];
+
+    if (startDate) {
+      query += ` AND pr.submission_date >= ?`;
+      params.push(startDate);
+    }
+
+    if (endDate) {
+      query += ` AND pr.submission_date <= ?`;
+      params.push(endDate);
+    }
+
+    query += ` ORDER BY pr.submission_date DESC`;
+
+    const [rows] = await pool.query(query, params);
     return rows;
   } catch (error) {
     console.error("Error in getProgressReports:", error);
@@ -253,6 +274,31 @@ const getFeedback = async (studentId, feedbackType, itemId) => {
   }
 };
 
+/**
+ * Get projects for a student
+ * @param {number} studentId - The student's ID
+ * @returns {Promise<Array>} - Array of student's projects
+ */
+const getStudentProjects = async (studentId) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT p.project_id, p.title, p.description, 
+              u.name as supervisor_name
+       FROM Project p
+       JOIN Proposal prop ON p.project_id = prop.project_id
+       JOIN Supervisor_Project sp ON p.project_id = sp.project_id
+       JOIN User u ON sp.supervisor_id = u.user_id
+       WHERE prop.submitted_by = ? 
+       AND prop.status_id = (SELECT status_id FROM Proposal_Status WHERE status_name = 'Approved')`,
+      [studentId]
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error in getStudentProjects:", error);
+    throw error;
+  }
+};
+
 export default {
   getStudentById,
   getProgressLogs,
@@ -262,4 +308,5 @@ export default {
   getAvailableProjects,
   selectProject,
   getFeedback,
+  getStudentProjects,
 };

@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:5000/api
+@examinersUrl = {{baseUrl}}/examiners
+@authUrl = {{baseUrl}}/auth
+
+### Login as Examiner
+# @name examinerLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "robert.brown@example.com",
+  "password": "password123"
+}
+
+### Store the examiner token and ID
+@examinerToken = {{examinerLogin.response.body.token}}
+@examinerId = {{examinerLogin.response.body.user.id}}
+
+### Get all assigned projects
+GET {{examinersUrl}}/{{examinerId}}/assigned-projects
+Authorization: Bearer {{examinerToken}}
+
+### Get specific project details
+GET {{examinersUrl}}/{{examinerId}}/project-details/1
+Authorization: Bearer {{examinerToken}}
+

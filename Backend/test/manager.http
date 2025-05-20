@@ -28,8 +28,8 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "name": "John wick",
-  "email": "john.wick@example.com",
+  "name": "Nabil",
+  "email": "nabil@example.com",
   "password": "password123",
   "roles": ["Student"]
 }
@@ -116,7 +116,7 @@ Content-Type: application/json
 
 {
   "project_id": 1,
-  "examiner_id": 1
+  "examiner_id": 9
 }
 
 ### Get Student Logs

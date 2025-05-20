@@ -381,7 +381,14 @@ const getSupervisorProposal = async (supervisorId, proposalId) => {
  * @param {string} outcome - The proposal outcome
  * @returns {Promise<number>} - The ID of the created proposal
  */
-const createProposal = async (supervisorId, title, description, type, specialization, outcome) => {
+const createProposal = async (
+  supervisorId,
+  title,
+  description,
+  type,
+  specialization,
+  outcome
+) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO Proposal (
@@ -457,6 +464,27 @@ const approveProposal = async (proposalId, supervisorId) => {
   }
 };
 
+/**
+ * Get all supervisors
+ * @returns {Promise<Array>} - Array of supervisors with their details
+ */
+const getAllSupervisors = async () => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT u.user_id, u.name, u.email
+       FROM User u
+       JOIN User_Roles ur ON u.user_id = ur.user_id
+       JOIN Role r ON ur.role_id = r.role_id
+       WHERE r.role_name = 'Supervisor'
+       ORDER BY u.name ASC`
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error in getAllSupervisors:", error);
+    throw error;
+  }
+};
+
 export default {
   getStudentsBySupervisor,
   getProposalsBySupervisor,
@@ -472,4 +500,5 @@ export default {
   getSupervisorProposal,
   createProposal,
   approveProposal,
+  getAllSupervisors,
 };

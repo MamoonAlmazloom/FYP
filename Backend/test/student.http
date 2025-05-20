@@ -1,7 +1,9 @@
-@baseUrl = http://localhost:5000/api/students
+@baseUrl = http://localhost:5000/api
+@studentsUrl = {{baseUrl}}/students
+@authUrl = {{baseUrl}}/auth
 
 ### Get all students
-GET {{baseUrl}}/1/progress-logs
+GET {{studentsUrl}}/1/progress-logs
 Content-Type: application/json
 
 {
@@ -10,20 +12,20 @@ Content-Type: application/json
 ###
 
 ### Get a student by ID
-GET {{baseUrl}}/1
+GET {{studentsUrl}}/1
 Content-Type: application/json
 
 
 ### Get student's proposals
-GET {{baseUrl}}/1/proposals
+GET {{studentsUrl}}/1/proposals
 Content-Type: application/json
 
 ### Get specific proposal details
-GET {{baseUrl}}/1/proposals/1
+GET {{studentsUrl}}/1/proposals/17
 Content-Type: application/json
 
 ### Submit a new proposal
-POST {{baseUrl}}/1/proposals
+POST {{studentsUrl}}/1/proposals
 Content-Type: application/json
 
 {
@@ -36,7 +38,7 @@ Content-Type: application/json
 }
 
 ### Update a proposal
-PUT {{baseUrl}}/1/proposals/1
+PUT {{studentsUrl}}/1/proposals/1
 Content-Type: application/json
 
 {
@@ -48,7 +50,7 @@ Content-Type: application/json
 }
 
 ### Submit progress log
-POST {{baseUrl}}/1/progress-logs
+POST {{studentsUrl}}/1/progress-logs
 Content-Type: application/json
 
 {
@@ -57,29 +59,88 @@ Content-Type: application/json
 }
 
 ### Get progress logs
-GET {{baseUrl}}/1/progress-logs
+GET {{studentsUrl}}/1/progress-logs
 Content-Type: application/json
 
-### Get progress logs with date filter
-GET {{baseUrl}}/1/progress-logs?startDate=2024-01-01&endDate=2024-12-31
-Content-Type: application/json
 
-### Submit progress report
-POST {{baseUrl}}/1/progress-reports
+
+
+##########################################################
+### COMPLETE TEST CASE: STUDENT SUBMITTING A PROPOSAL ###
+##########################################################
+
+### Step 1: Login as Student
+# @name studentLogin
+POST {{authUrl}}/login
 Content-Type: application/json
 
 {
-    "project_id": 1,
+  "email": "john.wick@example.com",
+  "password": "password123"
+}
+
+### Step 2: Store the student token and ID
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Step 3: Get available supervisors (to select one for the proposal)
+GET {{baseUrl}}/supervisors
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 4: Submit a new proposal with a specific supervisor
+POST {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+  "title": "Machine Learning for Medical Image Analysis",
+  "description": "This project aims to develop an advanced machine learning system for analyzing medical images, particularly MRI and CT scans, to assist in early detection of abnormalities.",
+  "type": "Application",
+  "specialization": "Machine Learning, Medical Imaging",
+  "outcome": "A working prototype that can analyze medical images and highlight potential areas of concern for medical professionals to review",
+  "submitted_to": 2
+}
+
+### Step 5: Verify the proposal was submitted correctly
+GET {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 6: Get specific proposal details (use the ID returned from the previous request)
+# @name getProposal
+GET {{studentsUrl}}/{{studentId}}/proposals/19
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 7: Check proposal status after submission (it should be "Approved" now with project_id: 16)
+# The status should be visible in the response from the previous request
+
+### Get progress logs with date filter
+GET {{studentsUrl}}/1/progress-logs?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Submit progress report
+### Note: You must use a valid project_id. Proposal 19 has been approved and is linked to project_id 16
+POST {{studentsUrl}}/7/progress-reports
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+    "project_id": 16,
     "title": "Initial Implementation Report",
     "details": "Completed the basic implementation of the ML model and started testing phase."
 }
 
 ### Get progress reports
-GET {{baseUrl}}/1/progress-reports
+GET {{studentsUrl}}/1/progress-reports
 Content-Type: application/json
+Authorization: Bearer {{studentToken}}
 
 ### Get progress reports with date filter
-GET {{baseUrl}}/1/progress-reports?startDate=2024-01-01&endDate=2024-12-31
+GET {{studentsUrl}}/1/progress-reports?startDate=2024-01-01&endDate=2024-12-31
 Content-Type: application/json
+Authorization: Bearer {{studentToken}}
 
 

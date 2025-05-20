@@ -7,7 +7,10 @@ const router = express.Router();
 // Proposal routes
 router.get("/:studentId/proposals", studentController.listProposals);
 router.post("/:studentId/proposals", studentController.submitProposal);
-router.get("/:studentId/proposals/:proposalId", studentController.getProposalStatus);
+router.get(
+  "/:studentId/proposals/:proposalId",
+  studentController.getProposalStatus
+);
 router.put(
   "/:studentId/proposals/:proposalId",
   studentController.updateProposal
@@ -43,5 +46,8 @@ router.post("/:studentId/select-project", studentController.selectProject);
 
 // Feedback routes
 router.get("/:studentId/feedback", studentController.getFeedback);
+
+// Student projects routes
+router.get("/:studentId/projects", studentController.getStudentProjects);
 
 export default router;

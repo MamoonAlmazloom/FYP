@@ -1,39 +1,74 @@
 // routes/examinerRoutes.js
 import express from "express";
+import examinerController from "../controllers/examinerController.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// TODO: Import the examiner controller
-// import examinerController from "../controllers/examinerController.js";
+// Apply auth middleware to all examiner routes
+router.use(auth.verifyToken, auth.hasRole("Examiner"));
 
-// Placeholder routes for examiner functionality
-router.get("/:examinerId/assigned-projects", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "This endpoint will list all projects assigned to the examiner",
-    examiner_id: req.params.examinerId,
-  });
-});
+// Get all assigned projects
+router.get(
+  "/:examinerId/assigned-projects",
+  examinerController.getAssignedProjects
+);
 
-router.get("/:examinerId/project-details/:projectId", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "This endpoint will provide details for a specific project",
-    examiner_id: req.params.examinerId,
-    project_id: req.params.projectId,
-  });
-});
+// Get project details
+router.get(
+  "/:examinerId/project-details/:projectId",
+  examinerController.getProjectDetails
+);
 
-router.post("/:examinerId/examination-feedback/:projectId", (req, res) => {
-  res.status(201).json({
-    success: true,
-    message:
-      "This endpoint will allow examiner to provide feedback after examination",
-    examiner_id: req.params.examinerId,
-    project_id: req.params.projectId,
-    feedback: req.body.feedback,
-    grade: req.body.grade,
-  });
-});
+// Get project submission
+router.get(
+  "/:examinerId/project-submissions/:projectId",
+  examinerController.getProjectSubmission
+);
+
+// Provide examination feedback
+router.post(
+  "/:examinerId/examination-feedback/:projectId",
+  examinerController.provideExaminationFeedback
+);
+
+// Update examination feedback
+router.put(
+  "/:examinerId/examination-feedback/:projectId",
+  examinerController.updateExaminationFeedback
+);
+
+// Get examiner profile
+router.get("/:examinerId/profile", examinerController.getExaminerProfile);
+
+// Get all previous evaluations
+router.get(
+  "/:examinerId/evaluations",
+  examinerController.getPreviousEvaluations
+);
+
+// Get evaluation statistics
+router.get(
+  "/:examinerId/statistics",
+  examinerController.getEvaluationStatistics
+);
+
+// Schedule examination date
+router.post(
+  "/:examinerId/schedule-examination/:projectId",
+  examinerController.scheduleExamination
+);
+
+// Get scheduled examinations
+router.get(
+  "/:examinerId/scheduled-examinations",
+  examinerController.getScheduledExaminations
+);
+
+// Request extension for evaluation
+router.post(
+  "/:examinerId/request-extension/:projectId",
+  examinerController.requestExtension
+);
 
 export default router;

@@ -20,13 +20,13 @@ const getAllUsers = async () => {
        GROUP BY u.user_id, u.name, u.email
        ORDER BY u.name`
     );
-    
-    return rows.map(row => ({
+
+    return rows.map((row) => ({
       user_id: row.user_id,
       name: row.name,
       email: row.email,
-      roles: row.roles ? row.roles.split(',') : [],
-      role_ids: row.role_ids ? row.role_ids.split(',').map(Number) : []
+      roles: row.roles ? row.roles.split(",") : [],
+      role_ids: row.role_ids ? row.role_ids.split(",").map(Number) : [],
     }));
   } catch (error) {
     console.error("Error in getAllUsers:", error);
@@ -73,7 +73,7 @@ const getApprovedProjects = async () => {
        WHERE ps.status_name = 'Approved'
        ORDER BY p.project_id DESC`
     );
-    
+
     return rows;
   } catch (error) {
     console.error("Error in getApprovedProjects:", error);
@@ -95,7 +95,7 @@ const getExaminers = async () => {
        WHERE r.role_name = 'Examiner'
        ORDER BY u.name`
     );
-    
+
     return rows;
   } catch (error) {
     console.error("Error in getExaminers:", error);
@@ -104,19 +104,47 @@ const getExaminers = async () => {
 };
 
 /**
- * Assign examiner to project
+ * Assign examiner to project, but only if the project has an approved proposal
  * @param {number} projectId - The ID of the project
  * @param {number} examinerId - The ID of the examiner
- * @returns {Promise<number>} - The ID of the created assignment
+ * @returns {Promise<number>} - The ID of the created assignment or existing assignment ID
  */
 const assignExaminer = async (projectId, examinerId) => {
   try {
+    // First check if this project has an approved proposal
+    const [approved] = await pool.query(
+      `SELECT p.project_id
+       FROM Project p
+       JOIN Proposal pr ON p.project_id = pr.project_id
+       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
+       WHERE p.project_id = ? AND ps.status_name = 'Approved'`,
+      [projectId]
+    );
+
+    if (approved.length === 0) {
+      throw new Error(
+        "Only projects with approved proposals can be assigned to examiners"
+      );
+    }
+
+    // Check if project is already assigned to this examiner
+    const [existing] = await pool.query(
+      `SELECT assignment_id FROM Examiner_Assignment 
+       WHERE project_id = ? AND examiner_id = ?`,
+      [projectId, examinerId]
+    );
+
+    if (existing.length > 0) {
+      return existing[0].assignment_id; // Return existing assignment ID
+    }
+
+    // Assign the project to the examiner
     const [result] = await pool.query(
       `INSERT INTO Examiner_Assignment (project_id, examiner_id, status)
        VALUES (?, ?, 'Pending')`,
       [projectId, examinerId]
     );
-    
+
     return result.insertId;
   } catch (error) {
     console.error("Error in assignExaminer:", error);
@@ -140,7 +168,7 @@ const getStudentLogs = async (studentId) => {
        ORDER BY pl.submission_date DESC`,
       [studentId]
     );
-    
+
     return rows;
   } catch (error) {
     console.error("Error in getStudentLogs:", error);
@@ -157,10 +185,48 @@ const getAllRoles = async () => {
     const [rows] = await pool.query(
       `SELECT role_id, role_name FROM Role ORDER BY role_name`
     );
-    
+
     return rows;
   } catch (error) {
     console.error("Error in getAllRoles:", error);
+    throw error;
+  }
+};
+
+/**
+ * Remove duplicate examiner assignments
+ * @returns {Promise<number>} - Number of rows deleted
+ */
+const removeDuplicateAssignments = async () => {
+  try {
+    // Find the lowest assignment_id for each project-examiner pair
+    const [assignments] = await pool.query(`
+      SELECT MIN(assignment_id) AS keep_id, project_id, examiner_id
+      FROM Examiner_Assignment
+      GROUP BY project_id, examiner_id
+    `);
+
+    let deleteCount = 0;
+
+    // Delete all assignments except the ones to keep
+    for (const assign of assignments) {
+      const [result] = await pool.query(
+        `
+        DELETE FROM Examiner_Assignment 
+        WHERE project_id = ? 
+        AND examiner_id = ?
+        AND assignment_id != ?
+      `,
+        [assign.project_id, assign.examiner_id, assign.keep_id]
+      );
+
+      deleteCount += result.affectedRows;
+    }
+
+    console.log(`Removed ${deleteCount} duplicate examiner assignments`);
+    return deleteCount;
+  } catch (error) {
+    console.error("Error in removeDuplicateAssignments:", error);
     throw error;
   }
 };
@@ -173,4 +239,5 @@ export default {
   assignExaminer,
   getStudentLogs,
   getAllRoles,
+  removeDuplicateAssignments,
 };
