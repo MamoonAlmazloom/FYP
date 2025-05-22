@@ -19,10 +19,14 @@ import db from "./db.js";
 // Import auth model to initialize admin
 import authModel from "./models/authModel.js";
 
+// Import scheduler for deadline notifications
+import scheduler from "./scheduler.js";
+
 // Initialize admin user
-authModel.initializeAdmin()
+authModel
+  .initializeAdmin()
   .then(() => console.log("Admin initialization attempted"))
-  .catch(err => console.error("Error during admin initialization:", err));
+  .catch((err) => console.error("Error during admin initialization:", err));
 
 // Test database connection
 db.getConnection();
@@ -34,6 +38,9 @@ import moderatorRoutes from "./routes/moderatorRoutes.js";
 import managerRoutes from "./routes/managerRoutes.js";
 import examinerRoutes from "./routes/examinerRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import deadlineRoutes from "./routes/deadlineRoutes.js";
+import testRoutes from "./routes/testRoutes.js";
 
 // Initialize app
 const app = express();
@@ -54,6 +61,14 @@ app.use("/api/supervisors", supervisorRoutes);
 app.use("/api/moderators", moderatorRoutes);
 app.use("/api/managers", managerRoutes);
 app.use("/api/examiners", examinerRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/deadlines", deadlineRoutes);
+
+// Test routes only enabled in development
+if (process.env.NODE_ENV === "development") {
+  app.use("/api/test", testRoutes);
+  console.log("⚠️  Test routes enabled - DEVELOPMENT MODE");
+}
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -91,6 +106,29 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 API URL: http://localhost:${PORT}/api`);
   console.log(`🩺 Health check: http://localhost:${PORT}/api/health`);
+
+  // Run the deadline check on server start
+  scheduler
+    .runScheduler()
+    .then((count) =>
+      console.log(
+        `Initial deadline check: ${count} upcoming deadlines processed`
+      )
+    )
+    .catch((err) => console.error("Error in initial deadline check:", err));
+
+  // Set up periodic deadline checks (every 24 hours)
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+  setInterval(() => {
+    scheduler
+      .runScheduler()
+      .then((count) =>
+        console.log(
+          `Scheduled deadline check: ${count} upcoming deadlines processed`
+        )
+      )
+      .catch((err) => console.error("Error in scheduled deadline check:", err));
+  }, TWENTY_FOUR_HOURS);
 });
 
 export default app;

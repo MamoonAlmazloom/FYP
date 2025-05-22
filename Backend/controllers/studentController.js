@@ -1,6 +1,7 @@
 // controllers/studentController.js
 import proposalModel from "../models/proposalModel.js";
 import studentModel from "../models/studentModel.js";
+import notificationModel from "../models/notificationModel.js";
 
 /**
  * List all proposals for a student
@@ -56,6 +57,13 @@ const submitProposal = async (req, res, next) => {
       outcome,
       submitted_to
     );
+
+    // Create notification for the supervisor
+    await notificationModel.notifyForProposalEvent(
+      proposalId,
+      "proposal_submitted"
+    );
+
     res.status(201).json({ success: true, proposal_id: proposalId });
   } catch (err) {
     next(err);
@@ -113,6 +121,12 @@ const updateProposal = async (req, res, next) => {
     );
 
     if (success) {
+      // Notify supervisor about the modified proposal
+      await notificationModel.notifyForProposalEvent(
+        proposalId,
+        "proposal_modified"
+      );
+
       res.status(200).json({
         success: true,
         message: "Proposal updated successfully",
@@ -182,6 +196,10 @@ const submitProgressLog = async (req, res, next) => {
       project_id,
       details
     );
+
+    // Notify supervisor about the new progress log
+    await notificationModel.notifyForProgressSubmission("log", logId);
+
     res.status(201).json({ success: true, log_id: logId });
   } catch (err) {
     next(err);
@@ -228,6 +246,10 @@ const submitProgressReport = async (req, res, next) => {
       title,
       details
     );
+
+    // Notify supervisor about the new progress report
+    await notificationModel.notifyForProgressSubmission("report", reportId);
+
     res.status(201).json({ success: true, report_id: reportId });
   } catch (err) {
     next(err);

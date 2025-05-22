@@ -1,4 +1,5 @@
 import proposalModel from "../models/proposalModel.js";
+import notificationModel from "../models/notificationModel.js";
 import pool from "../db.js";
 
 /**
@@ -85,7 +86,22 @@ const reviewProposal = async (req, res, next) => {
          VALUES (?, ?, ?)`,
         [proposalId, moderatorId, comments]
       );
+    } // Create notification based on decision
+    let eventType;
+    switch (decision) {
+      case "approve":
+        eventType = "proposal_approved";
+        break;
+      case "reject":
+        eventType = "proposal_rejected";
+        break;
+      case "modify":
+        eventType = "proposal_needs_modification";
+        break;
     }
+
+    // Notify the submitter about the decision
+    await notificationModel.notifyForProposalEvent(proposalId, eventType);
 
     // If approved, create project
     if (decision === "approve") {

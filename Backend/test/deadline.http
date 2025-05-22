@@ -1,0 +1,55 @@
+### Test File: deadline.http ###
+
+### Login as admin to get token
+# Execute this request first to get a valid token
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin"
+}
+
+### Set token from login response
+# IMPORTANT: Copy the token value from the login response above and replace this line
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwibmFtZSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJyb2xlcyI6WyJNYW5hZ2VyIl0sImlhdCI6MTc0NzgwMTUzNiwiZXhwIjoxNzQ3ODg3OTM2fQ.GOsx5AY_E-FvOnQrunHlI87TddWErgAhIqoP4vhq2Ok
+
+### Process deadline notifications manually (admin/manager only)
+POST http://localhost:5000/api/deadlines/process
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "daysAhead": 1
+}
+
+### Get upcoming deadlines (admin/manager only)
+GET http://localhost:5000/api/deadlines/upcoming
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Test deadline notification (development mode only)
+POST http://localhost:5000/api/test/deadline-notification
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "daysLeft": 3,
+  "deadlineType": "progress_report", 
+  "itemTitle": "Monthly Progress Report"
+}
+
+### Get user notifications
+GET http://localhost:5000/api/notifications/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Mark notification as read
+PATCH http://localhost:5000/api/notifications/1/read
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Mark all notifications as read
+PATCH http://localhost:5000/api/notifications/1/read-all
+Authorization: Bearer {{token}}
+Content-Type: application/json

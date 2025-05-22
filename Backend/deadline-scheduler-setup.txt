@@ -1,0 +1,20 @@
+// Setup instructions for automatic deadline notifications
+
+// Linux/Mac crontab entry (run daily at midnight)
+// Add this to your crontab with `crontab -e`:
+// 0 0 * * * cd /path/to/your/project/Backend && node scheduler.js >> /path/to/logs/scheduler.log 2>&1
+
+// Windows Task Scheduler:
+// 1. Open Task Scheduler
+// 2. Create a Basic Task
+// 3. Name it "FYP Deadline Notifications"
+// 4. Set trigger to daily
+// 5. Action: Start a program
+// 6. Program/script: powershell.exe
+// 7. Arguments: -Command "cd 'C:\Path\To\Your\Project\Backend' && node scheduler.js >> 'C:\Path\To\Logs\scheduler.log' 2>&1"
+
+// For manual testing, you can run:
+// npm run scheduler
+
+// You can also hit the API endpoint (requires admin/manager role):
+// POST /api/deadlines/process?daysAhead=7

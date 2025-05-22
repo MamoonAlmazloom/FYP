@@ -2,6 +2,7 @@
 import supervisorModel from "../models/supervisorModel.js";
 import proposalModel from "../models/proposalModel.js";
 import studentModel from "../models/studentModel.js";
+import notificationModel from "../models/notificationModel.js";
 import pool from "../db.js";
 
 /**
@@ -182,8 +183,15 @@ const provideFeedbackOnLog = async (req, res, next) => {
         error: "Feedback comments are required",
       });
     }
+    const feedbackId = await supervisorModel.provideFeedbackOnLog(
+      logId,
+      supervisorId,
+      comments
+    );
 
-    await supervisorModel.provideFeedbackOnLog(logId, supervisorId, comments);
+    // Notify student about new feedback on their log
+    await notificationModel.notifyForFeedbackEvent(feedbackId);
+
     res.status(200).json({
       success: true,
       message: "Feedback provided successfully",
@@ -227,12 +235,15 @@ const provideFeedbackOnReport = async (req, res, next) => {
         error: "Feedback comments are required",
       });
     }
-
-    await supervisorModel.provideFeedbackOnReport(
+    const feedbackId = await supervisorModel.provideFeedbackOnReport(
       reportId,
       supervisorId,
       comments
     );
+
+    // Notify student about new feedback on their report
+    await notificationModel.notifyForFeedbackEvent(feedbackId);
+
     res.status(200).json({
       success: true,
       message: "Feedback provided successfully",
@@ -439,13 +450,29 @@ const reviewStudentProposal = async (req, res, next) => {
         statusName = "Modifications_Required";
         break;
     }
-
     await proposalModel.updateProposalStatus(proposalId, statusName);
 
     // Add feedback if provided
     if (comments) {
       await supervisorModel.provideFeedback(proposalId, supervisorId, comments);
     }
+
+    // Create notifications based on the decision
+    let eventType;
+    switch (decision) {
+      case "approve":
+        eventType = "proposal_approved";
+        break;
+      case "reject":
+        eventType = "proposal_rejected";
+        break;
+      case "modify":
+        eventType = "proposal_needs_modification";
+        break;
+    }
+
+    // Notify the submitter of the proposal
+    await notificationModel.notifyForProposalEvent(proposalId, eventType);
 
     res.status(200).json({
       success: true,

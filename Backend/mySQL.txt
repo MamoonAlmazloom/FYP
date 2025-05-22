@@ -134,3 +134,54 @@ INSERT INTO Proposal_Status (status_name) VALUES
 ('Supervisor_Approved'),
 ('Supervisor_Rejected'),
 ('Modifications_Required');
+
+
+-- deadline-setup.sql
+-- Additional SQL setup for deadline notification system
+
+-- Make sure the Event_Type table has the correct entries for deadline notifications
+INSERT IGNORE INTO Event_Type (event_name) VALUES 
+('upcoming_deadline'),
+('deadline_missed');
+
+-- Create indexes for better performance on deadline queries
+CREATE INDEX IF NOT EXISTS idx_progress_log_submission_date ON Progress_Log (submission_date);
+CREATE INDEX IF NOT EXISTS idx_progress_report_submission_date ON Progress_Report (submission_date);
+
+-- Add this to your existing mySQL.txt file or run it directly in your database
+
+-- Check if Notification table already exists and create it if it doesn't
+CREATE TABLE IF NOT EXISTS Event_Type (
+    event_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_name VARCHAR(255) NOT NULL
+);
+
+-- If Notification table exists but doesn't have is_read column, add it
+ALTER TABLE Notification
+ADD COLUMN IF NOT EXISTS is_read TINYINT(1) NOT NULL DEFAULT 0;
+
+-- Make sure the Notification table has the correct structure
+CREATE TABLE IF NOT EXISTS Notification (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    event_type_id INT,
+    message TEXT,
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (event_type_id) REFERENCES Event_Type(event_type_id)
+);
+
+-- Create initial event types if they don't exist
+INSERT IGNORE INTO Event_Type (event_name) VALUES
+('proposal_submitted'),
+('proposal_approved'),
+('proposal_rejected'),
+('proposal_needs_modification'),
+('proposal_modified'),
+('feedback_received'),
+('upcoming_deadline'),
+('log_submitted'),
+('report_submitted'),
+('examiner_assigned'),
+('grade_submitted');
