@@ -28,8 +28,8 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "name": "Nabil",
-  "email": "nabil@example.com",
+  "name": "Amr",
+  "email": "amr@example.com",
   "password": "password123",
   "roles": ["Student"]
 }

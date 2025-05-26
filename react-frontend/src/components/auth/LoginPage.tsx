@@ -90,8 +90,9 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  // Update the redirectBasedOnRole function in your login component:
+
   const redirectBasedOnRole = (roles: string[]) => {
-    // Priority-based redirection - higher priority roles take precedence
     if (roles.includes("Manager")) {
       window.location.href = "/manager/dashboard";
     } else if (roles.includes("Moderator")) {
@@ -101,12 +102,11 @@ const LoginPage: React.FC = () => {
     } else if (roles.includes("Examiner")) {
       window.location.href = "/examiner/dashboard";
     } else if (roles.includes("Student")) {
-      window.location.href = "/student/dashboard";
+      window.location.href = "/student/dashboard"; // ← Changed this line
     } else {
       setError("No valid role found. Please contact administrator.");
     }
   };
-
   const getButtonContent = () => {
     if (isLoading) {
       return (
