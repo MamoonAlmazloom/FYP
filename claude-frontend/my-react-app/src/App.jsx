@@ -1,5 +1,6 @@
-import { Routes, Route } from "react-router-dom";
-import LoginPage from "./Login";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import LoginPage from "./LoginPage";
 
 // Student Components - Choose A Path (in subfolder)
 import StudentChoosePath from "./student/chooseAPath/StudentChoosePath";
@@ -54,151 +55,315 @@ import ModeratorPreviousProjectDetails from "./moderator/ModeratorPreviousProjec
 // Examiner Components
 import ExaminerDashboard from "./examiner/ExaminerDashboard";
 
-// Placeholder components for other roles (to be implemented later)
+// Auth components
+import { withAuth } from "./contexts/AuthContext";
 
-// Placeholder for additional student features
-const Resources = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-800 mb-4">Resources</h1>
-      <p className="text-gray-600">Coming Soon...</p>
+// Protected route components
+const ProtectedStudentChoosePath = withAuth(StudentChoosePath, ["Student"]);
+const ProtectedSelectTitle = withAuth(SelectTitle, ["Student"]);
+const ProtectedProjectTitle = withAuth(ProjectTitle, ["Student"]);
+const ProtectedProjectStatus = withAuth(ProjectStatus, ["Student"]);
+const ProtectedStudentProposeProject = withAuth(ProposeProject, ["Student"]);
+const ProtectedProjectWork = withAuth(ProjectWork, ["Student"]);
+const ProtectedModifyProposal = withAuth(ModifyProposal, ["Student"]);
+const ProtectedProgressLogForm = withAuth(ProgressLogForm, ["Student"]);
+const ProtectedProgressReportForm = withAuth(ProgressReportForm, ["Student"]);
+const ProtectedSelectLog = withAuth(SelectLog, ["Student"]);
+const ProtectedSelectReport = withAuth(SelectReport, ["Student"]);
+const ProtectedViewProgressLog = withAuth(ViewProgressLog, ["Student"]);
+const ProtectedViewProgressReport = withAuth(ViewProgressReport, ["Student"]);
+const ProtectedViewProposal = withAuth(ViewProposal, ["Student"]);
+
+const ProtectedSupervisorDashboard = withAuth(SupervisorDashboard, [
+  "Supervisor",
+  "SV",
+]);
+const ProtectedMyStudents = withAuth(MyStudents, ["Supervisor", "SV"]);
+const ProtectedSupervisorProposeProject = withAuth(SupervisorProposeProject, [
+  "Supervisor",
+  "SV",
+]);
+const ProtectedProposedTitles = withAuth(ProposedTitles, ["Supervisor", "SV"]);
+const ProtectedStudentDetails = withAuth(StudentDetails, ["Supervisor", "SV"]);
+const ProtectedProposalAction = withAuth(ProposalAction, ["Supervisor", "SV"]);
+const ProtectedSupervisorViewProposal = withAuth(SupervisorViewProposal, [
+  "Supervisor",
+  "SV",
+]);
+const ProtectedSupervisorModifyProposal = withAuth(SupervisorModifyProposal, [
+  "Supervisor",
+  "SV",
+]);
+const ProtectedSupervisorPreviousProjects = withAuth(PreviousProjects, [
+  "Supervisor",
+  "SV",
+]);
+const ProtectedSupervisorPreviousProjectDetails = withAuth(
+  PreviousProjectDetails,
+  ["Supervisor", "SV"]
+);
+const ProtectedSupervisorViewProgressLog = withAuth(SupervisorViewProgressLog, [
+  "Supervisor",
+  "SV",
+]);
+const ProtectedSupervisorViewProgressReport = withAuth(
+  SupervisorViewProgressReport,
+  ["Supervisor", "SV"]
+);
+
+const ProtectedManagerDashboard = withAuth(ManagerDashboard, ["Manager"]);
+const ProtectedManageUsers = withAuth(ManageUsers, ["Manager"]);
+const ProtectedRegisterUser = withAuth(RegisterUser, ["Manager"]);
+const ProtectedManageUserEligibility = withAuth(ManageUserEligibility, [
+  "Manager",
+]);
+const ProtectedAssignExaminers = withAuth(AssignExaminers, ["Manager"]);
+const ProtectedApprovedProjectsLogs = withAuth(ApprovedProjectsLogs, [
+  "Manager",
+]);
+const ProtectedManagerPreviousProjects = withAuth(ManagerPreviousProjects, [
+  "Manager",
+]);
+const ProtectedManagerPreviousProjectDetails = withAuth(
+  ManagerPreviousProjectDetails,
+  ["Manager"]
+);
+const ProtectedViewProjectLog = withAuth(ViewProjectLog, ["Manager"]);
+
+const ProtectedModeratorDashboard = withAuth(ModeratorDashboard, ["Moderator"]);
+const ProtectedModeratorProposedTitles = withAuth(ModeratorProposedTitles, [
+  "Moderator",
+]);
+const ProtectedModeratorProposalAction = withAuth(ModeratorProposalAction, [
+  "Moderator",
+]);
+const ProtectedModeratorPreviousProjects = withAuth(ModeratorPreviousProjects, [
+  "Moderator",
+]);
+const ProtectedModeratorPreviousProjectDetails = withAuth(
+  ModeratorPreviousProjectDetails,
+  ["Moderator"]
+);
+
+const ProtectedExaminerDashboard = withAuth(ExaminerDashboard, ["Examiner"]);
+
+// Placeholder components for additional features
+const Resources = withAuth(
+  () => (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Resources</h1>
+        <p className="text-gray-600">Coming Soon...</p>
+      </div>
     </div>
-  </div>
+  ),
+  ["Student"]
 );
 
 function App() {
   return (
-    <Routes>
-      {/* Login Route */}
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/login" element={<LoginPage />} />
+    <AuthProvider>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage />} />
 
-      {/* Student Routes - Choose A Path (from chooseAPath subfolder) */}
-      <Route path="/student/choose-path" element={<StudentChoosePath />} />
-      <Route path="/student/select-title" element={<SelectTitle />} />
-      <Route path="/student/project-title" element={<ProjectTitle />} />
-      <Route path="/student/project-status" element={<ProjectStatus />} />
-      <Route path="/student/propose-project" element={<ProposeProject />} />
+        {/* Student Routes - Choose A Path (from chooseAPath subfolder) */}
+        <Route
+          path="/student/choose-path"
+          element={<ProtectedStudentChoosePath />}
+        />
+        <Route
+          path="/student/select-title"
+          element={<ProtectedSelectTitle />}
+        />
+        <Route
+          path="/student/project-title"
+          element={<ProtectedProjectTitle />}
+        />
+        <Route
+          path="/student/project-status"
+          element={<ProtectedProjectStatus />}
+        />
+        <Route
+          path="/student/propose-project"
+          element={<ProtectedStudentProposeProject />}
+        />
 
-      {/* Student Routes - Project Work (from root student directory) */}
-      <Route path="/student/project-work" element={<ProjectWork />} />
-      <Route path="/student/modify-proposal" element={<ModifyProposal />} />
-      <Route path="/student/progress-log-form" element={<ProgressLogForm />} />
-      <Route
-        path="/student/progress-report-form"
-        element={<ProgressReportForm />}
-      />
-      <Route path="/student/select-log" element={<SelectLog />} />
-      <Route path="/student/select-report" element={<SelectReport />} />
-      <Route path="/student/view-progress-log" element={<ViewProgressLog />} />
-      <Route
-        path="/student/view-progress-report"
-        element={<ViewProgressReport />}
-      />
-      <Route path="/student/view-proposal" element={<ViewProposal />} />
+        {/* Student Routes - Project Work (from root student directory) */}
+        <Route
+          path="/student/project-work"
+          element={<ProtectedProjectWork />}
+        />
+        <Route
+          path="/student/modify-proposal"
+          element={<ProtectedModifyProposal />}
+        />
+        <Route
+          path="/student/progress-log-form"
+          element={<ProtectedProgressLogForm />}
+        />
+        <Route
+          path="/student/progress-report-form"
+          element={<ProtectedProgressReportForm />}
+        />
+        <Route path="/student/select-log" element={<ProtectedSelectLog />} />
+        <Route
+          path="/student/select-report"
+          element={<ProtectedSelectReport />}
+        />
+        <Route
+          path="/student/view-progress-log"
+          element={<ProtectedViewProgressLog />}
+        />
+        <Route
+          path="/student/view-progress-report"
+          element={<ProtectedViewProgressReport />}
+        />
+        <Route
+          path="/student/view-proposal"
+          element={<ProtectedViewProposal />}
+        />
+        <Route path="/student/resources" element={<Resources />} />
 
-      {/* Student Additional Routes */}
-      <Route path="/student/resources" element={<Resources />} />
+        {/* Supervisor Routes */}
+        <Route
+          path="/supervisor/dashboard"
+          element={<ProtectedSupervisorDashboard />}
+        />
+        <Route
+          path="/supervisor/my-students"
+          element={<ProtectedMyStudents />}
+        />
+        <Route
+          path="/supervisor/propose-project"
+          element={<ProtectedSupervisorProposeProject />}
+        />
+        <Route
+          path="/supervisor/proposed-titles"
+          element={<ProtectedProposedTitles />}
+        />
+        <Route
+          path="/supervisor/student-details"
+          element={<ProtectedStudentDetails />}
+        />
+        <Route
+          path="/supervisor/proposal-action"
+          element={<ProtectedProposalAction />}
+        />
+        <Route
+          path="/supervisor/view-proposal"
+          element={<ProtectedSupervisorViewProposal />}
+        />
+        <Route
+          path="/supervisor/modify-proposal"
+          element={<ProtectedSupervisorModifyProposal />}
+        />
+        <Route
+          path="/supervisor/previous-projects"
+          element={<ProtectedSupervisorPreviousProjects />}
+        />
+        <Route
+          path="/supervisor/previous-project-details"
+          element={<ProtectedSupervisorPreviousProjectDetails />}
+        />
+        <Route
+          path="/supervisor/view-progress-log"
+          element={<ProtectedSupervisorViewProgressLog />}
+        />
+        <Route
+          path="/supervisor/view-progress-report"
+          element={<ProtectedSupervisorViewProgressReport />}
+        />
 
-      {/* Supervisor Routes */}
-      <Route path="/supervisor/dashboard" element={<SupervisorDashboard />} />
-      <Route path="/supervisor/my-students" element={<MyStudents />} />
-      <Route
-        path="/supervisor/propose-project"
-        element={<SupervisorProposeProject />}
-      />
-      <Route path="/supervisor/proposed-titles" element={<ProposedTitles />} />
-      <Route path="/supervisor/student-details" element={<StudentDetails />} />
-      <Route path="/supervisor/proposal-action" element={<ProposalAction />} />
-      <Route
-        path="/supervisor/view-proposal"
-        element={<SupervisorViewProposal />}
-      />
-      <Route
-        path="/supervisor/modify-proposal"
-        element={<SupervisorModifyProposal />}
-      />
-      <Route
-        path="/supervisor/previous-projects"
-        element={<PreviousProjects />}
-      />
-      <Route
-        path="/supervisor/previous-project-details"
-        element={<PreviousProjectDetails />}
-      />
-      <Route
-        path="/supervisor/view-progress-log"
-        element={<SupervisorViewProgressLog />}
-      />
-      <Route
-        path="/supervisor/view-progress-report"
-        element={<SupervisorViewProgressReport />}
-      />
+        {/* Manager Routes */}
+        <Route
+          path="/manager/dashboard"
+          element={<ProtectedManagerDashboard />}
+        />
+        <Route
+          path="/manager/manage-users"
+          element={<ProtectedManageUsers />}
+        />
+        <Route
+          path="/manager/register-user"
+          element={<ProtectedRegisterUser />}
+        />
+        <Route
+          path="/manager/manage-user-eligibility"
+          element={<ProtectedManageUserEligibility />}
+        />
+        <Route
+          path="/manager/assign-examiners"
+          element={<ProtectedAssignExaminers />}
+        />
+        <Route
+          path="/manager/approved-projects-logs"
+          element={<ProtectedApprovedProjectsLogs />}
+        />
+        <Route
+          path="/manager/previous-projects"
+          element={<ProtectedManagerPreviousProjects />}
+        />
+        <Route
+          path="/manager/previous-project-details"
+          element={<ProtectedManagerPreviousProjectDetails />}
+        />
+        <Route
+          path="/manager/view-project-log"
+          element={<ProtectedViewProjectLog />}
+        />
 
-      {/* Manager Routes */}
-      <Route path="/manager/dashboard" element={<ManagerDashboard />} />
-      <Route path="/manager/manage-users" element={<ManageUsers />} />
-      <Route path="/manager/register-user" element={<RegisterUser />} />
-      <Route
-        path="/manager/manage-user-eligibility"
-        element={<ManageUserEligibility />}
-      />
-      <Route path="/manager/assign-examiners" element={<AssignExaminers />} />
-      <Route
-        path="/manager/approved-projects-logs"
-        element={<ApprovedProjectsLogs />}
-      />
-      <Route
-        path="/manager/previous-projects"
-        element={<ManagerPreviousProjects />}
-      />
-      <Route
-        path="/manager/previous-project-details"
-        element={<ManagerPreviousProjectDetails />}
-      />
-      <Route path="/manager/view-project-log" element={<ViewProjectLog />} />
+        {/* Examiner Routes */}
+        <Route
+          path="/examiner/dashboard"
+          element={<ProtectedExaminerDashboard />}
+        />
 
-      {/* Examiner Routes */}
-      <Route path="/examiner/dashboard" element={<ExaminerDashboard />} />
+        {/* Moderator Routes */}
+        <Route
+          path="/moderator/dashboard"
+          element={<ProtectedModeratorDashboard />}
+        />
+        <Route
+          path="/moderator/proposed-titles"
+          element={<ProtectedModeratorProposedTitles />}
+        />
+        <Route
+          path="/moderator/proposal-action"
+          element={<ProtectedModeratorProposalAction />}
+        />
+        <Route
+          path="/moderator/previous-projects"
+          element={<ProtectedModeratorPreviousProjects />}
+        />
+        <Route
+          path="/moderator/previous-project-details"
+          element={<ProtectedModeratorPreviousProjectDetails />}
+        />
 
-      {/* Moderator Routes */}
-      <Route path="/moderator/dashboard" element={<ModeratorDashboard />} />
-      <Route
-        path="/moderator/proposed-titles"
-        element={<ModeratorProposedTitles />}
-      />
-      <Route
-        path="/moderator/proposal-action"
-        element={<ModeratorProposalAction />}
-      />
-      <Route
-        path="/moderator/previous-projects"
-        element={<ModeratorPreviousProjects />}
-      />
-      <Route
-        path="/moderator/previous-project-details"
-        element={<ModeratorPreviousProjectDetails />}
-      />
+        {/* Default redirect - redirect to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-      {/* Fallback route for 404 */}
-      <Route
-        path="*"
-        element={
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="text-center">
-              <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
-              <p className="text-xl text-gray-600 mb-8">Page not found</p>
-              <a
-                href="/"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Go Back Home
-              </a>
+        {/* Fallback route for 404 */}
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
+                <p className="text-xl text-gray-600 mb-8">Page not found</p>
+                <a
+                  href="/login"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Go Back to Login
+                </a>
+              </div>
             </div>
-          </div>
-        }
-      />
-    </Routes>
+          }
+        />
+      </Routes>
+    </AuthProvider>
   );
 }
 
