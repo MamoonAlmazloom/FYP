@@ -14,22 +14,22 @@ const SelectTitle = () => {
     const fetchAvailableProjects = async () => {
       try {
         if (!user?.id) {
-          setError('User not found. Please log in again.');
+          setError("User not found. Please log in again.");
           return;
         }
 
         setLoading(true);
         const response = await getAvailableProjects(user.id);
-        
+
         if (response.success) {
-          console.log('Available projects:', response.projects);
+          console.log("Available projects:", response.projects);
           setProjects(response.projects || []);
         } else {
-          setError(response.error || 'Failed to load available projects');
+          setError(response.error || "Failed to load available projects");
         }
       } catch (err) {
-        console.error('Error fetching available projects:', err);
-        setError('Failed to load available projects');
+        console.error("Error fetching available projects:", err);
+        setError("Failed to load available projects");
       } finally {
         setLoading(false);
       }
@@ -37,23 +37,26 @@ const SelectTitle = () => {
 
     fetchAvailableProjects();
   }, [user]);
-
   const handleSelectProject = async (projectId) => {
     try {
       setSelectingProject(projectId);
-      
+
       const response = await selectProject(user.id, projectId);
-      
+
       if (response.success) {
-        alert('Project selected successfully! You can now start working on your project.');
-        // Navigate to project work or refresh the page
-        window.location.href = '/student/project-work';
+        alert(
+          "Project application submitted successfully! Your request has been sent to the supervisor for approval. You will be notified once it is reviewed."
+        );
+        // Navigate to project status page to show pending proposal
+        window.location.href = "/student/project-status";
       } else {
-        alert('Failed to select project: ' + (response.error || 'Unknown error'));
+        alert(
+          "Failed to select project: " + (response.error || "Unknown error")
+        );
       }
     } catch (error) {
-      console.error('Error selecting project:', error);
-      alert('Failed to select project. Please try again.');
+      console.error("Error selecting project:", error);
+      alert("Failed to select project. Please try again.");
     } finally {
       setSelectingProject(null);
     }
@@ -96,7 +99,9 @@ const SelectTitle = () => {
 
         {projects.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-600 mb-6">No available projects at the moment.</p>
+            <p className="text-gray-600 mb-6">
+              No available projects at the moment.
+            </p>
             <Link
               to="/student/propose-project"
               className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline"
@@ -116,18 +121,18 @@ const SelectTitle = () => {
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
                       {project.title}
                     </h3>
-                    <p className="text-gray-600 mb-3">
-                      {project.description}
-                    </p>
+                    <p className="text-gray-600 mb-3">{project.description}</p>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                       <span>
-                        <strong>Supervisor:</strong> {project.supervisor_name || 'N/A'}
+                        <strong>Supervisor:</strong>{" "}
+                        {project.supervisor_name || "N/A"}
                       </span>
                       <span>
-                        <strong>Type:</strong> {project.type || 'N/A'}
+                        <strong>Type:</strong> {project.type || "N/A"}
                       </span>
                       <span>
-                        <strong>Specialization:</strong> {project.specialization || 'N/A'}
+                        <strong>Specialization:</strong>{" "}
+                        {project.specialization || "N/A"}
                       </span>
                     </div>
                   </div>
@@ -136,17 +141,18 @@ const SelectTitle = () => {
                     disabled={selectingProject === project.project_id}
                     className={`ml-4 px-6 py-2 rounded-lg font-semibold transition-colors ${
                       selectingProject === project.project_id
-                        ? 'bg-gray-400 cursor-not-allowed text-white'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
                     }`}
                   >
+                    {" "}
                     {selectingProject === project.project_id ? (
                       <div className="flex items-center">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        Selecting...
+                        Applying...
                       </div>
                     ) : (
-                      'Select Project'
+                      "Apply for Project"
                     )}
                   </button>
                 </div>

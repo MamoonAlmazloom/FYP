@@ -146,14 +146,20 @@ const createProgressReport = async (studentId, projectId, title, details) => {
 const getAvailableProjects = async () => {
   try {
     const [rows] = await pool.query(
-      `SELECT p.project_id, p.title, p.description, u.name as supervisor_name 
+      `SELECT p.project_id, p.title, p.description, u.name as supervisor_name, sp.supervisor_id
        FROM Project p
        JOIN Supervisor_Project sp ON p.project_id = sp.project_id
        JOIN User u ON sp.supervisor_id = u.user_id
        WHERE p.project_id NOT IN (
-         SELECT project_id FROM Proposal WHERE status_id = (
+         SELECT DISTINCT pr.project_id 
+         FROM Proposal pr
+         JOIN User_Roles ur ON pr.submitted_by = ur.user_id
+         JOIN Role r ON ur.role_id = r.role_id
+         WHERE pr.status_id = (
            SELECT status_id FROM Proposal_Status WHERE status_name = 'Approved'
          )
+         AND r.role_name = 'Student'
+         AND pr.project_id IS NOT NULL
        )`
     );
     return rows;
@@ -167,19 +173,26 @@ const getAvailableProjects = async () => {
  * Select a project from available projects
  * @param {number} studentId - The ID of the student
  * @param {number} projectId - The ID of the project
- * @returns {Promise<boolean>} - True if selection was successful
+ * @returns {Promise<number>} - The proposal ID if selection was successful, null otherwise
  */
 const selectProject = async (studentId, projectId) => {
   try {
-    // First check if the project is available
+    // First check if the project is available and get supervisor info
     const [available] = await pool.query(
-      `SELECT p.project_id 
+      `SELECT p.project_id, p.title, p.description, sp.supervisor_id
        FROM Project p
+       JOIN Supervisor_Project sp ON p.project_id = sp.project_id
        WHERE p.project_id = ? 
        AND p.project_id NOT IN (
-         SELECT project_id FROM Proposal WHERE status_id = (
+         SELECT DISTINCT pr.project_id 
+         FROM Proposal pr
+         JOIN User_Roles ur ON pr.submitted_by = ur.user_id
+         JOIN Role r ON ur.role_id = r.role_id
+         WHERE pr.status_id = (
            SELECT status_id FROM Proposal_Status WHERE status_name = 'Approved'
          )
+         AND r.role_name = 'Student'
+         AND pr.project_id IS NOT NULL
        )`,
       [projectId]
     );
@@ -188,9 +201,12 @@ const selectProject = async (studentId, projectId) => {
       throw new Error("Project is not available for selection");
     }
 
-    // Create a proposal with Approved status for the selected project
+    const project = available[0];
+    const supervisorId = project.supervisor_id;
+
+    // Create a proposal with Pending status for the selected project
     const [statusResult] = await pool.query(
-      `SELECT status_id FROM Proposal_Status WHERE status_name = 'Approved'`
+      `SELECT status_id FROM Proposal_Status WHERE status_name = 'Pending'`
     );
 
     if (statusResult.length === 0) {
@@ -199,14 +215,21 @@ const selectProject = async (studentId, projectId) => {
 
     const statusId = statusResult[0].status_id;
 
-    // Insert the proposal with Approved status
+    // Insert the proposal with Pending status and supervisor ID
     const [result] = await pool.query(
-      `INSERT INTO Proposal (project_id, submitted_by, status_id, title, proposal_description)
-       SELECT ?, ?, ?, title, description FROM Project WHERE project_id = ?`,
-      [projectId, studentId, statusId, projectId]
+      `INSERT INTO Proposal (project_id, submitted_by, submitted_to, status_id, title, proposal_description, type, specialization, outcome)
+       VALUES (?, ?, ?, ?, ?, ?, 'Application', 'General', 'Project completion')`,
+      [
+        projectId,
+        studentId,
+        supervisorId,
+        statusId,
+        project.title,
+        project.description,
+      ]
     );
 
-    return result.affectedRows > 0;
+    return result.insertId; // Return the proposal ID instead of boolean
   } catch (error) {
     console.error("Error in selectProject:", error);
     throw error;

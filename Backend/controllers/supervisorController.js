@@ -86,24 +86,22 @@ const submitProposalDecision = async (req, res, next) => {
         success: false,
         error: "You don't have permission to make decisions on this proposal",
       });
-    }
-
-    // Map decision to status id
-    let statusId;
+    } // Map decision to status name
+    let statusName;
     switch (decision) {
       case "approve":
-        statusId = 2; // Approved
+        statusName = "Supervisor_Approved";
         break;
       case "reject":
-        statusId = 3; // Rejected
+        statusName = "Supervisor_Rejected";
         break;
       case "modify":
-        statusId = 1; // Pending (will be handled as "requires modification")
+        statusName = "Modifications_Required";
         break;
     }
 
     // Update the proposal status
-    await proposalModel.updateProposalStatus(proposalId, statusId);
+    await proposalModel.updateProposalStatus(proposalId, statusName);
 
     // Add feedback if comments are provided
     if (comments) {

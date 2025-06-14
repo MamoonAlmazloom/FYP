@@ -283,12 +283,20 @@ const selectProject = async (req, res, next) => {
       });
     }
 
-    const success = await studentModel.selectProject(studentId, project_id);
+    const proposalId = await studentModel.selectProject(studentId, project_id);
 
-    if (success) {
+    if (proposalId) {
+      // Notify supervisor about the new proposal
+      await notificationModel.notifyForProposalEvent(
+        proposalId,
+        "proposal_submitted"
+      );
+
       res.status(200).json({
         success: true,
-        message: "Project selected successfully",
+        message:
+          "Project application submitted successfully. Waiting for supervisor approval.",
+        proposalId: proposalId,
       });
     } else {
       res.status(400).json({

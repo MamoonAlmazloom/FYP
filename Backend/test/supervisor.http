@@ -12,17 +12,16 @@ Content-Type: application/json
 
 
 
-##TODO its not working
 ### Get all proposed titles for review
-GET {{supervisorsUrl}}/1/proposals
+GET {{supervisorsUrl}}/8/proposals
 Content-Type: application/json
 
 ### Get specific proposal details
-GET {{supervisorsUrl}}/1/proposals/23
+GET {{supervisorsUrl}}/8/proposals/23
 Content-Type: application/json
 
 ### Submit proposal decision - Approve
-POST {{supervisorsUrl}}/1/proposal-decision/1
+POST {{supervisorsUrl}}/8/proposal-decision/1
 Content-Type: application/json
 
 {
@@ -101,7 +100,7 @@ Content-Type: application/json
 }
 
 ### Get supervisor's proposal
-GET {{supervisorsUrl}}/1/my-proposals/2
+GET {{supervisorsUrl}}/1/my-proposals/35
 Content-Type: application/json
 
 ### Update proposal
@@ -135,7 +134,7 @@ Content-Type: application/json
 @supervisorId = {{supervisorLogin.response.body.user.id}}
 
 ### Review Student Proposal (Approve)
-POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/3
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/32
 Authorization: Bearer {{supervisorToken}}
 Content-Type: application/json
 
@@ -145,7 +144,7 @@ Content-Type: application/json
 }
 
 ### Review Student Proposal (Reject)
-POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/2
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/31
 Authorization: Bearer {{supervisorToken}}
 Content-Type: application/json
 

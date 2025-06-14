@@ -41,7 +41,7 @@ Authorization: Bearer {{studentToken}}
 @proposalId = {{submitProposal.response.body.proposal.proposal_id}}
 
 ### Step 5: Student checks the status of their proposal
-GET {{studentsUrl}}/{{studentId}}/proposals/20
+GET {{studentsUrl}}/{{studentId}}/proposals/33
 Content-Type: application/json
 Authorization: Bearer {{studentToken}}
 
@@ -65,12 +65,12 @@ Content-Type: application/json
 Authorization: Bearer {{supervisorToken}}
 
 ### Step 9: Supervisor reviews the specific proposal
-GET {{supervisorsUrl}}/{{supervisorId}}/proposals/20
+GET {{supervisorsUrl}}/{{supervisorId}}/proposals/33
 Content-Type: application/json
 Authorization: Bearer {{supervisorToken}}
 
 ### Step 10: Supervisor approves the proposal
-POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/20
+POST {{supervisorsUrl}}/{{supervisorId}}/review-proposal/33
 Content-Type: application/json
 Authorization: Bearer {{supervisorToken}}
 
@@ -104,7 +104,7 @@ Content-Type: application/json
 Authorization: Bearer {{moderatorToken}}
 
 ### Step 15: Moderator approves the proposal
-POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/29
+POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/32
 Content-Type: application/json
 Authorization: Bearer {{moderatorToken}}
 
