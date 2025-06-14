@@ -50,4 +50,7 @@ router.get("/:studentId/feedback", studentController.getFeedback);
 // Student projects routes
 router.get("/:studentId/projects", studentController.getStudentProjects);
 
+// Active project status route
+router.get("/:studentId/active-project", studentController.getActiveProject);
+
 export default router;

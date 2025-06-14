@@ -1,41 +1,55 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { getAvailableProjects, selectProject } from "../../API/StudentAPI";
+import { getAvailableProjects, selectProject, getActiveProject } from "../../API/StudentAPI";
 
 const SelectTitle = () => {
-  const { user } = useAuth();
-  const [projects, setProjects] = useState([]);
+  const { user } = useAuth();  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectingProject, setSelectingProject] = useState(null);
-
+  const [hasActiveProject, setHasActiveProject] = useState(false);
+  const [activeProject, setActiveProject] = useState(null);
+  const [checkingActiveProject, setCheckingActiveProject] = useState(true);
   useEffect(() => {
-    const fetchAvailableProjects = async () => {
+    const fetchData = async () => {
       try {
         if (!user?.id) {
           setError("User not found. Please log in again.");
           return;
         }
 
-        setLoading(true);
-        const response = await getAvailableProjects(user.id);
+        // Check for active project first
+        setCheckingActiveProject(true);
+        const activeProjectResponse = await getActiveProject(user.id);
+        if (activeProjectResponse.success) {
+          setHasActiveProject(activeProjectResponse.hasActiveProject);
+          setActiveProject(activeProjectResponse.activeProject);
+        }
+        setCheckingActiveProject(false);
 
-        if (response.success) {
-          console.log("Available projects:", response.projects);
-          setProjects(response.projects || []);
-        } else {
-          setError(response.error || "Failed to load available projects");
+        // Only fetch available projects if no active project
+        if (!activeProjectResponse.hasActiveProject) {
+          setLoading(true);
+          const response = await getAvailableProjects(user.id);
+
+          if (response.success) {
+            console.log("Available projects:", response.projects);
+            setProjects(response.projects || []);
+          } else {
+            setError(response.error || "Failed to load available projects");
+          }
         }
       } catch (err) {
-        console.error("Error fetching available projects:", err);
-        setError("Failed to load available projects");
+        console.error("Error fetching data:", err);
+        setError("Failed to load data");
       } finally {
         setLoading(false);
+        setCheckingActiveProject(false);
       }
     };
 
-    fetchAvailableProjects();
+    fetchData();
   }, [user]);
   const handleSelectProject = async (projectId) => {
     try {
@@ -61,6 +75,56 @@ const SelectTitle = () => {
       setSelectingProject(null);
     }
   };
+
+  if (checkingActiveProject) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking project status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasActiveProject) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-lg w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-center mb-4">
+              <svg className="h-12 w-12 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+              You Already Have an Active Project
+            </h3>
+            <p className="text-sm text-yellow-700 mb-4">
+              You can only have one active project at a time.
+            </p>
+            <p className="text-sm text-yellow-700">
+              Current project: <strong>{activeProject?.title}</strong>
+            </p>
+          </div>
+          <div className="space-y-3">
+            <Link
+              to="/student/project-status"
+              className="block w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            >
+              View Current Project Status
+            </Link>
+            <Link
+              to="/student/choose-path"
+              className="block w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            >
+              Back to Select Path
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,39 +1,134 @@
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../API/authAPI";
+import { getStudentLogs, provideFeedbackOnLog } from "../API/SupervisorAPI";
 
 const ViewProgressLog = () => {
-  const [searchParams] = useSearchParams();
+  const { studentId } = useParams();
   const navigate = useNavigate();
-  const [studentName, setStudentName] = useState("Unknown Student");
-  const [currentWeek, setCurrentWeek] = useState("Week 3");
+  const [user, setUser] = useState(null);
+  const [student, setStudent] = useState(null);
+  const [progressLogs, setProgressLogs] = useState([]);
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
-    const student = searchParams.get("student") || "Unknown Student";
-    const week = searchParams.get("week") || "Week 3";
+    const loadProgressLogs = async () => {
+      try {
+        setLoading(true);
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          navigate("/login");
+          return;
+        }
+        setUser(currentUser);
 
-    setStudentName(student);
-    setCurrentWeek(week);
-  }, [searchParams]);
+        if (!studentId) {
+          navigate("/supervisor/my-students");
+          return;
+        }
 
+        const response = await getStudentLogs(currentUser.id, studentId);
+        if (response.success) {
+          setStudent(response.student);
+          setProgressLogs(response.logs || []); // Set existing feedback if available for current week
+          if (response.logs && response.logs.length > 0) {
+            const currentLog = response.logs[currentWeekIndex];
+            if (currentLog && currentLog.supervisorFeedback) {
+              setFeedback(currentLog.supervisorFeedback);
+            }
+          }
+        } else {
+          setError(response.error || "Failed to load progress logs");
+        }
+      } catch (err) {
+        console.error("Error loading progress logs:", err);
+        setError("Failed to load progress logs. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProgressLogs();
+  }, [navigate, studentId, currentWeekIndex]);
   const handleSignOut = () => {
-    console.log("Sign out clicked");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
-  const changeLog = (week) => {
-    navigate(
-      `/supervisor/view-progress-log?student=${encodeURIComponent(
-        studentName
-      )}&week=${week}`
+  const changeLog = (weekIndex) => {
+    setCurrentWeekIndex(weekIndex);
+    // Update feedback to show existing feedback for this week
+    if (progressLogs[weekIndex] && progressLogs[weekIndex].supervisorFeedback) {
+      setFeedback(progressLogs[weekIndex].supervisorFeedback);
+    } else {
+      setFeedback("");
+    }
+    setSubmitSuccess(false);
+  };
+  const handleSubmitFeedback = async () => {
+    if (!feedback.trim()) {
+      setError("Please enter feedback before submitting.");
+      return;
+    }
+
+    if (!user) {
+      setError("User not authenticated. Please refresh the page.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError("");
+
+      const currentLog = progressLogs[currentWeekIndex];
+      if (!currentLog) {
+        setError("No progress log found for this week.");
+        return;
+      }
+      const response = await provideFeedbackOnLog(
+        user.id,
+        currentLog.log_id,
+        feedback
+      );
+      if (response.success) {
+        setSubmitSuccess(true);
+        // Update local state
+        const updatedLogs = [...progressLogs];
+        updatedLogs[currentWeekIndex] = {
+          ...updatedLogs[currentWeekIndex],
+          supervisorFeedback: feedback,
+        };
+        setProgressLogs(updatedLogs);
+      } else {
+        setError(response.error || "Failed to submit feedback");
+      }
+    } catch (err) {
+      console.error("Error submitting feedback:", err);
+      setError("Failed to submit feedback. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const weeks = progressLogs.map((log, index) => `Week ${index + 1}`);
+  const currentLog = progressLogs[currentWeekIndex];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading progress logs...</p>
+        </div>
+      </div>
     );
-  };
-
-  const handleSubmitFeedback = () => {
-    console.log("Feedback submitted:", feedback);
-    // Handle feedback submission logic here
-  };
-
-  const weeks = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"];
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,19 +141,25 @@ const ViewProgressLog = () => {
             className="text-white no-underline mx-4 text-base font-bold hover:underline"
           >
             Home
-          </Link>
+          </Link>{" "}
           <Link
             to="/supervisor/my-students"
             className="text-white no-underline mx-4 text-base font-bold hover:underline"
           >
             Students
           </Link>
-          <span className="text-white no-underline mx-4 text-base font-bold">
+          <Link
+            to="/supervisor/approved-projects-logs"
+            className="text-white no-underline mx-4 text-base font-bold hover:underline"
+          >
             Logs
-          </span>
-          <span className="text-white no-underline mx-4 text-base font-bold">
+          </Link>
+          <Link
+            to="/supervisor/progress-reports"
+            className="text-white no-underline mx-4 text-base font-bold hover:underline"
+          >
             Reports
-          </span>
+          </Link>
         </div>
         <button
           onClick={handleSignOut}
@@ -66,76 +167,115 @@ const ViewProgressLog = () => {
         >
           Sign Out
         </button>
-      </div>
-
+      </div>{" "}
       <div className="max-w-3xl mx-auto my-5 p-5 bg-white rounded-lg shadow-lg text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           View Progress Log
         </h2>
 
-        {/* Milestone Selection */}
-        <div className="flex justify-center my-5 flex-wrap gap-2">
-          {weeks.map((week) => (
-            <div
-              key={week}
-              onClick={() => changeLog(week)}
-              className={`px-3 py-2 rounded cursor-pointer ${
-                currentWeek === week
-                  ? "bg-blue-800 text-white"
-                  : "bg-blue-600 text-white hover:bg-blue-800"
-              }`}
-            >
-              {week}
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Success Message */}
+        {submitSuccess && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+            Feedback submitted successfully!
+          </div>
+        )}
+
+        {progressLogs.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p className="text-lg">No progress logs found</p>
+            <p className="text-sm">
+              Progress logs will appear here once the student submits them.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Milestone Selection */}
+            <div className="flex justify-center my-5 flex-wrap gap-2">
+              {weeks.map((week, index) => (
+                <div
+                  key={week}
+                  onClick={() => changeLog(index)}
+                  className={`px-3 py-2 rounded cursor-pointer ${
+                    currentWeekIndex === index
+                      ? "bg-blue-800 text-white"
+                      : "bg-blue-600 text-white hover:bg-blue-800"
+                  }`}
+                >
+                  {week}
+                </div>
+              ))}
+            </div>{" "}
+            {/* Student Information */}
+            {currentLog && (
+              <div className="bg-gray-50 p-4 rounded mb-4 text-left">
+                <p className="mb-2">
+                  <strong>Student Name:</strong>{" "}
+                  {student?.name || "Unknown Student"}
+                </p>
+                <p className="mb-2">
+                  <strong>Log Entry:</strong> Week {currentWeekIndex + 1}{" "}
+                  Progress
+                </p>
+                <p className="mb-2">
+                  <strong>Submitted On:</strong>{" "}
+                  {currentLog.submission_date
+                    ? new Date(currentLog.submission_date).toLocaleDateString()
+                    : "Invalid Date"}
+                </p>
+                <p className="mb-2">
+                  <strong>Project:</strong>{" "}
+                  {currentLog.project_title || "No project title"}
+                </p>
+                <p className="mb-2">
+                  <strong>Progress Details:</strong>{" "}
+                  {currentLog.details || "No details provided"}
+                </p>
+                <p className="mb-2">
+                  <strong>Log ID:</strong> {currentLog.log_id}
+                </p>
+              </div>
+            )}
+            {/* Supervisor Feedback Section */}
+            <div className="mt-5 text-left bg-blue-50 rounded pb-1">
+              <div className="bg-gray-800 text-white p-3 rounded text-center mb-3 font-bold">
+                {currentLog?.supervisorFeedback
+                  ? "Update Feedback"
+                  : "Add Feedback"}
+              </div>
+              <div className="px-3">
+                <textarea
+                  id="feedback"
+                  rows="4"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Enter your feedback here..."
+                  className="w-full p-3 border border-gray-300 rounded mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleSubmitFeedback}
+                  disabled={submitting}
+                  className={`w-full p-4 text-base text-white border-0 rounded cursor-pointer mt-3 mb-3 ${
+                    submitting
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {submitting ? "Submitting..." : "Submit Feedback"}
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
-
-        {/* Student Information */}
-        <div className="bg-gray-50 p-4 rounded mb-4 text-left">
-          <p className="mb-2">
-            <strong>Student Name:</strong> {studentName}
-          </p>
-          <p className="mb-2">
-            <strong>Log Entry:</strong> {currentWeek} Progress
-          </p>
-          <p className="mb-2">
-            <strong>Submitted On:</strong> February 10, 2025
-          </p>
-          <p className="mb-2">
-            <strong>Progress Summary:</strong> The student has completed the
-            literature review and started the data collection phase.
-          </p>
-          <p className="mb-0">
-            <strong>Challenges:</strong> Limited access to real-world datasets;
-            working on alternatives.
-          </p>
-        </div>
-
-        {/* Supervisor Feedback Section */}
-        <div className="mt-5 text-left bg-blue-50 rounded pb-1">
-          <div className="bg-gray-800 text-white p-3 rounded text-center mb-3 font-bold">
-            Add Feedback
-          </div>
-          <div className="px-3">
-            <textarea
-              id="feedback"
-              rows="4"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Enter your feedback here..."
-              className="w-full p-3 border border-gray-300 rounded mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              onClick={handleSubmitFeedback}
-              className="w-full p-4 text-base text-white bg-green-600 border-0 rounded cursor-pointer mt-3 mb-3 hover:bg-green-700"
-            >
-              Submit Feedback
-            </button>
-          </div>
-        </div>
+          </>
+        )}
 
         <Link
-          to="/supervisor/student-details"
+          to={`/supervisor/student-details/${studentId}`}
           className="inline-block mt-5 no-underline text-blue-600 font-bold hover:text-blue-800"
         >
           ← Back to Student Details

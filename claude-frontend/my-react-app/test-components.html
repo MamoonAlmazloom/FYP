@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Fixed Components</title>
+    <script>
+        async function setupTestAuth() {
+            try {
+                // Login as Dr. Smith (supervisor 14)
+                const loginResponse = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'dr.smith@example.com',
+                        password: 'supervisor123'
+                    })
+                });
+
+                const loginData = await loginResponse.json();
+                console.log('Login Response:', loginData);
+
+                if (loginData.success) {
+                    // Store auth data in localStorage
+                    localStorage.setItem('authToken', loginData.token);
+                    localStorage.setItem('user', JSON.stringify(loginData.user));
+
+                    console.log('✅ Authentication set up successfully');
+                    console.log('User:', loginData.user);
+
+                    // Now test the API calls that were failing
+                    await testApiCalls(loginData.user.id, loginData.token);
+
+                } else {
+                    console.error('❌ Login failed:', loginData.error);
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+            }
+        }
+
+        async function testApiCalls(supervisorId, token) {
+            console.log('\n=== Testing API Calls ===');
+
+            // Test the specific API calls that were failing in our components
+            try {
+                // Test with supervisor 8 and student 1 (known working data)
+                console.log('Testing getStudentLogs API...');
+                const logsResponse = await fetch('http://localhost:5000/api/supervisors/8/students/1/logs', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const logsData = await logsResponse.json();
+                console.log('✅ Logs API Response:', logsData);
+
+                console.log('Testing getStudentReports API...');
+                const reportsResponse = await fetch('http://localhost:5000/api/supervisors/8/students/1/reports', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const reportsData = await reportsResponse.json();
+                console.log('✅ Reports API Response:', reportsData);
+
+                console.log('\n🎉 All API calls successful! Components should now work.');
+                console.log('You can now navigate to:');
+                console.log('- http://localhost:5174/supervisor/view-progress-log/1');
+                console.log('- http://localhost:5174/supervisor/view-progress-report/1');
+
+            } catch (error) {
+                console.error('❌ API test error:', error);
+            }
+        }
+
+        function navigateToComponent(route) {
+            window.open(`http://localhost:5174/supervisor/${route}`, '_blank');
+        }
+
+        // Run setup when page loads
+        window.onload = setupTestAuth;
+    </script>
+</head>
+
+<body>
+    <h1>Test Fixed Supervisor Components</h1>
+    <p>This page sets up authentication and tests the fixed API calls.</p>
+    <p>Check console for detailed results...</p>
+
+    <h2>Test Navigation (click after authentication setup):</h2>
+    <button onclick="navigateToComponent('view-progress-log/1')">Test Progress Log</button>
+    <button onclick="navigateToComponent('view-progress-report/1')">Test Progress Report</button>
+    <button onclick="navigateToComponent('dashboard')">Supervisor Dashboard</button>
+
+    <h2>Manual Test:</h2>
+    <button onclick="setupTestAuth()">Setup Auth Again</button>
+</body>
+
+</html>

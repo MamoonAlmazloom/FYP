@@ -1,28 +1,48 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../API/authAPI";
+import { getPreviousProjects } from "../API/SupervisorAPI";
 
 const PreviousProjects = () => {
-  const handleSignOut = () => {
-    console.log("Sign out clicked");
-  };
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const previousProjects = [
-    {
-      title: "AI-Based Medical Diagnosis System",
-      studentName: "John Doe",
-      year: "2023",
-    },
-    {
-      title: "Blockchain for Secure Voting",
-      studentName: "Jane Smith",
-      year: "2022",
-    },
-    {
-      title: "Automated Inventory Management",
-      studentName: "Mike Johnson",
-      year: "2021",
-    },
-  ];
+  useEffect(() => {
+    const loadPreviousProjects = async () => {
+      try {
+        setLoading(true);
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          navigate("/login");
+          return;
+        }
+        setUser(currentUser);
+
+        const response = await getPreviousProjects(currentUser.id);
+        if (response.success) {
+          setProjects(response.projects);
+        } else {
+          setError(response.error || "Failed to load previous projects");
+        }
+      } catch (err) {
+        console.error("Error loading previous projects:", err);
+        setError("Failed to load previous projects. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPreviousProjects();
+  }, [navigate]);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -42,12 +62,18 @@ const PreviousProjects = () => {
           >
             Students
           </Link>
-          <span className="text-white no-underline mx-4 text-base font-bold">
+          <Link
+            to="/supervisor/approved-projects-logs"
+            className="text-white no-underline mx-4 text-base font-bold hover:underline"
+          >
             Logs
-          </span>
-          <span className="text-white no-underline mx-4 text-base font-bold">
+          </Link>
+          <Link
+            to="/supervisor/progress-reports"
+            className="text-white no-underline mx-4 text-base font-bold hover:underline"
+          >
             Reports
-          </span>
+          </Link>
         </div>
         <button
           onClick={handleSignOut}
@@ -63,57 +89,92 @@ const PreviousProjects = () => {
         </h2>
         <p className="text-gray-600 mb-6">
           View past approved projects for reference.
-        </p>
-
+        </p>{" "}
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">
+              Loading previous projects...
+            </span>
+          </div>
+        )}
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
         {/* Previous Projects Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mt-5">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Project Title
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Student Name
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Year
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {previousProjects.map((project, index) => (
-                <tr key={index}>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.title}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.studentName}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.year}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <Link
-                      to={`/supervisor/previous-project-details?title=${encodeURIComponent(
-                        project.title
-                      )}&student=${encodeURIComponent(
-                        project.studentName
-                      )}&year=${project.year}`}
-                      className="px-3 py-2 bg-cyan-600 text-white border-0 rounded text-sm cursor-pointer no-underline hover:bg-cyan-700"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
+        {!loading && !error && (
+          <div className="overflow-x-auto">
+            {projects.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-lg">No previous projects found</p>
+                <p className="text-sm">
+                  Historical project data will appear here once available.
+                </p>
+              </div>
+            ) : (
+              <table className="w-full border-collapse mt-5">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                      Project Title
+                    </th>
+                    <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                      Student Name
+                    </th>
+                    <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                      Year
+                    </th>
+                    <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                      Status
+                    </th>
+                    <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {projects.map((project, index) => (
+                    <tr key={project.id || index}>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.title}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.studentName}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.year ||
+                          new Date(project.createdAt).getFullYear()}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            project.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {project.status || "Completed"}
+                        </span>
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        <Link
+                          to={`/supervisor/previous-project-details/${project.id}`}
+                          className="px-3 py-2 bg-cyan-600 text-white border-0 rounded text-sm cursor-pointer no-underline hover:bg-cyan-700"
+                        >
+                          View Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
         <Link
           to="/supervisor/dashboard"
           className="inline-block mt-5 no-underline text-blue-600 font-bold hover:text-blue-800"

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { submitProposal } from "../../API/StudentAPI";
+import { submitProposal, getActiveProject } from "../../API/StudentAPI";
+import { getAllSupervisors } from "../../API/SupervisorAPI";
 
 const ProposeProject = () => {
   const navigate = useNavigate();
@@ -15,21 +16,54 @@ const ProposeProject = () => {
     submitted_to: "",
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [supervisors, setSupervisors] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);  const [supervisors, setSupervisors] = useState([]);
+  const [loadingSupervisors, setLoadingSupervisors] = useState(true);
+  const [hasActiveProject, setHasActiveProject] = useState(false);
+  const [activeProject, setActiveProject] = useState(null);
+  const [checkingActiveProject, setCheckingActiveProject] = useState(true);
   
-  // Mock supervisors - in a real app, you'd fetch this from API
+  // Fetch supervisors from API
   useEffect(() => {
-    // You could add a getSupervisors API call here
-    setSupervisors([
-      { id: 1, name: 'Dr. John Smith', specialization: 'AI/ML' },
-      { id: 2, name: 'Dr. Jane Doe', specialization: 'Web Development' },
-      { id: 3, name: 'Dr. Mike Johnson', specialization: 'Data Science' },
-      { id: 4, name: 'Dr. Sarah Wilson', specialization: 'Mobile Development' },
-      { id: 5, name: 'Dr. Ahmad Hassan', specialization: 'Cybersecurity' }
-    ]);
+    const fetchSupervisors = async () => {
+      try {
+        setLoadingSupervisors(true);
+        const response = await getAllSupervisors();
+        if (response.success) {
+          setSupervisors(response.supervisors);
+        } else {
+          console.error('Failed to fetch supervisors');
+          setSupervisors([]);
+        }
+      } catch (error) {
+        console.error('Error fetching supervisors:', error);
+        setSupervisors([]);
+      } finally {
+        setLoadingSupervisors(false);
+      }
+    };    fetchSupervisors();
   }, []);
+
+  // Check if student has active project
+  useEffect(() => {
+    const checkActiveProject = async () => {
+      if (!user?.id) return;
+      
+      try {
+        setCheckingActiveProject(true);
+        const response = await getActiveProject(user.id);
+        if (response.success) {
+          setHasActiveProject(response.hasActiveProject);
+          setActiveProject(response.activeProject);
+        }
+      } catch (error) {
+        console.error('Error checking active project:', error);
+      } finally {
+        setCheckingActiveProject(false);
+      }
+    };
+
+    checkActiveProject();
+  }, [user?.id]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -117,7 +151,6 @@ const ProposeProject = () => {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
@@ -128,7 +161,39 @@ const ProposeProject = () => {
           Fill in the details of your proposed project below:
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {checkingActiveProject ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-2">Checking project status...</p>
+          </div>
+        ) : hasActiveProject ? (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">
+                  You already have an active project
+                </h3>
+                <p className="text-sm text-yellow-700 mt-1">
+                  You can only have one active project at a time. Your current active project is: <strong>{activeProject?.title}</strong>
+                </p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Link
+                to="/student/project-status"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+              >
+                View Current Project Status
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
           {/* Project Title */}
           <div>
             <label
@@ -240,22 +305,24 @@ const ProposeProject = () => {
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
               Submit to Supervisor *
-            </label>
-            <select
+            </label>            <select
               id="submitted_to"
               name="submitted_to"
               value={formData.submitted_to}
               onChange={handleInputChange}
+              disabled={loadingSupervisors}
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                 errors.submitted_to
                   ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              }`}
+              } ${loadingSupervisors ? "bg-gray-100 cursor-not-allowed" : ""}`}
             >
-              <option value="">Select Supervisor</option>
-              {supervisors.map((supervisor) => (
-                <option key={supervisor.id} value={supervisor.id}>
-                  {supervisor.name} - {supervisor.specialization}
+              <option value="">
+                {loadingSupervisors ? "Loading supervisors..." : "Select Supervisor"}
+              </option>
+              {!loadingSupervisors && supervisors.map((supervisor) => (
+                <option key={supervisor.user_id} value={supervisor.user_id}>
+                  {supervisor.name} ({supervisor.email})
                 </option>
               ))}
             </select>
@@ -309,9 +376,9 @@ const ProposeProject = () => {
               ) : (
                 "Submit Proposal"
               )}
-            </button>
-          </div>
+            </button>          </div>
         </form>
+        )}
 
         {/* Back Link */}
         <div className="text-center mt-8">

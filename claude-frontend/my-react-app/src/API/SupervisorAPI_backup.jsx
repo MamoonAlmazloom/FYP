@@ -7,17 +7,11 @@ import api from "./clientAPI";
  * @param {boolean} activeOnly - Filter only active students
  * @returns {Promise<Object>} - Students data
  */
-export const getStudentsBySupervisor = async (
-  supervisorId,
-  activeOnly = false
-) => {
+export const getStudentsBySupervisor = async (supervisorId, activeOnly = false) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/students`,
-      {
-        params: { active: activeOnly },
-      }
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/students`, {
+      params: { active: activeOnly }
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -31,25 +25,7 @@ export const getStudentsBySupervisor = async (
  */
 export const getProposalsBySupervisor = async (supervisorId) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/proposals`
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-/**
- * Get supervisor's own proposals
- * @param {number} supervisorId - Supervisor's ID
- * @returns {Promise<Object>} - Supervisor's own proposals
- */
-export const getSupervisorOwnProposals = async (supervisorId) => {
-  try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/my-proposals`
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/proposals`);
     return response.data;
   } catch (error) {
     throw error;
@@ -64,9 +40,7 @@ export const getSupervisorOwnProposals = async (supervisorId) => {
  */
 export const getProposalDetails = async (supervisorId, proposalId) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/proposals/${proposalId}`
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/proposals/${proposalId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -81,20 +55,12 @@ export const getProposalDetails = async (supervisorId, proposalId) => {
  * @param {string} comments - Optional comments
  * @returns {Promise<Object>} - Decision response
  */
-export const submitProposalDecision = async (
-  supervisorId,
-  proposalId,
-  decision,
-  comments = ""
-) => {
+export const submitProposalDecision = async (supervisorId, proposalId, decision, comments = "") => {
   try {
-    const response = await api.post(
-      `/api/supervisors/${supervisorId}/proposal-decision/${proposalId}`,
-      {
-        decision,
-        comments,
-      }
-    );
+    const response = await api.post(`/api/supervisors/${supervisorId}/proposal-decision/${proposalId}`, {
+      decision,
+      comments
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -109,20 +75,12 @@ export const submitProposalDecision = async (
  * @param {string} comments - Optional comments
  * @returns {Promise<Object>} - Review response
  */
-export const reviewStudentProposal = async (
-  supervisorId,
-  proposalId,
-  decision,
-  comments = ""
-) => {
+export const reviewStudentProposal = async (supervisorId, proposalId, decision, comments = "") => {
   try {
-    const response = await api.post(
-      `/api/supervisors/${supervisorId}/review-proposal/${proposalId}`,
-      {
-        decision,
-        comments,
-      }
-    );
+    const response = await api.post(`/api/supervisors/${supervisorId}/review-proposal/${proposalId}`, {
+      decision,
+      comments
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -137,9 +95,7 @@ export const reviewStudentProposal = async (
  */
 export const getStudentDetails = async (supervisorId, studentId) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/students/${studentId}`
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/students/${studentId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -154,21 +110,13 @@ export const getStudentDetails = async (supervisorId, studentId) => {
  * @param {string} endDate - Optional end date filter
  * @returns {Promise<Object>} - Student logs
  */
-export const getStudentLogs = async (
-  supervisorId,
-  studentId,
-  startDate = null,
-  endDate = null
-) => {
+export const getStudentLogs = async (supervisorId, studentId, startDate = null, endDate = null) => {
   try {
     const params = {};
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
-
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/students/${studentId}/logs`,
-      { params }
-    );
+    
+    const response = await api.get(`/api/supervisors/${supervisorId}/students/${studentId}/logs`, { params });
     return response.data;
   } catch (error) {
     throw error;
@@ -184,12 +132,9 @@ export const getStudentLogs = async (
  */
 export const provideFeedbackOnLog = async (supervisorId, logId, comments) => {
   try {
-    const response = await api.post(
-      `/api/supervisors/${supervisorId}/feedback/log/${logId}`,
-      {
-        comments,
-      }
-    );
+    const response = await api.post(`/api/supervisors/${supervisorId}/feedback/log/${logId}`, {
+      comments
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -204,21 +149,13 @@ export const provideFeedbackOnLog = async (supervisorId, logId, comments) => {
  * @param {string} endDate - Optional end date filter
  * @returns {Promise<Object>} - Student reports
  */
-export const getStudentReports = async (
-  supervisorId,
-  studentId,
-  startDate = null,
-  endDate = null
-) => {
+export const getStudentReports = async (supervisorId, studentId, startDate = null, endDate = null) => {
   try {
     const params = {};
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
-
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/students/${studentId}/reports`,
-      { params }
-    );
+    
+    const response = await api.get(`/api/supervisors/${supervisorId}/students/${studentId}/reports`, { params });
     return response.data;
   } catch (error) {
     throw error;
@@ -232,18 +169,11 @@ export const getStudentReports = async (
  * @param {string} comments - Feedback comments
  * @returns {Promise<Object>} - Feedback response
  */
-export const provideFeedbackOnReport = async (
-  supervisorId,
-  reportId,
-  comments
-) => {
+export const provideFeedbackOnReport = async (supervisorId, reportId, comments) => {
   try {
-    const response = await api.post(
-      `/api/supervisors/${supervisorId}/feedback/report/${reportId}`,
-      {
-        comments,
-      }
-    );
+    const response = await api.post(`/api/supervisors/${supervisorId}/feedback/report/${reportId}`, {
+      comments
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -257,9 +187,7 @@ export const provideFeedbackOnReport = async (
  */
 export const getPreviousProjects = async (supervisorId) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/previous-projects`
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/previous-projects`);
     return response.data;
   } catch (error) {
     throw error;
@@ -274,9 +202,7 @@ export const getPreviousProjects = async (supervisorId) => {
  */
 export const getProjectDetails = async (supervisorId, projectId) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/previous-projects/${projectId}`
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/previous-projects/${projectId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -291,10 +217,7 @@ export const getProjectDetails = async (supervisorId, projectId) => {
  */
 export const proposeProject = async (supervisorId, projectData) => {
   try {
-    const response = await api.post(
-      `/api/supervisors/${supervisorId}/propose-project`,
-      projectData
-    );
+    const response = await api.post(`/api/supervisors/${supervisorId}/propose-project`, projectData);
     return response.data;
   } catch (error) {
     throw error;
@@ -309,9 +232,7 @@ export const proposeProject = async (supervisorId, projectData) => {
  */
 export const getSupervisorProposal = async (supervisorId, proposalId) => {
   try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/my-proposals/${proposalId}`
-    );
+    const response = await api.get(`/api/supervisors/${supervisorId}/my-proposals/${proposalId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -325,16 +246,9 @@ export const getSupervisorProposal = async (supervisorId, proposalId) => {
  * @param {Object} proposalData - Updated proposal data
  * @returns {Promise<Object>} - Update response
  */
-export const updateSupervisorProposal = async (
-  supervisorId,
-  proposalId,
-  proposalData
-) => {
+export const updateSupervisorProposal = async (supervisorId, proposalId, proposalData) => {
   try {
-    const response = await api.put(
-      `/api/supervisors/${supervisorId}/my-proposals/${proposalId}`,
-      proposalData
-    );
+    const response = await api.put(`/api/supervisors/${supervisorId}/my-proposals/${proposalId}`, proposalData);
     return response.data;
   } catch (error) {
     throw error;
@@ -347,7 +261,108 @@ export const updateSupervisorProposal = async (
  */
 export const getAllSupervisors = async () => {
   try {
-    const response = await api.get("/api/supervisors");
+    const response = await api.get('/api/supervisors');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Get student progress logs
+ * @param {number} studentId - Student's ID
+ * @returns {Promise<Object>} - Progress logs data
+ */
+export const getStudentProgressLogs = async (studentId) => {
+  try {
+    const response = await api.get(`/api/students/${studentId}/progress-logs`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Submit feedback for progress log
+ * @param {number} logId - Progress log ID
+ * @param {string} feedback - Supervisor feedback
+ * @returns {Promise<Object>} - Response data
+ */
+export const submitProgressFeedback = async (logId, feedback) => {
+  try {
+    const response = await api.post(`/api/progress-logs/${logId}/feedback`, { feedback });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Get student progress reports
+ * @param {number} studentId - Student's ID
+ * @returns {Promise<Object>} - Progress reports data
+ */
+export const getStudentProgressReports = async (studentId) => {
+  try {
+    const response = await api.get(`/api/students/${studentId}/progress-reports`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Submit feedback for progress report
+ * @param {number} reportId - Progress report ID
+ * @param {string} feedback - Supervisor feedback
+ * @returns {Promise<Object>} - Response data
+ */
+export const submitReportFeedback = async (reportId, feedback) => {
+  try {
+    const response = await api.post(`/api/progress-reports/${reportId}/feedback`, { feedback });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Propose a new project
+ * @param {Object} projectData - Project proposal data
+ * @returns {Promise<Object>} - Response data
+ */
+export const proposeNewProject = async (projectData) => {
+  try {
+    const response = await api.post('/api/supervisors/propose-project', projectData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Update an existing proposal
+ * @param {number} proposalId - Proposal ID
+ * @param {Object} proposalData - Updated proposal data
+ * @returns {Promise<Object>} - Response data
+ */
+export const updateProposal = async (proposalId, proposalData) => {
+  try {
+    const response = await api.put(`/api/proposals/${proposalId}`, proposalData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Get project details
+ * @param {number} projectId - Project ID
+ * @returns {Promise<Object>} - Project details
+ */
+export const getProjectDetails = async (projectId) => {
+  try {
+    const response = await api.get(`/api/projects/${projectId}`);
     return response.data;
   } catch (error) {
     throw error;

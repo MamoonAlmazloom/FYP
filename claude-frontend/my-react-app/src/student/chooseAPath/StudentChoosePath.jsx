@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getStudentProjects, getStudentProposals } from "../../API/StudentAPI";
 
 const StudentChoosePath = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
@@ -47,10 +47,13 @@ const StudentChoosePath = () => {
       } finally {
         setLoading(false);
       }
-    };
-
-    checkStudentStatus();
+    };    checkStudentStatus();
   }, [user, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const getApprovedProposals = () => {
     return proposals.filter(p => p.status_name?.toLowerCase() === 'approved');
@@ -90,17 +93,28 @@ const StudentChoosePath = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Welcome, {user?.name || 'Student'}!
-          </h2>
-          <p className="text-gray-600">
-            Choose how you would like to proceed with your FYP selection.
-          </p>
+        {/* Header with logout button */}
+        <div className="flex justify-between items-start mb-8">
+          <div className="text-center flex-1">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Welcome, {user?.name || 'Student'}!
+            </h2>
+            <p className="text-gray-600">
+              Choose how you would like to proceed with your FYP selection.
+            </p>
+          </div>          <button
+            onClick={handleLogout}
+            className="ml-4 px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+            title="Logout"
+          >
+            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
         </div>
 
         {/* Status Information */}

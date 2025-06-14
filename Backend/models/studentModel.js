@@ -322,6 +322,60 @@ const getStudentProjects = async (studentId) => {
   }
 };
 
+/**
+ * Check if student has any active projects (approved or pending proposals)
+ * @param {number} studentId - The ID of the student
+ * @returns {Promise<boolean>} - True if student has active project, false otherwise
+ */
+const hasActiveProject = async (studentId) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT COUNT(*) as count
+       FROM Proposal p
+       WHERE p.submitted_by = ?
+       AND p.status_id IN (
+         SELECT status_id FROM Proposal_Status 
+         WHERE status_name IN ('Approved', 'Pending')
+       )`,
+      [studentId]
+    );
+    return rows[0].count > 0;
+  } catch (error) {
+    console.error("Error in hasActiveProject:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get student's active project details (approved or latest pending)
+ * @param {number} studentId - The ID of the student
+ * @returns {Promise<Object|null>} - Active project details or null if none
+ */
+const getActiveProject = async (studentId) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT p.proposal_id, p.project_id, p.title, p.proposal_description, 
+              p.type, p.specialization, p.outcome, ps.status_name,
+              u.name as supervisor_name
+       FROM Proposal p
+       JOIN Proposal_Status ps ON p.status_id = ps.status_id
+       LEFT JOIN User u ON p.submitted_to = u.user_id
+       WHERE p.submitted_by = ?
+       AND p.status_id IN (
+         SELECT status_id FROM Proposal_Status 
+         WHERE status_name IN ('Approved', 'Pending')
+       )
+       ORDER BY p.proposal_id DESC
+       LIMIT 1`,
+      [studentId]
+    );
+    return rows.length > 0 ? rows[0] : null;
+  } catch (error) {
+    console.error("Error in getActiveProject:", error);
+    throw error;
+  }
+};
+
 export default {
   getStudentById,
   getProgressLogs,
@@ -332,4 +386,6 @@ export default {
   selectProject,
   getFeedback,
   getStudentProjects,
+  hasActiveProject,
+  getActiveProject,
 };

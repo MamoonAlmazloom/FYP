@@ -1,34 +1,70 @@
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../API/authAPI";
+import { getProjectDetails } from "../API/SupervisorAPI";
 
 const PreviousProjectDetails = () => {
-  const [searchParams] = useSearchParams();
-  const [projectInfo, setProjectInfo] = useState({
-    title: "Unknown Title",
-    studentName: "Unknown Student",
-    year: "Unknown Year",
-  });
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const projectTitle = searchParams.get("title") || "Unknown Title";
-    const studentName = searchParams.get("student") || "Unknown Student";
-    const year = searchParams.get("year") || "Unknown Year";
+    const loadProjectDetails = async () => {
+      try {
+        setLoading(true);
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          navigate("/login");
+          return;
+        }
+        setUser(currentUser);
 
-    setProjectInfo({
-      title: projectTitle,
-      studentName,
-      year,
-    });
-  }, [searchParams]);
+        if (!projectId) {
+          navigate("/supervisor/previous-projects");
+          return;
+        }
 
+        const response = await getProjectDetails(currentUser.id, projectId);
+        if (response.success) {
+          setProject(response.project);
+        } else {
+          setError(response.error || "Failed to load project details");
+        }
+      } catch (err) {
+        console.error("Error loading project details:", err);
+        setError("Failed to load project details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjectDetails();
+  }, [navigate, projectId]);
   const handleSignOut = () => {
-    console.log("Sign out clicked");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   const handleDownload = (fileType) => {
-    console.log(`Downloading ${fileType} for project: ${projectInfo.title}`);
-    // Handle download logic here
+    console.log(`Downloading ${fileType} for project: ${project?.title}`);
+    // Handle download logic here - would typically trigger a file download
+    // This could be implemented by making an API call to get the file URL
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading project details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -41,19 +77,25 @@ const PreviousProjectDetails = () => {
             className="text-white no-underline mx-4 text-base font-bold hover:underline"
           >
             Home
-          </Link>
+          </Link>{" "}
           <Link
             to="/supervisor/my-students"
             className="text-white no-underline mx-4 text-base font-bold hover:underline"
           >
             Students
           </Link>
-          <span className="text-white no-underline mx-4 text-base font-bold">
+          <Link
+            to="/supervisor/approved-projects-logs"
+            className="text-white no-underline mx-4 text-base font-bold hover:underline"
+          >
             Logs
-          </span>
-          <span className="text-white no-underline mx-4 text-base font-bold">
+          </Link>
+          <Link
+            to="/supervisor/progress-reports"
+            className="text-white no-underline mx-4 text-base font-bold hover:underline"
+          >
             Reports
-          </span>
+          </Link>
         </div>
         <button
           onClick={handleSignOut}
@@ -61,38 +103,102 @@ const PreviousProjectDetails = () => {
         >
           Sign Out
         </button>
-      </div>
-
+      </div>{" "}
       <div className="max-w-4xl mx-auto my-5 p-5 bg-white rounded-lg shadow-lg text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          View Previous Project Details
+          Previous Project Details
         </h2>
 
-        {/* Project Information */}
-        <div className="bg-gray-50 p-4 rounded mb-4 text-left">
-          <p className="mb-3">
-            <strong>Project Title:</strong> {projectInfo.title}
-          </p>
-          <p className="mb-3">
-            <strong>Student Name:</strong> {projectInfo.studentName}
-          </p>
-          <p className="mb-3">
-            <strong>Year:</strong> {projectInfo.year}
-          </p>
-          <p className="mb-3">
-            <strong>Project Summary:</strong> This project explores the use of
-            artificial intelligence in diagnosing medical conditions using
-            patient data.
-          </p>
-          <p className="mb-3">
-            <strong>Technologies Used:</strong> Python, TensorFlow, Deep
-            Learning
-          </p>
-          <p className="mb-0">
-            <strong>Outcome:</strong> The model achieved 92% accuracy in
-            diagnosing respiratory diseases.
-          </p>
-        </div>
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
+        {project ? (
+          <>
+            {/* Project Information */}
+            <div className="bg-gray-50 p-4 rounded mb-4 text-left">
+              <p className="mb-3">
+                <strong>Project Title:</strong> {project.title}
+              </p>
+              <p className="mb-3">
+                <strong>Student Name:</strong> {project.studentName}
+              </p>
+              <p className="mb-3">
+                <strong>Year:</strong>{" "}
+                {project.year || new Date(project.createdAt).getFullYear()}
+              </p>
+              <p className="mb-3">
+                <strong>Status:</strong>
+                <span
+                  className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                    project.status === "completed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  {project.status || "Completed"}
+                </span>
+              </p>
+              {project.description && (
+                <p className="mb-3">
+                  <strong>Project Description:</strong> {project.description}
+                </p>
+              )}
+              {project.objectives && (
+                <p className="mb-3">
+                  <strong>Objectives:</strong> {project.objectives}
+                </p>
+              )}
+              {project.technologies && (
+                <p className="mb-3">
+                  <strong>Technologies Used:</strong> {project.technologies}
+                </p>
+              )}
+              {project.outcome && (
+                <p className="mb-0">
+                  <strong>Outcome:</strong> {project.outcome}
+                </p>
+              )}
+            </div>
+
+            {/* Download Links */}
+            <div className="bg-blue-50 p-4 rounded mb-4">
+              <h3 className="text-lg font-bold text-gray-800 mb-3">
+                Available Documents
+              </h3>
+              <div className="flex flex-wrap justify-center gap-3">
+                <button
+                  onClick={() => handleDownload("Final Report")}
+                  className="px-4 py-2 bg-blue-600 text-white border-0 rounded text-sm cursor-pointer hover:bg-blue-700"
+                >
+                  📄 Final Report
+                </button>
+                <button
+                  onClick={() => handleDownload("Source Code")}
+                  className="px-4 py-2 bg-green-600 text-white border-0 rounded text-sm cursor-pointer hover:bg-green-700"
+                >
+                  💻 Source Code
+                </button>
+                <button
+                  onClick={() => handleDownload("Presentation")}
+                  className="px-4 py-2 bg-purple-600 text-white border-0 rounded text-sm cursor-pointer hover:bg-purple-700"
+                >
+                  📊 Presentation
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p className="text-lg">Project not found</p>
+            <p className="text-sm">
+              The requested project details could not be loaded.
+            </p>
+          </div>
+        )}
 
         {/* Download Project Files */}
         <div className="mt-5 text-left">

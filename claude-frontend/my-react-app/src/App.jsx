@@ -33,6 +33,8 @@ import PreviousProjects from "./supervisor/PreviousProjects";
 import PreviousProjectDetails from "./supervisor/PreviousProjectDetails";
 import SupervisorViewProgressLog from "./supervisor/ViewProgressLog";
 import SupervisorViewProgressReport from "./supervisor/ViewProgressReport";
+import TestViewProgressLog from "./supervisor/TestViewProgressLog";
+import DataDisplayTest from "./supervisor/DataDisplayTest";
 
 // Manager Components
 import ManagerDashboard from "./manager/ManagerDashboard";
@@ -243,6 +245,44 @@ function App() {
           element={<ProtectedProposedTitles />}
         />
         <Route
+          path="/supervisor/student-details/:studentId"
+          element={<ProtectedStudentDetails />}
+        />
+        <Route
+          path="/supervisor/proposal-action/:proposalId"
+          element={<ProtectedProposalAction />}
+        />
+        <Route
+          path="/supervisor/view-proposal/:proposalId"
+          element={<ProtectedSupervisorViewProposal />}
+        />
+        <Route
+          path="/supervisor/modify-proposal/:proposalId"
+          element={<ProtectedSupervisorModifyProposal />}
+        />
+        <Route
+          path="/supervisor/previous-projects"
+          element={<ProtectedSupervisorPreviousProjects />}
+        />
+        <Route
+          path="/supervisor/previous-project-details/:projectId"
+          element={<ProtectedSupervisorPreviousProjectDetails />}
+        />
+        <Route
+          path="/supervisor/view-progress-log/:studentId"
+          element={<ProtectedSupervisorViewProgressLog />}
+        />
+        <Route
+          path="/supervisor/view-progress-report/:studentId"
+          element={<ProtectedSupervisorViewProgressReport />}
+        />
+
+        {/* Test Route */}
+        <Route path="/test/progress-log" element={<TestViewProgressLog />} />
+        <Route path="/test/data-display" element={<DataDisplayTest />} />
+
+        {/* Legacy routes for backward compatibility */}
+        <Route
           path="/supervisor/student-details"
           element={<ProtectedStudentDetails />}
         />
@@ -253,14 +293,6 @@ function App() {
         <Route
           path="/supervisor/view-proposal"
           element={<ProtectedSupervisorViewProposal />}
-        />
-        <Route
-          path="/supervisor/modify-proposal"
-          element={<ProtectedSupervisorModifyProposal />}
-        />
-        <Route
-          path="/supervisor/previous-projects"
-          element={<ProtectedSupervisorPreviousProjects />}
         />
         <Route
           path="/supervisor/previous-project-details"

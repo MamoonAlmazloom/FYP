@@ -40,6 +40,15 @@ const submitProposal = async (req, res, next) => {
       });
     }
 
+    // Check if student already has an active project
+    const hasActive = await studentModel.hasActiveProject(studentId);
+    if (hasActive) {
+      return res.status(400).json({
+        success: false,
+        error: "You already have an active project. You can only have one active project at a time.",
+      });
+    }
+
     // Validate type enum
     if (!["Research", "Application", "Both"].includes(type)) {
       return res.status(400).json({
@@ -283,6 +292,15 @@ const selectProject = async (req, res, next) => {
       });
     }
 
+    // Check if student already has an active project
+    const hasActive = await studentModel.hasActiveProject(studentId);
+    if (hasActive) {
+      return res.status(400).json({
+        success: false,
+        error: "You already have an active project. You can only have one active project at a time.",
+      });
+    }
+
     const proposalId = await studentModel.selectProject(studentId, project_id);
 
     if (proposalId) {
@@ -381,6 +399,24 @@ const getStudentProjects = async (req, res, next) => {
   }
 };
 
+/**
+ * Get student's active project status
+ */
+const getActiveProject = async (req, res, next) => {
+  try {
+    const studentId = req.params.studentId;
+    const activeProject = await studentModel.getActiveProject(studentId);
+    
+    res.status(200).json({ 
+      success: true, 
+      hasActiveProject: !!activeProject,
+      activeProject: activeProject 
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   listProposals,
   submitProposal,
@@ -395,4 +431,5 @@ export default {
   getFeedback,
   getProposalStatus,
   getStudentProjects,
+  getActiveProject,
 };

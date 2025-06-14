@@ -247,3 +247,17 @@ export const hasActiveProject = async (studentId) => {
     return false;
   }
 };
+
+/**
+ * Get student's active project details
+ * @param {number} studentId - Student's ID
+ * @returns {Promise<Object>} - Active project information
+ */
+export const getActiveProject = async (studentId) => {
+  try {
+    const response = await api.get(`/api/students/${studentId}/active-project`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

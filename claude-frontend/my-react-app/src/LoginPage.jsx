@@ -95,15 +95,19 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
-
   // Demo credentials for different roles
   const demoCredentials = [
     { role: "Manager", email: "admin@gmail.com", password: "admin" },
     { role: "Student", email: "student@gmail.com", password: "student" },
     {
       role: "Supervisor",
-      email: "supervisor@gmail.com",
-      password: "supervisor",
+      email: "dr.smith@example.com",
+      password: "supervisor123",
+    },
+    {
+      role: "Supervisor 2",
+      email: "supervisor@example.com",
+      password: "supervisor123",
     },
     { role: "Moderator", email: "moderator@gmail.com", password: "moderator" },
     { role: "Examiner", email: "examiner@gmail.com", password: "examiner" },

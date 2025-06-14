@@ -41,22 +41,6 @@ export const getProposalsBySupervisor = async (supervisorId) => {
 };
 
 /**
- * Get supervisor's own proposals
- * @param {number} supervisorId - Supervisor's ID
- * @returns {Promise<Object>} - Supervisor's own proposals
- */
-export const getSupervisorOwnProposals = async (supervisorId) => {
-  try {
-    const response = await api.get(
-      `/api/supervisors/${supervisorId}/my-proposals`
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-/**
  * Get specific proposal details
  * @param {number} supervisorId - Supervisor's ID
  * @param {number} proposalId - Proposal ID

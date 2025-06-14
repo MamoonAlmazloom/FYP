@@ -56,6 +56,30 @@ const getProposalsBySupervisor = async (supervisorId) => {
 };
 
 /**
+ * Get proposals created by a supervisor (supervisor's own proposals)
+ * @param {number} supervisorId - The ID of the supervisor
+ * @returns {Promise<Array>} - Array of supervisor's own proposals
+ */
+const getSupervisorOwnProposals = async (supervisorId) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT p.proposal_id, p.title, p.proposal_description, 
+              p.type, p.specialization, p.outcome,
+              ps.status_name, p.submission_date
+       FROM Proposal p
+       JOIN Proposal_Status ps ON p.status_id = ps.status_id
+       WHERE p.submitted_by = ? AND p.submitted_to IS NULL
+       ORDER BY p.proposal_id DESC`,
+      [supervisorId]
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error in getSupervisorOwnProposals:", error);
+    throw error;
+  }
+};
+
+/**
  * Provide feedback on a proposal
  * @param {number} proposalId - The ID of the proposal
  * @param {number} supervisorId - The ID of the supervisor
@@ -488,6 +512,7 @@ const getAllSupervisors = async () => {
 export default {
   getStudentsBySupervisor,
   getProposalsBySupervisor,
+  getSupervisorOwnProposals,
   provideFeedback,
   getStudentProjects,
   getStudentLogs,

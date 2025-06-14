@@ -39,6 +39,21 @@ const viewProjectProposals = async (req, res, next) => {
 };
 
 /**
+ * Get supervisor's own proposals
+ */
+const getSupervisorOwnProposals = async (req, res, next) => {
+  try {
+    const supervisorId = req.params.supervisorId;
+    const proposals = await supervisorModel.getSupervisorOwnProposals(
+      supervisorId
+    );
+    res.status(200).json({ success: true, proposals });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Get proposal details
  */
 const getProposalDetails = async (req, res, next) => {
@@ -155,12 +170,27 @@ const getStudentLogs = async (req, res, next) => {
     const studentId = req.params.studentId;
     const { startDate, endDate } = req.query;
 
+    // Get student logs
     const logs = await supervisorModel.getStudentLogs(
       studentId,
       startDate,
       endDate
     );
-    res.status(200).json({ success: true, logs });
+
+    // Get student information
+    const student = await studentModel.getStudentById(studentId);
+
+    res.status(200).json({
+      success: true,
+      logs,
+      student: student
+        ? {
+            id: student.id,
+            name: student.name,
+            email: student.email,
+          }
+        : null,
+    });
   } catch (err) {
     next(err);
   }
@@ -207,12 +237,27 @@ const getStudentReports = async (req, res, next) => {
     const studentId = req.params.studentId;
     const { startDate, endDate } = req.query;
 
+    // Get student reports
     const reports = await supervisorModel.getStudentReports(
       studentId,
       startDate,
       endDate
     );
-    res.status(200).json({ success: true, reports });
+
+    // Get student information
+    const student = await studentModel.getStudentById(studentId);
+
+    res.status(200).json({
+      success: true,
+      reports,
+      student: student
+        ? {
+            id: student.id,
+            name: student.name,
+            email: student.email,
+          }
+        : null,
+    });
   } catch (err) {
     next(err);
   }
@@ -512,4 +557,5 @@ export default {
   updateProposal,
   reviewStudentProposal,
   getAllSupervisors,
+  getSupervisorOwnProposals,
 };

@@ -17,6 +17,12 @@ router.get(
   supervisorController.viewProjectProposals
 );
 
+// Get supervisor's own proposals
+router.get(
+  "/:supervisorId/my-proposals",
+  supervisorController.getSupervisorOwnProposals
+);
+
 // Get the selected proposed title details
 router.get(
   "/:supervisorId/proposals/:proposalId",
