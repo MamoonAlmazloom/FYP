@@ -1,44 +1,74 @@
-﻿// ModifyProposal.jsx - Copy content from artifact 'modify_proposal'
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { getProposalStatus, updateProposal } from "../API/StudentAPI";
 
 const ModifyProposal = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const proposalId = searchParams.get('id');
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    file: null,
+    type: "Research",
+    specialization: "",
+    outcome: "",
   });
+  const [originalProposal, setOriginalProposal] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // Simulate loading existing proposal data
   useEffect(() => {
-    // In real app, this would fetch from API
-    const existingProposal = {
-      title: "AI-Based Medical Diagnosis System",
-      description:
-        "The project aims to develop an AI model that assists doctors in diagnosing diseases based on patient symptoms and test results. Current challenges include data sourcing and model accuracy tuning.",
+    const fetchProposal = async () => {
+      try {
+        if (!user?.id) {
+          setErrors({ general: 'User not found. Please log in again.' });
+          return;
+        }
+
+        if (!proposalId) {
+          setErrors({ general: 'Proposal ID not provided.' });
+          return;
+        }
+
+        setLoading(true);
+        const response = await getProposalStatus(user.id, proposalId);
+        
+        if (response.success) {
+          const proposal = response.proposal;
+          setOriginalProposal(proposal);
+          
+          // Populate form with existing data
+          setFormData({
+            title: proposal.title || "",
+            description: proposal.proposal_description || "",
+            type: proposal.type || "Research",
+            specialization: proposal.specialization || "",
+            outcome: proposal.outcome || "",
+          });
+        } else {
+          setErrors({ general: response.error || 'Failed to load proposal' });
+        }
+      } catch (err) {
+        console.error('Error fetching proposal:', err);
+        setErrors({ general: 'Failed to load proposal' });
+      } finally {
+        setLoading(false);
+      }
     };
-    setFormData((prev) => ({
-      ...prev,
-      ...existingProposal,
-    }));
-  }, []);
+
+    fetchProposal();
+  }, [user, proposalId]);
 
   const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "file") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -62,6 +92,14 @@ const ModifyProposal = () => {
       newErrors.description = "Description should be at least 50 characters";
     }
 
+    if (!formData.specialization.trim()) {
+      newErrors.specialization = "Specialization is required";
+    }
+
+    if (!formData.outcome.trim()) {
+      newErrors.outcome = "Expected outcome is required";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -76,33 +114,97 @@ const ModifyProposal = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!user?.id) {
+        alert('User not found. Please log in again.');
+        navigate('/login');
+        return;
+      }
 
-      console.log("Modified proposal submitted:", formData);
+      // Use the actual StudentAPI function
+      const response = await updateProposal(user.id, proposalId, formData);
 
-      // Show success message and redirect
-      alert(
-        "Modified proposal submitted successfully! You will be notified once it's reviewed."
-      );
-      navigate("/student/project-work");
-    // eslint-disable-next-line no-unused-vars
+      if (response.success) {
+        alert(
+          "Modified proposal submitted successfully! You will be notified once it's reviewed."
+        );
+        navigate("/student/project-status");
+      } else {
+        alert("Failed to submit modified proposal: " + (response.error || 'Unknown error'));
+      }
     } catch (error) {
-      alert("Failed to submit modified proposal. Please try again.");
+      console.error('Error submitting modified proposal:', error);
+      
+      if (error.response) {
+        const errorMessage = error.response.data.error || 'Server error occurred';
+        alert('Error: ' + errorMessage);
+      } else if (error.request) {
+        alert('Network error: Please check your connection');
+      } else {
+        alert('Unexpected error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading proposal data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (errors.general) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{errors.general}</p>
+          <div className="space-y-3">
+            <Link
+              to="/student/project-status"
+              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            >
+              View All Proposals
+            </Link>
+            <Link
+              to="/student/project-work"
+              className="block w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            >
+              Back to Project Work
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">
           Modify Proposal
         </h2>
-        <p className="text-gray-600 text-center mb-8">
+        <p className="text-gray-600 text-center mb-2">
           Edit your submitted proposal before resubmitting.
         </p>
+        
+        {/* Original Proposal Info */}
+        {originalProposal && (
+          <div className="bg-blue-50 p-4 rounded-lg mb-8">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">Original Proposal</h3>
+            <div className="text-sm text-blue-700">
+              <p><strong>Status:</strong> {originalProposal.status_name}</p>
+              <p><strong>Submitted:</strong> {originalProposal.submission_date ? 
+                new Date(originalProposal.submission_date).toLocaleDateString() : 'N/A'}</p>
+              <p><strong>To:</strong> {originalProposal.reviewer_name || 'N/A'}</p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Proposal Title */}
@@ -111,7 +213,7 @@ const ModifyProposal = () => {
               htmlFor="title"
               className="block text-sm font-bold text-gray-700 mb-2"
             >
-              Proposal Title:
+              Proposal Title *
             </label>
             <input
               type="text"
@@ -122,8 +224,9 @@ const ModifyProposal = () => {
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                 errors.title
                   ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+                  : "border-gray-300 focus:border-yellow-500 focus:ring-yellow-200"
               }`}
+              placeholder="Enter your proposal title"
               required
             />
             {errors.title && (
@@ -137,7 +240,7 @@ const ModifyProposal = () => {
               htmlFor="description"
               className="block text-sm font-bold text-gray-700 mb-2"
             >
-              Proposal Description:
+              Proposal Description * (min. 50 characters)
             </label>
             <textarea
               id="description"
@@ -148,8 +251,9 @@ const ModifyProposal = () => {
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                 errors.description
                   ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+                  : "border-gray-300 focus:border-yellow-500 focus:ring-yellow-200"
               }`}
+              placeholder="Provide a detailed description of your project..."
               required
             />
             <div className="flex justify-between mt-1">
@@ -162,54 +266,93 @@ const ModifyProposal = () => {
             </div>
           </div>
 
-          {/* File Upload */}
+          {/* Project Type */}
           <div>
             <label
-              htmlFor="file"
+              htmlFor="type"
               className="block text-sm font-bold text-gray-700 mb-2"
             >
-              Upload Updated Proposal (PDF):
+              Project Type *
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors">
-              <div className="space-y-1 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="flex text-sm text-gray-600">
-                  <label
-                    htmlFor="file"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file"
-                      name="file"
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleInputChange}
-                      className="sr-only"
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500">PDF up to 10MB</p>
-                {formData.file && (
-                  <p className="text-sm text-green-600 mt-2">
-                    Selected: {formData.file.name}
-                  </p>
-                )}
-              </div>
-            </div>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-yellow-500 focus:ring-yellow-200 transition-colors"
+            >
+              <option value="Research">Research</option>
+              <option value="Application">Application</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+
+          {/* Specialization */}
+          <div>
+            <label
+              htmlFor="specialization"
+              className="block text-sm font-bold text-gray-700 mb-2"
+            >
+              Specialization *
+            </label>
+            <input
+              type="text"
+              id="specialization"
+              name="specialization"
+              value={formData.specialization}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                errors.specialization
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : "border-gray-300 focus:border-yellow-500 focus:ring-yellow-200"
+              }`}
+              placeholder="e.g., AI/ML, Web Development, Mobile Apps"
+              required
+            />
+            {errors.specialization && (
+              <p className="mt-2 text-sm text-red-600">{errors.specialization}</p>
+            )}
+          </div>
+
+          {/* Expected Outcome */}
+          <div>
+            <label
+              htmlFor="outcome"
+              className="block text-sm font-bold text-gray-700 mb-2"
+            >
+              Expected Outcome *
+            </label>
+            <textarea
+              id="outcome"
+              name="outcome"
+              value={formData.outcome}
+              onChange={handleInputChange}
+              rows="4"
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                errors.outcome
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : "border-gray-300 focus:border-yellow-500 focus:ring-yellow-200"
+              }`}
+              placeholder="What do you expect to achieve from this project?"
+              required
+            />
+            {errors.outcome && (
+              <p className="mt-2 text-sm text-red-600">{errors.outcome}</p>
+            )}
+          </div>
+
+          {/* Modification Guidelines */}
+          <div className="bg-yellow-50 p-6 rounded-lg">
+            <h4 className="text-lg font-semibold text-yellow-800 mb-3">
+              ✏️ Modification Guidelines
+            </h4>
+            <ul className="text-sm text-yellow-700 space-y-1">
+              <li>• Address any feedback provided by your supervisor</li>
+              <li>• Be specific about changes made since the original submission</li>
+              <li>• Ensure all technical details are accurate and feasible</li>
+              <li>• Consider the scope and timeline of your project</li>
+              <li>• Make sure your modifications align with your specialization</li>
+            </ul>
           </div>
 
           {/* Submit Button */}

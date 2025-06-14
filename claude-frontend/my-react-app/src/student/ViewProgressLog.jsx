@@ -1,77 +1,58 @@
-﻿// ViewProgressLog.jsx - Copy content from artifact 'view_progress_log'
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { getProgressLogs } from "../API/StudentAPI";
 
 const ViewProgressLog = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const logId = searchParams.get("log");
+  
   const [logData, setLogData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const logId = searchParams.get("log") || "1";
+    const fetchLog = async () => {
+      try {
+        if (!user?.id) {
+          setError('User not found. Please log in again.');
+          return;
+        }
 
-    // Simulate API call to fetch log data
-    setTimeout(() => {
-      // Mock log data based on ID
-      const mockLogs = {
-        1: {
-          id: 1,
-          title: "Week 1 Progress Log",
-          dateSubmitted: "2025-01-15",
-          progressSummary:
-            "Completed initial research and finalized methodology. Set up development environment and created project repository.",
-          challenges:
-            "Difficulty in sourcing dataset; awaiting supervisor's feedback on the proposed approach. Some compatibility issues with the chosen ML frameworks.",
-          nextSteps:
-            "Start data preprocessing and feature selection. Schedule meeting with supervisor to discuss dataset alternatives.",
-          hoursWorked: 25,
-          completionPercentage: 15,
-          status: "reviewed",
-          supervisorFeedback:
-            "Good progress on the initial setup. Please focus on finding alternative datasets and document your exploration process.",
-          attachments: ["week1_log.pdf", "dataset_research.docx"],
-        },
-        2: {
-          id: 2,
-          title: "Week 2 Progress Log",
-          dateSubmitted: "2025-01-22",
-          progressSummary:
-            "Successfully identified alternative datasets and started data preprocessing. Implemented basic data cleaning pipeline.",
-          challenges:
-            "Data quality issues requiring more extensive cleaning than initially planned.",
-          nextSteps:
-            "Complete data preprocessing and begin exploratory data analysis.",
-          hoursWorked: 30,
-          completionPercentage: 25,
-          status: "submitted",
-          supervisorFeedback: null,
-          attachments: ["week2_log.pdf", "data_cleaning_script.py"],
-        },
-        3: {
-          id: 3,
-          title: "Week 3 Progress Log",
-          dateSubmitted: "2025-01-29",
-          progressSummary:
-            "Completed exploratory data analysis and identified key patterns. Started feature engineering process.",
-          challenges:
-            "Some features showing high correlation, need to address multicollinearity.",
-          nextSteps: "Complete feature selection and start model development.",
-          hoursWorked: 28,
-          completionPercentage: 40,
-          status: "reviewed",
-          supervisorFeedback:
-            "Excellent analysis! The correlation findings are valuable. Consider using PCA or regularization techniques.",
-          attachments: ["week3_log.pdf", "eda_results.html"],
-        },
-      };
+        if (!logId) {
+          setError('Log ID not provided.');
+          return;
+        }
 
-      setLogData(mockLogs[logId] || mockLogs["1"]);
-      setLoading(false);
-    }, 500);
-  }, [searchParams]);
+        setLoading(true);
+        const response = await getProgressLogs(user.id);
+        
+        if (response.success) {
+          const logs = response.logs || [];
+          const foundLog = logs.find(log => log.log_id === parseInt(logId));
+          
+          if (foundLog) {
+            setLogData(foundLog);
+          } else {
+            setError('Progress log not found.');
+          }
+        } else {
+          setError(response.error || 'Failed to load progress log');
+        }
+      } catch (err) {
+        console.error('Error fetching progress log:', err);
+        setError('Failed to load progress log');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLog();
+  }, [user, logId]);
 
   const getStatusBadge = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "submitted":
         return (
           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
@@ -84,6 +65,12 @@ const ViewProgressLog = () => {
             Reviewed
           </span>
         );
+      case "approved":
+        return (
+          <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+            Approved
+          </span>
+        );
       case "pending":
         return (
           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
@@ -93,7 +80,7 @@ const ViewProgressLog = () => {
       default:
         return (
           <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
-            Unknown
+            {status || 'Unknown'}
           </span>
         );
     }
@@ -104,7 +91,24 @@ const ViewProgressLog = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading log...</p>
+          <p className="text-gray-600">Loading progress log...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link
+            to="/student/select-log"
+            className="inline-block py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+          >
+            ← Back to Progress Logs
+          </Link>
         </div>
       </div>
     );
@@ -112,14 +116,15 @@ const ViewProgressLog = () => {
 
   if (!logData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 text-lg mb-4">Log not found</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Log Not Found</h2>
+          <p className="text-gray-600 mb-6">The requested progress log could not be found.</p>
           <Link
             to="/student/select-log"
-            className="text-blue-600 hover:text-blue-800 font-semibold"
+            className="inline-block py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
           >
-            ← Back to Log Selection
+            ← Back to Progress Logs
           </Link>
         </div>
       </div>
@@ -134,121 +139,120 @@ const ViewProgressLog = () => {
           <div className="border-b border-gray-200 pb-6 mb-6">
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-3xl font-bold text-gray-800">
-                {logData.title}
+                Progress Log #{logData.log_id}
               </h2>
               {getStatusBadge(logData.status)}
             </div>
-            <p className="text-gray-600">
-              Submitted on:{" "}
-              {new Date(logData.dateSubmitted).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          </div>
-
-          {/* Progress Metrics */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-blue-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">
-                Hours Worked
-              </h3>
-              <div className="text-3xl font-bold text-blue-600">
-                {logData.hoursWorked}
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+              <div>
+                <span className="font-medium">Submitted:</span>{" "}
+                {new Date(logData.submission_date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </div>
-              <p className="text-blue-700 text-sm">This reporting period</p>
+              {logData.project_title && (
+                <div>
+                  <span className="font-medium">Project:</span>{" "}
+                  {logData.project_title}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Log Details */}
           <div className="space-y-6">
-            {/* Progress Summary */}
+            {/* Progress Details */}
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                📋 Progress Summary
+                📋 Progress Details
               </h3>
-              <p className="text-gray-700 leading-relaxed">
-                {logData.progressSummary}
-              </p>
+              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {logData.details}
+              </div>
             </div>
 
-            {/* Challenges */}
-            <div className="bg-orange-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-orange-800 mb-3">
-                ⚠️ Challenges
+            {/* Log Metadata */}
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                📊 Log Information
               </h3>
-              <p className="text-orange-700 leading-relaxed">
-                {logData.challenges}
-              </p>
-            </div>
-
-            {/* Next Steps */}
-            <div className="bg-purple-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-purple-800 mb-3">
-                🎯 Next Steps
-              </h3>
-              <p className="text-purple-700 leading-relaxed">
-                {logData.nextSteps}
-              </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded">
+                  <div className="text-sm text-blue-600">Log ID</div>
+                  <div className="text-lg font-semibold text-blue-800">#{logData.log_id}</div>
+                </div>
+                <div className="bg-white p-4 rounded">
+                  <div className="text-sm text-blue-600">Status</div>
+                  <div className="text-lg font-semibold text-blue-800">{logData.status || 'Submitted'}</div>
+                </div>
+                <div className="bg-white p-4 rounded">
+                  <div className="text-sm text-blue-600">Submission Date</div>
+                  <div className="text-lg font-semibold text-blue-800">
+                    {new Date(logData.submission_date).toLocaleDateString()}
+                  </div>
+                </div>
+                {logData.project_id && (
+                  <div className="bg-white p-4 rounded">
+                    <div className="text-sm text-blue-600">Project ID</div>
+                    <div className="text-lg font-semibold text-blue-800">#{logData.project_id}</div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Supervisor Feedback */}
-            {logData.supervisorFeedback && (
+            {logData.feedback && (
               <div className="bg-indigo-50 p-6 rounded-lg border-l-4 border-indigo-400">
                 <h3 className="text-lg font-semibold text-indigo-800 mb-3">
                   💬 Supervisor Feedback
                 </h3>
-                <p className="text-indigo-700 leading-relaxed">
-                  {logData.supervisorFeedback}
-                </p>
-              </div>
-            )}
-
-            {/* Attachments */}
-            {logData.attachments && logData.attachments.length > 0 && (
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  📎 Attachments
-                </h3>
-                <div className="space-y-2">
-                  {logData.attachments.map((attachment, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <svg
-                        className="w-5 h-5 text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                      <span className="text-gray-700">{attachment}</span>
-                      <button className="text-blue-600 hover:text-blue-800 text-sm">
-                        Download
-                      </button>
-                    </div>
-                  ))}
+                <div className="text-indigo-700 leading-relaxed whitespace-pre-wrap">
+                  {logData.feedback}
                 </div>
               </div>
             )}
+
+            {/* Progress Guidelines */}
+            <div className="bg-green-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-green-800 mb-3">
+                📝 Progress Log Guidelines
+              </h3>
+              <div className="text-sm text-green-700 space-y-2">
+                <p><strong>What to include in your progress logs:</strong></p>
+                <ul className="list-disc list-inside space-y-1 ml-4">
+                  <li>Specific tasks completed since the last log</li>
+                  <li>Challenges encountered and how they were addressed</li>
+                  <li>New insights or discoveries made</li>
+                  <li>Planned activities for the next period</li>
+                  <li>Any questions or concerns for your supervisor</li>
+                  <li>Time spent on different aspects of the project</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200">
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-              📄 Download PDF
-            </button>
-            <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
-              ✏️ Edit Log
-            </button>
-            <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
-              📧 Share with Supervisor
-            </button>
+            <Link
+              to="/student/progress-log-form"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors no-underline font-semibold"
+            >
+              ✏️ Submit New Log
+            </Link>
+            <Link
+              to="/student/select-log"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors no-underline font-semibold"
+            >
+              📋 View All Logs
+            </Link>
+            <Link
+              to="/student/progress-report-form"
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors no-underline font-semibold"
+            >
+              📊 Submit Report
+            </Link>
           </div>
 
           {/* Navigation */}
@@ -257,7 +261,7 @@ const ViewProgressLog = () => {
               to="/student/select-log"
               className="inline-block text-blue-600 hover:text-blue-800 font-bold no-underline transition-colors"
             >
-              ← Back to Log Selection
+              ← Back to Progress Logs
             </Link>
           </div>
         </div>

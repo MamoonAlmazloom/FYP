@@ -104,7 +104,7 @@ Content-Type: application/json
 Authorization: Bearer {{moderatorToken}}
 
 ### Step 15: Moderator approves the proposal
-POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/20
+POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/29
 Content-Type: application/json
 Authorization: Bearer {{moderatorToken}}
 

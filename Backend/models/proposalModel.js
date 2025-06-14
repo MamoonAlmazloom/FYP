@@ -275,6 +275,42 @@ const createProposal = async (
   }
 };
 
+/**
+ * Update a proposal
+ * @param {number} proposalId - The ID of the proposal
+ * @param {string} title - The proposal title
+ * @param {string} description - The proposal description
+ * @param {string} type - The proposal type
+ * @param {string} specialization - The proposal specialization
+ * @param {string} outcome - The proposal outcome
+ * @returns {Promise<boolean>} - True if updated successfully
+ */
+const updateProposal = async (
+  proposalId,
+  title,
+  description,
+  type,
+  specialization,
+  outcome
+) => {
+  try {
+    const [result] = await pool.query(
+      `UPDATE Proposal SET 
+        title = ?,
+        proposal_description = ?,
+        type = ?,
+        specialization = ?,
+        outcome = ?
+       WHERE proposal_id = ?`,
+      [title, description, type, specialization, outcome, proposalId]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("Error in updateProposal:", error);
+    throw error;
+  }
+};
+
 // Add these to the export
 export default {
   // ... existing exports
@@ -282,6 +318,7 @@ export default {
   getProposalWithStatus,
   createProjectFromProposal,
   createProposal,
+  updateProposal,
   getProposalById: getProposalWithStatus, // Alias for backward compatibility
   getProposalsByStudent,
 };

@@ -1,30 +1,59 @@
-﻿// ProgressLogForm.jsx - Copy content from artifact 'progress_log_form'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { submitProgressLog, getStudentProjects } from "../API/StudentAPI";
 
 const ProgressLogForm = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [projects, setProjects] = useState([]);
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    file: null,
+    project_id: "",
+    details: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        if (!user?.id) {
+          setErrors({ general: 'User not found. Please log in again.' });
+          return;
+        }
+
+        const response = await getStudentProjects(user.id);
+        
+        if (response.success && response.projects.length > 0) {
+          setProjects(response.projects);
+          // Auto-select first project if only one exists
+          if (response.projects.length === 1) {
+            setFormData(prev => ({
+              ...prev,
+              project_id: response.projects[0].project_id
+            }));
+          }
+        } else {
+          setErrors({ general: 'No active projects found. Please select or propose a project first.' });
+        }
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+        setErrors({ general: 'Failed to load your projects.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [user]);
 
   const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "file") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -38,18 +67,14 @@ const ProgressLogForm = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Log title is required";
+    if (!formData.project_id) {
+      newErrors.project_id = "Please select a project";
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = "Log description is required";
-    } else if (formData.description.length < 20) {
-      newErrors.description = "Description should be at least 20 characters";
-    }
-
-    if (!formData.file) {
-      newErrors.file = "Please upload a log file (PDF)";
+    if (!formData.details.trim()) {
+      newErrors.details = "Log details are required";
+    } else if (formData.details.length < 20) {
+      newErrors.details = "Details should be at least 20 characters";
     }
 
     setErrors(newErrors);
@@ -66,21 +91,75 @@ const ProgressLogForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!user?.id) {
+        alert('User not found. Please log in again.');
+        navigate('/login');
+        return;
+      }
 
-      console.log("Progress log submitted:", formData);
+      // Use the actual StudentAPI function
+      const response = await submitProgressLog(user.id, {
+        project_id: parseInt(formData.project_id),
+        details: formData.details
+      });
 
-      // Show success message and redirect
-      alert("Progress log submitted successfully!");
-      navigate("/student/project-work");
-    // eslint-disable-next-line no-unused-vars
+      if (response.success) {
+        alert("Progress log submitted successfully!");
+        navigate("/student/project-work");
+      } else {
+        alert("Failed to submit progress log: " + (response.error || 'Unknown error'));
+      }
     } catch (error) {
-      alert("Failed to submit progress log. Please try again.");
+      console.error('Error submitting progress log:', error);
+      
+      if (error.response) {
+        const errorMessage = error.response.data.error || 'Server error occurred';
+        alert('Error: ' + errorMessage);
+      } else if (error.request) {
+        alert('Network error: Please check your connection');
+      } else {
+        alert('Unexpected error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your projects...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (errors.general) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{errors.general}</p>
+          <div className="space-y-3">
+            <Link
+              to="/student/choose-path"
+              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            >
+              Choose Project Path
+            </Link>
+            <Link
+              to="/student/project-work"
+              className="block w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -90,117 +169,94 @@ const ProgressLogForm = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Log Title */}
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-bold text-gray-700 mb-2"
-            >
-              Log Title:
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                errors.title
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : "border-gray-300 focus:border-green-500 focus:ring-green-200"
-              }`}
-              placeholder="Enter log title..."
-              required
-            />
-            {errors.title && (
-              <p className="mt-2 text-sm text-red-600">{errors.title}</p>
-            )}
-          </div>
+          {/* Project Selection */}
+          {projects.length > 1 && (
+            <div>
+              <label
+                htmlFor="project_id"
+                className="block text-sm font-bold text-gray-700 mb-2"
+              >
+                Select Project:
+              </label>
+              <select
+                id="project_id"
+                name="project_id"
+                value={formData.project_id}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                  errors.project_id
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                    : "border-gray-300 focus:border-green-500 focus:ring-green-200"
+                }`}
+                required
+              >
+                <option value="">Select a project</option>
+                {projects.map((project) => (
+                  <option key={project.project_id} value={project.project_id}>
+                    {project.title}
+                  </option>
+                ))}
+              </select>
+              {errors.project_id && (
+                <p className="mt-2 text-sm text-red-600">{errors.project_id}</p>
+              )}
+            </div>
+          )}
 
-          {/* Log Description */}
+          {/* Current Project Display (if only one project) */}
+          {projects.length === 1 && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Current Project:
+              </h3>
+              <p className="text-gray-600">{projects[0].title}</p>
+            </div>
+          )}
+
+          {/* Log Details */}
           <div>
             <label
-              htmlFor="description"
+              htmlFor="details"
               className="block text-sm font-bold text-gray-700 mb-2"
             >
-              Log Description:
+              Progress Details:
             </label>
             <textarea
-              id="description"
-              name="description"
-              value={formData.description}
+              id="details"
+              name="details"
+              value={formData.details}
               onChange={handleInputChange}
-              rows="6"
+              rows="8"
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                errors.description
+                errors.details
                   ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                   : "border-gray-300 focus:border-green-500 focus:ring-green-200"
               }`}
-              placeholder="Describe your progress, challenges, and next steps..."
+              placeholder="Describe your progress, what you accomplished, challenges faced, and next steps..."
               required
             />
             <div className="flex justify-between mt-1">
-              {errors.description && (
-                <p className="text-sm text-red-600">{errors.description}</p>
+              {errors.details && (
+                <p className="text-sm text-red-600">{errors.details}</p>
               )}
               <p className="text-sm text-gray-500 ml-auto">
-                {formData.description.length}/20 characters minimum
+                {formData.details.length}/20 characters minimum
               </p>
             </div>
           </div>
 
-          {/* File Upload */}
-          <div>
-            <label
-              htmlFor="file"
-              className="block text-sm font-bold text-gray-700 mb-2"
-            >
-              Upload Log (PDF): <span className="text-red-500">*</span>
-            </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors">
-              <div className="space-y-1 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="flex text-sm text-gray-600">
-                  <label
-                    htmlFor="file"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file"
-                      name="file"
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleInputChange}
-                      className="sr-only"
-                      required
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500">PDF up to 10MB</p>
-                {formData.file && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✅ Selected: {formData.file.name}
-                  </p>
-                )}
-              </div>
-            </div>
-            {errors.file && (
-              <p className="mt-2 text-sm text-red-600">{errors.file}</p>
-            )}
+          {/* Progress Guidelines */}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="text-sm font-semibold text-blue-800 mb-2">
+              📝 Progress Log Guidelines:
+            </h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Describe what work you completed since your last log</li>
+              <li>• Mention any challenges or problems encountered</li>
+              <li>• Outline your plans for the next period</li>
+              <li>• Include any questions for your supervisor</li>
+              <li>• Be specific and detailed in your descriptions</li>
+            </ul>
           </div>
 
           {/* Submit Button */}
@@ -219,7 +275,7 @@ const ProgressLogForm = () => {
                 Submitting Log...
               </div>
             ) : (
-              "Submit Log"
+              "Submit Progress Log"
             )}
           </button>
         </form>

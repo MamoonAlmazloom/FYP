@@ -1,27 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { submitProposal } from "../../API/StudentAPI";
 
 const ProposeProject = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    supervisor: "",
-    objectives: "",
-    methodology: "",
-    expectedOutcome: "",
+    type: "Research",
+    specialization: "",
+    outcome: "",
+    submitted_to: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const supervisors = [
-    "Dr. Sarah Johnson",
-    "Prof. Michael Chen",
-    "Dr. Emily Rodriguez",
-    "Prof. Ahmed Hassan",
-    "Dr. Lisa Wang",
-    "Prof. David Thompson",
-  ];
+  const [supervisors, setSupervisors] = useState([]);
+  
+  // Mock supervisors - in a real app, you'd fetch this from API
+  useEffect(() => {
+    // You could add a getSupervisors API call here
+    setSupervisors([
+      { id: 1, name: 'Dr. John Smith', specialization: 'AI/ML' },
+      { id: 2, name: 'Dr. Jane Doe', specialization: 'Web Development' },
+      { id: 3, name: 'Dr. Mike Johnson', specialization: 'Data Science' },
+      { id: 4, name: 'Dr. Sarah Wilson', specialization: 'Mobile Development' },
+      { id: 5, name: 'Dr. Ahmad Hassan', specialization: 'Cybersecurity' }
+    ]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,20 +55,20 @@ const ProposeProject = () => {
 
     if (!formData.description.trim()) {
       newErrors.description = "Project description is required";
-    } else if (formData.description.length < 100) {
-      newErrors.description = "Description should be at least 100 characters";
+    } else if (formData.description.length < 50) {
+      newErrors.description = "Description should be at least 50 characters";
     }
 
-    if (!formData.supervisor) {
-      newErrors.supervisor = "Please select a preferred supervisor";
+    if (!formData.submitted_to) {
+      newErrors.submitted_to = "Please select a supervisor";
     }
 
-    if (!formData.objectives.trim()) {
-      newErrors.objectives = "Project objectives are required";
+    if (!formData.specialization.trim()) {
+      newErrors.specialization = "Specialization is required";
     }
 
-    if (!formData.methodology.trim()) {
-      newErrors.methodology = "Methodology is required";
+    if (!formData.outcome.trim()) {
+      newErrors.outcome = "Expected outcome is required";
     }
 
     setErrors(newErrors);
@@ -77,19 +85,34 @@ const ProposeProject = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!user?.id) {
+        alert('User not found. Please log in again.');
+        navigate('/login');
+        return;
+      }
 
-      console.log("Project proposal submitted:", formData);
+      // Use the actual StudentAPI function
+      const response = await submitProposal(user.id, formData);
 
-      // Show success message and redirect
-      alert(
-        "Project proposal submitted successfully! You will be notified once it's reviewed."
-      );
-      navigate("/student/project-status");
-    // eslint-disable-next-line no-unused-vars
+      if (response.success) {
+        alert(
+          "Project proposal submitted successfully! You will be notified once it's reviewed."
+        );
+        navigate("/student/project-status");
+      } else {
+        alert("Failed to submit proposal: " + (response.error || 'Unknown error'));
+      }
     } catch (error) {
-      alert("Failed to submit proposal. Please try again.");
+      console.error('Error submitting proposal:', error);
+      
+      if (error.response) {
+        const errorMessage = error.response.data.error || 'Server error occurred';
+        alert('Error: ' + errorMessage);
+      } else if (error.request) {
+        alert('Network error: Please check your connection');
+      } else {
+        alert('Unexpected error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -138,7 +161,7 @@ const ProposeProject = () => {
               htmlFor="description"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
-              Project Description * (min. 100 characters)
+              Project Description * (min. 50 characters)
             </label>
             <textarea
               id="description"
@@ -158,111 +181,113 @@ const ProposeProject = () => {
                 <p className="text-sm text-red-600">{errors.description}</p>
               )}
               <p className="text-sm text-gray-500 ml-auto">
-                {formData.description.length}/100 characters
+                {formData.description.length}/50 characters
               </p>
             </div>
           </div>
 
-          {/* Preferred Supervisor */}
+          {/* Project Type */}
           <div>
             <label
-              htmlFor="supervisor"
+              htmlFor="type"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
-              Preferred Supervisor *
+              Project Type *
             </label>
             <select
-              id="supervisor"
-              name="supervisor"
-              value={formData.supervisor}
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 focus:ring-blue-200 transition-colors"
+            >
+              <option value="Research">Research</option>
+              <option value="Application">Application</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+
+          {/* Specialization */}
+          <div>
+            <label
+              htmlFor="specialization"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Specialization *
+            </label>
+            <input
+              type="text"
+              id="specialization"
+              name="specialization"
+              value={formData.specialization}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                errors.supervisor
+                errors.specialization
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+              }`}
+              placeholder="e.g., AI/ML, Web Development, Mobile Apps"
+            />
+            {errors.specialization && (
+              <p className="mt-2 text-sm text-red-600">{errors.specialization}</p>
+            )}
+          </div>
+
+          {/* Submit to Supervisor */}
+          <div>
+            <label
+              htmlFor="submitted_to"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Submit to Supervisor *
+            </label>
+            <select
+              id="submitted_to"
+              name="submitted_to"
+              value={formData.submitted_to}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                errors.submitted_to
                   ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
               }`}
             >
               <option value="">Select Supervisor</option>
-              {supervisors.map((supervisor, index) => (
-                <option key={index} value={supervisor}>
-                  {supervisor}
+              {supervisors.map((supervisor) => (
+                <option key={supervisor.id} value={supervisor.id}>
+                  {supervisor.name} - {supervisor.specialization}
                 </option>
               ))}
             </select>
-            {errors.supervisor && (
-              <p className="mt-2 text-sm text-red-600">{errors.supervisor}</p>
-            )}
-          </div>
-
-          {/* Project Objectives */}
-          <div>
-            <label
-              htmlFor="objectives"
-              className="block text-sm font-semibold text-gray-700 mb-2"
-            >
-              Project Objectives *
-            </label>
-            <textarea
-              id="objectives"
-              name="objectives"
-              value={formData.objectives}
-              onChange={handleInputChange}
-              rows="3"
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                errors.objectives
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              }`}
-              placeholder="List the main objectives of your project..."
-            />
-            {errors.objectives && (
-              <p className="mt-2 text-sm text-red-600">{errors.objectives}</p>
-            )}
-          </div>
-
-          {/* Methodology */}
-          <div>
-            <label
-              htmlFor="methodology"
-              className="block text-sm font-semibold text-gray-700 mb-2"
-            >
-              Methodology *
-            </label>
-            <textarea
-              id="methodology"
-              name="methodology"
-              value={formData.methodology}
-              onChange={handleInputChange}
-              rows="3"
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                errors.methodology
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              }`}
-              placeholder="Describe the methodology you plan to use..."
-            />
-            {errors.methodology && (
-              <p className="mt-2 text-sm text-red-600">{errors.methodology}</p>
+            {errors.submitted_to && (
+              <p className="mt-2 text-sm text-red-600">{errors.submitted_to}</p>
             )}
           </div>
 
           {/* Expected Outcome */}
           <div>
             <label
-              htmlFor="expectedOutcome"
+              htmlFor="outcome"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
-              Expected Outcome
+              Expected Outcome *
             </label>
             <textarea
-              id="expectedOutcome"
-              name="expectedOutcome"
-              value={formData.expectedOutcome}
+              id="outcome"
+              name="outcome"
+              value={formData.outcome}
               onChange={handleInputChange}
-              rows="3"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 focus:ring-blue-200 transition-colors"
-              placeholder="What do you expect to achieve from this project? (Optional)"
+              rows="4"
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                errors.outcome
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+              }`}
+              placeholder="What do you expect to achieve from this project?"
             />
+            {errors.outcome && (
+              <p className="mt-2 text-sm text-red-600">{errors.outcome}</p>
+            )}
           </div>
 
           {/* Submit Button */}
