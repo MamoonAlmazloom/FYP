@@ -82,16 +82,16 @@ const MyStudents = () => {
               {students.map((student, index) => (
                 <tr key={index}>
                   <td className="border border-gray-300 p-3 text-left">
-                    {student.name}
+                    {student?.name}
                   </td>
                   <td className="border border-gray-300 p-3 text-left">
-                    {student.projectTitle}
+                    {student?.projectTitle}
                   </td>
                   <td className="border border-gray-300 p-3 text-left">
                     <Link
                       to={`/supervisor/student-details?student=${encodeURIComponent(
-                        student.name
-                      )}&title=${encodeURIComponent(student.projectTitle)}`}
+                        student?.name || ""
+                      )}&title=${encodeURIComponent(student?.projectTitle || "")}`}
                       className="px-3 py-2 bg-cyan-600 text-white border-0 rounded text-sm cursor-pointer no-underline hover:bg-cyan-700"
                     >
                       View

@@ -10,21 +10,21 @@ const ManageUserEligibility = () => {
       id: 1,
       name: "John Doe",
       email: "johndoe@example.com",
-      role: "Student",
+      roles: ["Student"],
       status: "Active",
     },
     {
       id: 2,
       name: "Jane Smith",
       email: "janesmith@example.com",
-      role: "Supervisor",
+      roles: ["Supervisor"],
       status: "Inactive",
     },
     {
       id: 3,
       name: "Mike Johnson",
       email: "mikejohnson@example.com",
-      role: "Moderator",
+      roles: ["Moderator"],
       status: "Active",
     },
   ]);
@@ -116,33 +116,33 @@ const ManageUserEligibility = () => {
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}>
+                <tr key={user?.id}>
                   <td className="border border-gray-300 p-3 text-left">
-                    {user.name}
+                    {user?.name}
                   </td>
                   <td className="border border-gray-300 p-3 text-left">
-                    {user.email}
+                    {user?.email}
                   </td>
                   <td className="border border-gray-300 p-3 text-left">
-                    {user.role}
+                    {user?.roles?.join(", ")}
                   </td>
                   <td className="border border-gray-300 p-3 text-left">
                     <span
                       className={
-                        user.status === "Active"
+                        user?.status === "Active"
                           ? "text-green-600 font-bold"
                           : "text-red-600 font-bold"
                       }
                     >
-                      {user.status}
+                      {user?.status}
                     </span>
                   </td>
                   <td className="border border-gray-300 p-3 text-left">
                     <div className="space-x-2">
-                      {user.status === "Active" ? (
+                      {user?.status === "Active" ? (
                         <button
                           onClick={() =>
-                            handleStatusChange(user.id, "Inactive")
+                            handleStatusChange(user?.id, "Inactive")
                           }
                           className="px-3 py-2 bg-yellow-500 text-black border-none rounded cursor-pointer text-sm hover:bg-yellow-600"
                         >
@@ -150,14 +150,14 @@ const ManageUserEligibility = () => {
                         </button>
                       ) : (
                         <button
-                          onClick={() => handleStatusChange(user.id, "Active")}
+                          onClick={() => handleStatusChange(user?.id, "Active")}
                           className="px-3 py-2 bg-green-600 text-white border-none rounded cursor-pointer text-sm hover:bg-green-700"
                         >
                           Activate
                         </button>
                       )}
                       <button
-                        onClick={() => handleRemoveUser(user.id)}
+                        onClick={() => handleRemoveUser(user?.id)}
                         className="px-3 py-2 bg-red-600 text-white border-none rounded cursor-pointer text-sm hover:bg-red-700"
                       >
                         Remove

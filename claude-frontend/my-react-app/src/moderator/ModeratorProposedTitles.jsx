@@ -1,27 +1,37 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getPendingProposals } from "../API/ModeratorAPI";
+import { useAuth } from "../contexts/AuthContext";
 
 const ModeratorProposedTitles = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  // Sample proposed titles data - in real app this would come from API
-  const proposedTitles = [
-    {
-      id: 1,
-      studentName: "John Doe",
-      title: "AI-Based Medical Diagnosis System",
-    },
-    {
-      id: 2,
-      studentName: "Jane Smith",
-      title: "Blockchain for Secure Voting",
-    },
-    {
-      id: 3,
-      studentName: "Mike Johnson",
-      title: "Automated Inventory Management",
-    },
-  ];
+  const [proposals, setProposals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (user && user.id) {
+      const fetchProposals = async () => {
+        setLoading(true);
+        try {
+          const pendingProposals = await getPendingProposals(user.id);
+          setProposals(pendingProposals);
+          setError(null);
+        } catch (err) {
+          setError("Failed to fetch pending proposals. Please try again later.");
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProposals();
+    } else {
+      // setError("User not authenticated. Please login.");
+      setLoading(false); // Stop loading if no user ID
+    }
+  }, [user]);
 
   const handleSignOut = () => {
     navigate("/login");
@@ -78,49 +88,56 @@ const ModeratorProposedTitles = () => {
         <h2 className="text-2xl font-bold mb-4">Review Proposed Titles</h2>
         <p className="mb-6">Select a proposal to review and take action.</p>
 
-        {/* Proposed Titles Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mt-5">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Student Name
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Proposed Title
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {proposedTitles.map((proposal) => (
-                <tr key={proposal.id}>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {proposal.studentName}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {proposal.title}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <button
-                      onClick={() =>
-                        handleProposalAction(
-                          proposal.title,
-                          proposal.studentName
-                        )
-                      }
-                      className="px-3 py-2 bg-cyan-600 text-white border-none rounded cursor-pointer text-sm no-underline hover:bg-cyan-700"
-                    >
-                      Action
-                    </button>
-                  </td>
+        {loading && <p className="text-center text-gray-600">Loading proposals...</p>}
+        {error && <p className="text-center text-red-500">{error}</p>}
+        {!loading && !error && proposals.length === 0 && (
+          <p className="text-center text-gray-600">No pending proposals found.</p>
+        )}
+
+        {!loading && !error && proposals.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse mt-5">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Student Name
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Proposed Title
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Action
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {proposals.map((proposal) => (
+                  <tr key={proposal.proposal_id}>
+                    <td className="border border-gray-300 p-3 text-left">
+                      {proposal.submitter_name}
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      {proposal.title}
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      <button
+                        onClick={() =>
+                          handleProposalAction(
+                            proposal.title,
+                            proposal.submitter_name
+                          )
+                        }
+                        className="px-3 py-2 bg-cyan-600 text-white border-none rounded cursor-pointer text-sm no-underline hover:bg-cyan-700"
+                      >
+                        Action
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <Link
           to="/moderator/dashboard"

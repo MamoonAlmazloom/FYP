@@ -78,7 +78,7 @@ const ViewProposal = () => {
   };
 
   const getStatusBadge = () => {
-    switch (proposalData.status) {
+    switch (proposalData?.status) {
       case "approved":
         return (
           <span className="px-4 py-2 bg-green-100 text-green-800 text-lg rounded-full font-semibold">
@@ -154,20 +154,26 @@ const ViewProposal = () => {
               {getStatusBadge()}
             </div>
             <h3 className="text-2xl font-semibold text-blue-600 mb-4">
-              {proposalData.title}
+              {proposalData?.title || "N/A"}
             </h3>
             <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
               <div>
                 <span className="font-medium">Submitted:</span>{" "}
-                {new Date(proposalData.submittedOn).toLocaleDateString()}
+                {proposalData?.submittedOn
+                  ? new Date(proposalData.submittedOn).toLocaleDateString()
+                  : "N/A"}
               </div>
               <div>
                 <span className="font-medium">Last Modified:</span>{" "}
-                {new Date(proposalData.lastModified).toLocaleDateString()}
+                {proposalData?.lastModified
+                  ? new Date(proposalData.lastModified).toLocaleDateString()
+                  : "N/A"}
               </div>
               <div>
                 <span className="font-medium">Approved:</span>{" "}
-                {new Date(proposalData.approvalDate).toLocaleDateString()}
+                {proposalData?.approvalDate
+                  ? new Date(proposalData.approvalDate).toLocaleDateString()
+                  : "N/A"}
               </div>
             </div>
           </div>
@@ -179,9 +185,9 @@ const ViewProposal = () => {
                 👨‍🏫 Primary Supervisor
               </h3>
               <div className="space-y-1 text-blue-700">
-                <p className="font-medium">{proposalData.supervisor.name}</p>
-                <p className="text-sm">{proposalData.supervisor.department}</p>
-                <p className="text-sm">{proposalData.supervisor.email}</p>
+                <p className="font-medium">{proposalData?.supervisor?.name || "N/A"}</p>
+                <p className="text-sm">{proposalData?.supervisor?.department || "N/A"}</p>
+                <p className="text-sm">{proposalData?.supervisor?.email || "N/A"}</p>
               </div>
             </div>
             <div className="bg-purple-50 p-6 rounded-lg">
@@ -189,11 +195,11 @@ const ViewProposal = () => {
                 👩‍🏫 Co-Supervisor
               </h3>
               <div className="space-y-1 text-purple-700">
-                <p className="font-medium">{proposalData.coSupervisor.name}</p>
+                <p className="font-medium">{proposalData?.coSupervisor?.name || "N/A"}</p>
                 <p className="text-sm">
-                  {proposalData.coSupervisor.department}
+                  {proposalData?.coSupervisor?.department || "N/A"}
                 </p>
-                <p className="text-sm">{proposalData.coSupervisor.email}</p>
+                <p className="text-sm">{proposalData?.coSupervisor?.email || "N/A"}</p>
               </div>
             </div>
           </div>
@@ -206,7 +212,7 @@ const ViewProposal = () => {
                 📋 Proposal Summary
               </h3>
               <p className="text-gray-700 leading-relaxed">
-                {proposalData.proposalSummary}
+                {proposalData?.proposalSummary || "N/A"}
               </p>
             </div>
 
@@ -216,10 +222,10 @@ const ViewProposal = () => {
                 🎯 Project Objectives
               </h3>
               <ul className="space-y-2">
-                {proposalData.objectives.map((objective, index) => (
+                {(proposalData?.objectives || []).map((objective, index) => (
                   <li key={index} className="flex items-start space-x-3">
                     <span className="text-green-600 mt-1">•</span>
-                    <span className="text-green-700">{objective}</span>
+                    <span className="text-green-700">{objective || "N/A"}</span>
                   </li>
                 ))}
               </ul>
@@ -231,7 +237,7 @@ const ViewProposal = () => {
                 🔬 Methodology
               </h3>
               <p className="text-blue-700 leading-relaxed">
-                {proposalData.methodology}
+                {proposalData?.methodology || "N/A"}
               </p>
             </div>
 
@@ -241,20 +247,20 @@ const ViewProposal = () => {
                 📅 Project Timeline
               </h3>
               <div className="space-y-3">
-                {proposalData.timeline.map((phase, index) => (
+                {(proposalData?.timeline || []).map((phase, index) => (
                   <div
                     key={index}
                     className="flex justify-between items-center p-4 bg-white rounded border"
                   >
                     <div className="flex-1">
                       <span className="font-medium text-gray-800">
-                        {phase.phase}
+                        {phase?.phase || "N/A"}
                       </span>
                       <p className="text-sm text-gray-600">
-                        Duration: {phase.duration}
+                        Duration: {phase?.duration || "N/A"}
                       </p>
                     </div>
-                    {getPhaseStatus(phase.status)}
+                    {getPhaseStatus(phase?.status)}
                   </div>
                 ))}
               </div>
@@ -266,10 +272,10 @@ const ViewProposal = () => {
                 🛠️ Required Resources
               </h3>
               <ul className="space-y-2">
-                {proposalData.resources.map((resource, index) => (
+                {(proposalData?.resources || []).map((resource, index) => (
                   <li key={index} className="flex items-start space-x-3">
                     <span className="text-orange-600 mt-1">•</span>
-                    <span className="text-orange-700">{resource}</span>
+                    <span className="text-orange-700">{resource || "N/A"}</span>
                   </li>
                 ))}
               </ul>
@@ -281,7 +287,7 @@ const ViewProposal = () => {
                 🎖️ Expected Outcome
               </h3>
               <p className="text-indigo-700 leading-relaxed">
-                {proposalData.expectedOutcome}
+                {proposalData?.expectedOutcome || "N/A"}
               </p>
             </div>
 
@@ -291,7 +297,7 @@ const ViewProposal = () => {
                 ⚠️ Anticipated Challenges
               </h3>
               <p className="text-red-700 leading-relaxed">
-                {proposalData.challenges}
+                {proposalData?.challenges || "N/A"}
               </p>
             </div>
 
@@ -301,7 +307,7 @@ const ViewProposal = () => {
                 💬 Approval Comments
               </h3>
               <p className="text-yellow-700 leading-relaxed">
-                {proposalData.comments}
+                {proposalData?.comments || "N/A"}
               </p>
             </div>
 
@@ -311,7 +317,7 @@ const ViewProposal = () => {
                 📎 Attachments
               </h3>
               <div className="grid md:grid-cols-2 gap-3">
-                {proposalData.attachments.map((attachment, index) => (
+                {(proposalData?.attachments || []).map((attachment, index) => (
                   <div
                     key={index}
                     className="flex items-center space-x-3 p-3 bg-white rounded border"
@@ -329,7 +335,7 @@ const ViewProposal = () => {
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    <span className="text-gray-700 flex-1">{attachment}</span>
+                    <span className="text-gray-700 flex-1">{attachment || "N/A"}</span>
                     <button className="text-blue-600 hover:text-blue-800 text-sm">
                       Download
                     </button>
