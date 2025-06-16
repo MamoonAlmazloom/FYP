@@ -1,51 +1,68 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import ManagerAPI from "../API/ManagerAPI";
 
 const ManageUserEligibility = () => {
   const navigate = useNavigate();
+  const { userId } = useParams();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Sample user data - in real app this would come from API
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "johndoe@example.com",
-      role: "Student",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "janesmith@example.com",
-      role: "Supervisor",
-      status: "Inactive",
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mikejohnson@example.com",
-      role: "Moderator",
-      status: "Active",
-    },
-  ]);
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const managerId = userData.id;
 
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await ManagerAPI.getAllUsers(managerId);
+      if (response.success) {
+        setUsers(response.users);
+      } else {
+        setError("Failed to load users");
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+      setError("Error loading users. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
-  const handleStatusChange = (userId, newStatus) => {
-    setUsers(
-      users.map((user) =>
-        user.id === userId ? { ...user, status: newStatus } : user
-      )
-    );
-    // Add API call logic here
-  };
+  const handleStatusChange = async (targetUserId, newStatus) => {
+    try {
+      const response = await ManagerAPI.updateUserEligibility(
+        managerId,
+        targetUserId,
+        newStatus === "Active"
+      );
 
-  const handleRemoveUser = (userId) => {
-    if (window.confirm("Are you sure you want to remove this user?")) {
-      setUsers(users.filter((user) => user.id !== userId));
-      // Add API call logic here
+      if (response.success) {
+        setUsers(
+          users.map((user) =>
+            user.user_id === targetUserId
+              ? { ...user, is_active: newStatus === "Active" }
+              : user
+          )
+        );
+        setSuccess("User eligibility updated successfully!");
+        setTimeout(() => setSuccess(""), 3000);
+      } else {
+        setError(response.error || "Failed to update user eligibility");
+      }
+    } catch (error) {
+      console.error("Error updating user eligibility:", error);
+      setError("Error updating user eligibility. Please try again.");
     }
   };
 
@@ -86,96 +103,132 @@ const ManageUserEligibility = () => {
         >
           Sign Out
         </button>
-      </div>
+      </div>{" "}
+      <div className="max-w-4xl mx-auto mt-5 p-5 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          Manage User Eligibility
+        </h2>
+        <p className="mb-6 text-center">
+          Modify the status of users in the system.
+        </p>
 
-      <div className="max-w-4xl mx-auto mt-5 p-5 bg-white rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-bold mb-4">Manage User Eligibility</h2>
-        <p className="mb-6">Modify the status of users in the system.</p>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
-        {/* User Eligibility Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mt-5">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  User Name
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Email
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Role
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Status
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {user.name}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {user.email}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {user.role}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <span
-                      className={
-                        user.status === "Active"
-                          ? "text-green-600 font-bold"
-                          : "text-red-600 font-bold"
-                      }
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <div className="space-x-2">
-                      {user.status === "Active" ? (
-                        <button
-                          onClick={() =>
-                            handleStatusChange(user.id, "Inactive")
-                          }
-                          className="px-3 py-2 bg-yellow-500 text-black border-none rounded cursor-pointer text-sm hover:bg-yellow-600"
-                        >
-                          Deactivate
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleStatusChange(user.id, "Active")}
-                          className="px-3 py-2 bg-green-600 text-white border-none rounded cursor-pointer text-sm hover:bg-green-700"
-                        >
-                          Activate
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleRemoveUser(user.id)}
-                        className="px-3 py-2 bg-red-600 text-white border-none rounded cursor-pointer text-sm hover:bg-red-700"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </td>
+        {success && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {success}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-8">
+            <p>Loading users...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse mt-5">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    User ID
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    User Name
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Email
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Roles
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Status
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="border border-gray-300 p-3 text-center"
+                    >
+                      No users found
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user.user_id}>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {user.user_id}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {user.name}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {user.email}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {user.roles ? user.roles.join(", ") : "No roles"}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        <span
+                          className={
+                            user.is_active
+                              ? "text-green-600 font-bold"
+                              : "text-red-600 font-bold"
+                          }
+                        >
+                          {" "}
+                          {user.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        <div className="space-x-2">
+                          {user.is_active ? (
+                            <button
+                              onClick={() =>
+                                handleStatusChange(user.user_id, "Inactive")
+                              }
+                              className="px-3 py-2 bg-yellow-500 text-black border-none rounded cursor-pointer text-sm hover:bg-yellow-600"
+                            >
+                              Deactivate
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleStatusChange(user.user_id, "Active")
+                              }
+                              className="px-3 py-2 bg-green-600 text-white border-none rounded cursor-pointer text-sm hover:bg-green-700"
+                            >
+                              Activate
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        <Link
-          to="/manager/manage-users"
-          className="inline-block mt-5 text-blue-600 font-bold no-underline hover:text-blue-800"
-        >
-          ← Back to Manage Users
-        </Link>
+        <div className="text-center mt-6">
+          <Link
+            to="/manager/manage-users"
+            className="inline-block text-blue-600 font-bold no-underline hover:text-blue-800"
+          >
+            ← Back to Manage Users
+          </Link>
+        </div>
       </div>
     </div>
   );

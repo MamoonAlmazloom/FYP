@@ -15,24 +15,27 @@ const StudentChoosePath = () => {
     const checkStudentStatus = async () => {
       try {
         if (!user?.id) {
-          setError('User not found. Please log in again.');
+          setError("User not found. Please log in again.");
           return;
         }
 
         setLoading(true);
-        
+
         // Check if student has active projects
         const [projectsResponse, proposalsResponse] = await Promise.all([
           getStudentProjects(user.id),
-          getStudentProposals(user.id)
+          getStudentProposals(user.id),
         ]);
 
         if (projectsResponse.success) {
           setProjects(projectsResponse.projects || []);
-          
+
           // If student has active projects, redirect to project work
-          if (projectsResponse.projects && projectsResponse.projects.length > 0) {
-            navigate('/student/project-work');
+          if (
+            projectsResponse.projects &&
+            projectsResponse.projects.length > 0
+          ) {
+            navigate("/student/project-work");
             return;
           }
         }
@@ -40,27 +43,27 @@ const StudentChoosePath = () => {
         if (proposalsResponse.success) {
           setProposals(proposalsResponse.proposals || []);
         }
-
       } catch (err) {
-        console.error('Error checking student status:', err);
-        setError('Failed to load student status');
+        console.error("Error checking student status:", err);
+        setError("Failed to load student status");
       } finally {
         setLoading(false);
       }
-    };    checkStudentStatus();
+    };
+    checkStudentStatus();
   }, [user, navigate]);
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const getApprovedProposals = () => {
-    return proposals.filter(p => p.status_name?.toLowerCase() === 'approved');
+    return proposals.filter((p) => p.status_name?.toLowerCase() === "approved");
   };
 
   const getPendingProposals = () => {
-    return proposals.filter(p => p.status_name?.toLowerCase() === 'pending');
+    return proposals.filter((p) => p.status_name?.toLowerCase() === "pending");
   };
 
   const hasApprovedProposals = getApprovedProposals().length > 0;
@@ -100,18 +103,29 @@ const StudentChoosePath = () => {
         <div className="flex justify-between items-start mb-8">
           <div className="text-center flex-1">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              Welcome, {user?.name || 'Student'}!
+              Welcome, {user?.name || "Student"}!
             </h2>
             <p className="text-gray-600">
               Choose how you would like to proceed with your FYP selection.
             </p>
-          </div>          <button
+          </div>{" "}
+          <button
             onClick={handleLogout}
             className="ml-4 px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
             title="Logout"
           >
-            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg
+              className="w-4 h-4 inline-block mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
             </svg>
             Logout
           </button>
@@ -120,7 +134,9 @@ const StudentChoosePath = () => {
         {/* Status Information */}
         {proposals.length > 0 && (
           <div className="mb-8 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">Your Current Status</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">
+              Your Current Status
+            </h3>
             <div className="space-y-2 text-sm text-blue-700">
               <p>• Total proposals submitted: {proposals.length}</p>
               {hasApprovedProposals && (
@@ -163,15 +179,21 @@ const StudentChoosePath = () => {
           </h3>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-800">{proposals.length}</div>
+              <div className="text-2xl font-bold text-gray-800">
+                {proposals.length}
+              </div>
               <div className="text-sm text-gray-600">Proposals</div>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{getApprovedProposals().length}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {getApprovedProposals().length}
+              </div>
               <div className="text-sm text-gray-600">Approved</div>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-600">{getPendingProposals().length}</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {getPendingProposals().length}
+              </div>
               <div className="text-sm text-gray-600">Pending</div>
             </div>
           </div>
@@ -179,11 +201,22 @@ const StudentChoosePath = () => {
 
         {/* Help Text */}
         <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
-          <h4 className="text-lg font-semibold text-yellow-800 mb-2">Need Help?</h4>
+          <h4 className="text-lg font-semibold text-yellow-800 mb-2">
+            Need Help?
+          </h4>
           <div className="text-sm text-yellow-700 space-y-1">
-            <p>• <strong>Select from Available Titles:</strong> Browse and choose from pre-approved project titles</p>
-            <p>• <strong>Propose a New Project:</strong> Submit your own project idea for approval</p>
-            <p>• <strong>View Project Status:</strong> Check the status of your submitted proposals</p>
+            <p>
+              • <strong>Select from Available Titles:</strong> Browse and choose
+              from pre-approved project titles
+            </p>
+            <p>
+              • <strong>Propose a New Project:</strong> Submit your own project
+              idea for approval
+            </p>
+            <p>
+              • <strong>View Project Status:</strong> Check the status of your
+              submitted proposals
+            </p>
           </div>
         </div>
       </div>

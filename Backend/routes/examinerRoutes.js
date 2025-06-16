@@ -6,13 +6,16 @@ import auth from "../middleware/auth.js";
 const router = express.Router();
 
 // Apply auth middleware to all examiner routes
-router.use(auth.verifyToken, auth.hasRole("Examiner"));
+router.use(auth.verifyToken, auth.checkUserActive, auth.hasRole("Examiner"));
 
 // Get all assigned projects
 router.get(
   "/:examinerId/assigned-projects",
   examinerController.getAssignedProjects
 );
+
+// Get all projects (alias for assigned-projects)
+router.get("/:examinerId/projects", examinerController.getAssignedProjects);
 
 // Get project details
 router.get(
@@ -69,6 +72,12 @@ router.get(
 router.post(
   "/:examinerId/request-extension/:projectId",
   examinerController.requestExtension
+);
+
+// Update project status
+router.put(
+  "/:examinerId/projects/:projectId/status",
+  examinerController.updateProjectStatus
 );
 
 export default router;

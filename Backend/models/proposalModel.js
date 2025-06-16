@@ -50,11 +50,16 @@ const getProposalWithStatus = async (proposalId) => {
               CASE 
                 WHEN p.submitted_to IS NOT NULL THEN reviewer.name
                 ELSE NULL
-              END AS reviewer_name
+              END AS reviewer_name,
+              examiner.name AS examiner_name,
+              ea.status AS examiner_assignment_status
        FROM Proposal p
        JOIN Proposal_Status ps ON p.status_id = ps.status_id
        JOIN User submitter ON p.submitted_by = submitter.user_id
        LEFT JOIN User reviewer ON p.submitted_to = reviewer.user_id
+       LEFT JOIN Project proj ON p.project_id = proj.project_id
+       LEFT JOIN Examiner_Assignment ea ON proj.project_id = ea.project_id
+       LEFT JOIN User examiner ON ea.examiner_id = examiner.user_id
        WHERE p.proposal_id = ?`,
       [proposalId]
     );

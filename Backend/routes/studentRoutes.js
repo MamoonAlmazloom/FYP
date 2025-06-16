@@ -1,8 +1,12 @@
 // routes/studentRoutes.js
 import express from "express";
 import studentController from "../controllers/studentController.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
+
+// Apply auth middleware to all student routes
+router.use(auth.verifyToken, auth.checkUserActive, auth.hasRole("Student"));
 
 // Proposal routes
 router.get("/:studentId/proposals", studentController.listProposals);

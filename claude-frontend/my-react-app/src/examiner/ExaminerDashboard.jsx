@@ -1,65 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ExaminerAPI from "../API/ExaminerAPI";
 
 const ExaminerDashboard = () => {
   const navigate = useNavigate();
+  const [projectsToExamine, setProjectsToExamine] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Sample projects to examine data with marked status - in real app this would come from API
-  const [projectsToExamine, setProjectsToExamine] = useState([
-    {
-      id: 1,
-      title: "AI-Based Medical Diagnosis System",
-      studentName: "John Doe",
-      submissionDate: "March 5, 2025",
-      examinationDate: "March 10, 2025",
-      venue: "Room 205, Engineering Block",
-      isMarked: false,
-    },
-    {
-      id: 2,
-      title: "Blockchain for Secure Voting",
-      studentName: "Jane Smith",
-      submissionDate: "March 3, 2025",
-      examinationDate: "March 8, 2025",
-      venue: "Room 102, IT Faculty",
-      isMarked: true,
-    },
-    {
-      id: 3,
-      title: "Automated Inventory Management",
-      studentName: "Mike Johnson",
-      submissionDate: "March 1, 2025",
-      examinationDate: "March 6, 2025",
-      venue: "Hall A, Main Campus",
-      isMarked: false,
-    },
-  ]);
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const examinerId = userData.id;
 
+  useEffect(() => {
+    loadAssignedProjects();
+  }, []);
+
+  const loadAssignedProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await ExaminerAPI.getAssignedProjects(examinerId);
+      if (response.success) {
+        setProjectsToExamine(response.projects);
+      } else {
+        setError("Failed to load assigned projects");
+      }
+    } catch (error) {
+      console.error("Error loading projects:", error);
+      setError("Error loading assigned projects");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSignOut = () => {
-    // Handle sign out logic here
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
-  const handleMarkProject = (projectId) => {
-    setProjectsToExamine((projects) =>
-      projects.map((project) =>
-        project.id === projectId
-          ? { ...project, isMarked: !project.isMarked }
-          : project
-      )
-    );
+  const handleMarkProject = async (projectId) => {
+    try {
+      const project = projectsToExamine.find((p) => p.project_id === projectId);
+      const newStatus =
+        project.status === "Completed" ? "Pending" : "Completed";
 
-    // In a real app, you would also make an API call here to save the status
-    const project = projectsToExamine.find((p) => p.id === projectId);
-    const newStatus = !project.isMarked;
-    console.log(
-      `Project "${project.title}" marked as ${
-        newStatus ? "completed" : "pending"
-      }`
-    );
+      const response = await ExaminerAPI.updateProjectStatus(
+        examinerId,
+        projectId,
+        newStatus
+      );
+
+      if (response.success) {
+        setProjectsToExamine((projects) =>
+          projects.map((proj) =>
+            proj.project_id === projectId
+              ? { ...proj, status: newStatus }
+              : proj
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating project status:", error);
+      setError("Failed to update project status");
+    }
   };
 
-  const completedCount = projectsToExamine.filter((p) => p.isMarked).length;
+  const completedCount = projectsToExamine.filter(
+    (p) => p.status === "Completed"
+  ).length;
   const pendingCount = projectsToExamine.length - completedCount;
 
   return (
@@ -128,12 +135,12 @@ const ExaminerDashboard = () => {
               <tr>
                 <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
                   Project Title
-                </th>
+                </th>{" "}
                 <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
                   Student Name
                 </th>
                 <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Submission Date
+                  Assignment Status
                 </th>
                 <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
                   Examination Date
@@ -148,53 +155,103 @@ const ExaminerDashboard = () => {
                   Action
                 </th>
               </tr>
-            </thead>
+            </thead>{" "}
             <tbody>
-              {projectsToExamine.map((project) => (
-                <tr
-                  key={project.id}
-                  className={project.isMarked ? "bg-green-50" : ""}
-                >
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.title}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.studentName}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.submissionDate}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.examinationDate}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.venue}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-bold ${
-                        project.isMarked
-                          ? "bg-green-200 text-green-800"
-                          : "bg-yellow-200 text-yellow-800"
-                      }`}
-                    >
-                      {project.isMarked ? "Completed" : "Pending"}
-                    </span>
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <button
-                      onClick={() => handleMarkProject(project.id)}
-                      className={`px-3 py-2 border-none rounded cursor-pointer text-sm font-medium ${
-                        project.isMarked
-                          ? "bg-gray-500 text-white hover:bg-gray-600"
-                          : "bg-green-600 text-white hover:bg-green-700"
-                      }`}
-                    >
-                      {project.isMarked ? "Unmark" : "Mark as Done"}
-                    </button>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="border border-gray-300 p-6 text-center"
+                  >
+                    <div className="flex items-center justify-center">
+                      <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mr-3"></div>
+                      Loading assigned projects...
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="border border-gray-300 p-6 text-center text-red-600"
+                  >
+                    {error}
+                  </td>
+                </tr>
+              ) : projectsToExamine.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="border border-gray-300 p-6 text-center text-gray-600"
+                  >
+                    No projects assigned for examination yet.
+                  </td>
+                </tr>
+              ) : (
+                projectsToExamine.map((project) => (
+                  <tr
+                    key={project.project_id}
+                    className={
+                      project.status === "Completed" ? "bg-green-50" : ""
+                    }
+                  >
+                    <td className="border border-gray-300 p-3 text-left">
+                      {project.title}
+                    </td>{" "}
+                    <td className="border border-gray-300 p-3 text-left">
+                      {project.student_name}
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      <span
+                        className={`px-2 py-1 rounded text-sm ${
+                          project.status === "Pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : project.status === "Evaluated"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {project.status || "Pending"}
+                      </span>
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      {project.examination_date
+                        ? new Date(
+                            project.examination_date
+                          ).toLocaleDateString()
+                        : "TBA"}
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      {project.venue || "TBA"}
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      <span
+                        className={`px-2 py-1 rounded text-sm font-bold ${
+                          project.status === "Completed"
+                            ? "bg-green-200 text-green-800"
+                            : "bg-yellow-200 text-yellow-800"
+                        }`}
+                      >
+                        {project.status || "Pending"}
+                      </span>
+                    </td>
+                    <td className="border border-gray-300 p-3 text-left">
+                      <button
+                        onClick={() => handleMarkProject(project.project_id)}
+                        className={`px-3 py-2 border-none rounded cursor-pointer text-sm font-medium ${
+                          project.status === "Completed"
+                            ? "bg-gray-500 text-white hover:bg-gray-600"
+                            : "bg-green-600 text-white hover:bg-green-700"
+                        }`}
+                      >
+                        {project.status === "Completed"
+                          ? "Mark Pending"
+                          : "Mark as Done"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

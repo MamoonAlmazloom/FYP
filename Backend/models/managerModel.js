@@ -12,22 +12,26 @@ const getAllUsers = async () => {
         u.user_id,
         u.name,
         u.email,
+        IFNULL(u.is_active, 1) as is_active,
         GROUP_CONCAT(r.role_name) AS roles,
         GROUP_CONCAT(r.role_id) AS role_ids
        FROM User u
        LEFT JOIN User_Roles ur ON u.user_id = ur.user_id
        LEFT JOIN Role r ON ur.role_id = r.role_id
-       GROUP BY u.user_id, u.name, u.email
+       GROUP BY u.user_id, u.name, u.email, u.is_active
        ORDER BY u.name`
     );
 
-    return rows.map((row) => ({
+    const processedUsers = rows.map((row) => ({
       user_id: row.user_id,
       name: row.name,
       email: row.email,
+      is_active: Boolean(row.is_active),
       roles: row.roles ? row.roles.split(",") : [],
       role_ids: row.role_ids ? row.role_ids.split(",").map(Number) : [],
     }));
+
+    return processedUsers;
   } catch (error) {
     console.error("Error in getAllUsers:", error);
     throw error;
@@ -42,9 +46,11 @@ const getAllUsers = async () => {
  */
 const updateUserEligibility = async (userId, status) => {
   try {
-    // In a real application, you'd have an 'active' column in the User table
-    // For this implementation, we'll just assume success
-    return true;
+    const [result] = await pool.query(
+      `UPDATE User SET is_active = ? WHERE user_id = ?`,
+      [status, userId]
+    );
+    return result.affectedRows > 0;
   } catch (error) {
     console.error("Error in updateUserEligibility:", error);
     throw error;
@@ -52,7 +58,7 @@ const updateUserEligibility = async (userId, status) => {
 };
 
 /**
- * Get all approved projects
+ * Get all approved projects with examiner assignment information
  * @returns {Promise<Array>} - Array of approved projects
  */
 const getApprovedProjects = async () => {
@@ -65,11 +71,20 @@ const getApprovedProjects = async () => {
                   SELECT supervisor_id FROM Supervisor_Project
                   WHERE project_id = p.project_id
                   LIMIT 1
-              )) as supervisor_name
+              )) as supervisor_name,
+              ea.examiner_id,
+              ex.name as examiner_name,
+              ea.status as assignment_status,
+              CASE 
+                WHEN ea.examiner_id IS NOT NULL THEN 'Assigned'
+                ELSE 'Unassigned'
+              END as current_status
        FROM Project p
        JOIN Proposal pr ON p.project_id = pr.project_id
        JOIN User u ON pr.submitted_by = u.user_id
        JOIN Proposal_Status ps ON pr.status_id = ps.status_id
+       LEFT JOIN Examiner_Assignment ea ON p.project_id = ea.project_id
+       LEFT JOIN User ex ON ea.examiner_id = ex.user_id
        WHERE ps.status_name = 'Approved'
        ORDER BY p.project_id DESC`
     );
@@ -111,14 +126,17 @@ const getExaminers = async () => {
  */
 const assignExaminer = async (projectId, examinerId) => {
   try {
-    // First check if this project has an approved proposal
+    // First check if this project has an approved proposal and get project details
     const [approved] = await pool.query(
-      `SELECT p.project_id
+      `SELECT p.project_id, p.title, pr.submitted_by as student_id, 
+              u1.name as student_name, u2.name as examiner_name
        FROM Project p
        JOIN Proposal pr ON p.project_id = pr.project_id
        JOIN Proposal_Status ps ON pr.status_id = ps.status_id
+       JOIN User u1 ON pr.submitted_by = u1.user_id
+       JOIN User u2 ON u2.user_id = ?
        WHERE p.project_id = ? AND ps.status_name = 'Approved'`,
-      [projectId]
+      [examinerId, projectId]
     );
 
     if (approved.length === 0) {
@@ -126,6 +144,8 @@ const assignExaminer = async (projectId, examinerId) => {
         "Only projects with approved proposals can be assigned to examiners"
       );
     }
+
+    const projectData = approved[0];
 
     // Check if project is already assigned to this examiner
     const [existing] = await pool.query(
@@ -138,14 +158,56 @@ const assignExaminer = async (projectId, examinerId) => {
       return existing[0].assignment_id; // Return existing assignment ID
     }
 
-    // Assign the project to the examiner
-    const [result] = await pool.query(
-      `INSERT INTO Examiner_Assignment (project_id, examiner_id, status)
-       VALUES (?, ?, 'Pending')`,
-      [projectId, examinerId]
-    );
+    // Start transaction for multiple operations
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+    try {
+      // 1. Assign the project to the examiner with status 'Assigned'
+      const [result] = await connection.query(
+        `INSERT INTO Examiner_Assignment (project_id, examiner_id, status)
+         VALUES (?, ?, 'Assigned')`,
+        [projectId, examinerId]
+      );
 
-    return result.insertId;
+      const assignmentId = result.insertId;
+
+      // 2. Create notifications for student and examiner
+      // First ensure Event_Type exists
+      await connection.query(
+        `INSERT IGNORE INTO Event_Type (event_name) VALUES ('Examiner Assignment')`
+      );
+
+      // Get event type ID
+      const [eventType] = await connection.query(
+        `SELECT event_type_id FROM Event_Type WHERE event_name = 'Examiner Assignment'`
+      );
+      const eventTypeId = eventType[0].event_type_id;
+
+      // Send notification to student
+      const studentMessage = `Your project "${projectData.title}" has been assigned to examiner ${projectData.examiner_name} for evaluation.`;
+      await connection.query(
+        `INSERT INTO Notification (user_id, event_type_id, message, timestamp, is_read)
+         VALUES (?, ?, ?, NOW(), 0)`,
+        [projectData.student_id, eventTypeId, studentMessage]
+      );
+
+      // Send notification to examiner
+      const examinerMessage = `You have been assigned to evaluate the project "${projectData.title}" by student ${projectData.student_name}.`;
+      await connection.query(
+        `INSERT INTO Notification (user_id, event_type_id, message, timestamp, is_read)
+         VALUES (?, ?, ?, NOW(), 0)`,
+        [examinerId, eventTypeId, examinerMessage]
+      );
+
+      await connection.commit();
+      connection.release();
+
+      return assignmentId;
+    } catch (transactionError) {
+      await connection.rollback();
+      connection.release();
+      throw transactionError;
+    }
   } catch (error) {
     console.error("Error in assignExaminer:", error);
     throw error;

@@ -285,6 +285,44 @@ const requestExtension = async (req, res, next) => {
   }
 };
 
+/**
+ * Update project examination status
+ */
+const updateProjectStatus = async (req, res, next) => {
+  try {
+    const examinerId = req.params.examinerId;
+    const projectId = req.params.projectId;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        error: "Status is required",
+      });
+    }
+
+    const updated = await examinerModel.updateProjectStatus(
+      examinerId,
+      projectId,
+      status
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        error: "Project not found or not assigned to you",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Project status updated successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   getAssignedProjects,
   getProjectDetails,
@@ -297,4 +335,5 @@ export default {
   scheduleExamination,
   getScheduledExaminations,
   requestExtension,
+  updateProjectStatus,
 };

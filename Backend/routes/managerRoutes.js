@@ -6,7 +6,7 @@ import auth from "../middleware/auth.js";
 const router = express.Router();
 
 // Apply auth middleware to all manager routes
-router.use(auth.verifyToken, auth.hasRole("Manager"));
+router.use(auth.verifyToken, auth.checkUserActive, auth.hasRole("Manager"));
 
 // Get all users (new route for the requirement)
 router.get("/:managerId/users", managerController.getUsers);
@@ -21,11 +21,20 @@ router.get("/:managerId/students", (req, res) => {
   });
 });
 
-router.put("/:managerId/user-eligibility/:userId", managerController.updateUserEligibility);
+router.put(
+  "/:managerId/user-eligibility/:userId",
+  managerController.updateUserEligibility
+);
 router.post("/:managerId/register-user", managerController.registerUser);
 router.post("/:managerId/assign-examiner", managerController.assignExaminer);
-router.get("/:managerId/approved-projects", managerController.getApprovedProjects);
-router.get("/:managerId/student-logs/:studentId", managerController.getStudentLogs);
+router.get(
+  "/:managerId/approved-projects",
+  managerController.getApprovedProjects
+);
+router.get(
+  "/:managerId/student-logs/:studentId",
+  managerController.getStudentLogs
+);
 
 // Get all roles
 router.get("/:managerId/roles", managerController.getRoles);

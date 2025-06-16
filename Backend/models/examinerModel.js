@@ -332,6 +332,40 @@ const requestExtension = async (
   }
 };
 
+/**
+ * Update project examination status
+ * @param {number} examinerId - The ID of the examiner
+ * @param {number} projectId - The ID of the project
+ * @param {string} status - The new status
+ * @returns {Promise<boolean>} - True if updated successfully
+ */
+const updateProjectStatus = async (examinerId, projectId, status) => {
+  try {
+    // First verify that this project is assigned to this examiner
+    const [assigned] = await pool.query(
+      `SELECT assignment_id FROM Examiner_Assignment 
+       WHERE examiner_id = ? AND project_id = ?`,
+      [examinerId, projectId]
+    );
+    if (assigned.length === 0) {
+      return false; // Project not assigned to this examiner
+    }
+
+    // Update the assignment status
+    const [result] = await pool.query(
+      `UPDATE Examiner_Assignment 
+       SET status = ? 
+       WHERE examiner_id = ? AND project_id = ?`,
+      [status, examinerId, projectId]
+    );
+
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("Error in updateProjectStatus:", error);
+    throw error;
+  }
+};
+
 export default {
   getAssignedProjects,
   getProjectById,
@@ -344,4 +378,5 @@ export default {
   scheduleExamination,
   getScheduledExaminations,
   requestExtension,
+  updateProjectStatus,
 };

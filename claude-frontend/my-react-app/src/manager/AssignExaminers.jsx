@@ -1,56 +1,122 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ManagerAPI from "../API/ManagerAPI";
 
 const AssignExaminers = () => {
   const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
+  const [examiners, setExaminers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [assigning, setAssigning] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Sample project data - in real app this would come from API
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "AI-Based Medical Diagnosis System",
-      studentName: "John Doe",
-      examiner: "",
-    },
-    {
-      id: 2,
-      title: "Blockchain for Secure Voting",
-      studentName: "Jane Smith",
-      examiner: "",
-    },
-    {
-      id: 3,
-      title: "Automated Inventory Management",
-      studentName: "Mike Johnson",
-      examiner: "",
-    },
-  ]);
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const managerId = userData.id;
 
-  // Sample examiner options
-  const examiners = ["Dr. Smith", "Prof. Adams", "Dr. Lee"];
+  useEffect(() => {
+    loadData();
+  }, []);
 
+  const loadData = async () => {
+    try {
+      setLoading(true);
+
+      // Load approved projects and examiners in parallel
+      const [projectsResponse, examinersResponse] = await Promise.all([
+        ManagerAPI.getApprovedProjects(managerId),
+        ManagerAPI.getExaminers(managerId),
+      ]);
+
+      if (projectsResponse.success) {
+        setProjects(projectsResponse.projects);
+      }
+
+      if (examinersResponse.success) {
+        setExaminers(examinersResponse.examiners);
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      setError("Error loading data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
-  const handleExaminerChange = (projectId, examiner) => {
+  const handleExaminerChange = (projectId, examinerId) => {
     setProjects(
       projects.map((project) =>
-        project.id === projectId ? { ...project, examiner } : project
+        project.project_id === projectId
+          ? { ...project, selected_examiner_id: examinerId }
+          : project
       )
     );
   };
+  const handleAssign = async (projectId) => {
+    if (assigning) return; // Prevent multiple simultaneous assignments
 
-  const handleAssign = (projectId) => {
-    const project = projects.find((p) => p.id === projectId);
-    if (!project.examiner) {
-      alert("Please select an examiner first");
-      return;
+    try {
+      setAssigning(true);
+      const project = projects.find((p) => p.project_id === projectId);
+
+      if (!project.selected_examiner_id) {
+        setError("Please select an examiner first");
+        setAssigning(false);
+        return;
+      }
+
+      console.log("Starting assignment:", {
+        projectId,
+        examinerId: project.selected_examiner_id,
+        managerId,
+      });
+
+      setError(""); // Clear any previous errors
+      setSuccess(""); // Clear any previous success messages
+
+      const response = await ManagerAPI.assignExaminer(managerId, {
+        project_id: projectId,
+        examiner_id: project.selected_examiner_id,
+      });
+
+      console.log("Assignment response received:", response);
+      if (response.success) {
+        const wasReassignment = project.examiner_name ? true : false;
+        const selectedExaminer = examiners.find(
+          (e) => e.user_id == project.selected_examiner_id
+        );
+        const examinerName = selectedExaminer
+          ? selectedExaminer.name
+          : "examiner";
+
+        setSuccess(
+          wasReassignment
+            ? `Successfully reassigned "${project.title}" to ${examinerName}`
+            : `Successfully assigned "${project.title}" to ${examinerName}`
+        );
+
+        // Reload data to get updated assignments
+        await loadData();
+        setTimeout(() => setSuccess(""), 5000); // Show success for 5 seconds
+      } else {
+        console.log("Assignment failed:", response);
+        setError(response.error || "Failed to assign examiner");
+      }
+    } catch (error) {
+      console.error("Error assigning examiner:", error);
+      setError(
+        error.response?.data?.error ||
+          error.message ||
+          "Error assigning examiner. Please try again."
+      );
+    } finally {
+      setAssigning(false);
     }
-
-    // Add API call logic here
-    console.log(`Assigning ${project.examiner} to project: ${project.title}`);
-    alert(`Successfully assigned ${project.examiner} to ${project.title}`);
   };
 
   return (
@@ -90,76 +156,187 @@ const AssignExaminers = () => {
         >
           Sign Out
         </button>
-      </div>
+      </div>{" "}
+      <div className="max-w-4xl mx-auto mt-5 p-5 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          Assign Examiners
+        </h2>
+        <p className="mb-6 text-center">
+          Select an examiner for each approved project.
+        </p>
 
-      <div className="max-w-4xl mx-auto mt-5 p-5 bg-white rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-bold mb-4">Assign Examiners</h2>
-        <p className="mb-6">Select an examiner for each project.</p>
+        {/* Project Summary */}
+        {!loading && projects.length > 0 && (
+          <div className="bg-blue-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">
+              📊 Assignment Overview
+            </h3>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="bg-white p-3 rounded">
+                <div className="text-2xl font-bold text-blue-600">
+                  {projects.length}
+                </div>
+                <div className="text-sm text-gray-600">Total Projects</div>
+              </div>
+              <div className="bg-white p-3 rounded">
+                <div className="text-2xl font-bold text-green-600">
+                  {projects.filter((p) => p.examiner_name).length}
+                </div>
+                <div className="text-sm text-gray-600">Assigned</div>
+              </div>
+              <div className="bg-white p-3 rounded">
+                <div className="text-2xl font-bold text-orange-600">
+                  {projects.filter((p) => !p.examiner_name).length}
+                </div>
+                <div className="text-sm text-gray-600">Unassigned</div>
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Assign Examiners Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mt-5">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Project Title
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Student Name
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Assign Examiner
-                </th>
-                <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project) => (
-                <tr key={project.id}>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.title}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    {project.studentName}
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <select
-                      value={project.examiner}
-                      onChange={(e) =>
-                        handleExaminerChange(project.id, e.target.value)
-                      }
-                      className="w-full p-2 rounded border border-gray-300"
-                    >
-                      <option value="">Select Examiner</option>
-                      {examiners.map((examiner) => (
-                        <option key={examiner} value={examiner}>
-                          {examiner}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="border border-gray-300 p-3 text-left">
-                    <button
-                      onClick={() => handleAssign(project.id)}
-                      className="px-3 py-2 bg-green-600 text-white border-none rounded cursor-pointer text-sm hover:bg-green-700"
-                    >
-                      Assign
-                    </button>
-                  </td>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {success}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-8">
+            <p>Loading projects and examiners...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse mt-5">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Project ID
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Project Title
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Student Name
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Current Examiner
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Assign Examiner
+                  </th>
+                  <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
+                    Action
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {projects.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="border border-gray-300 p-3 text-center"
+                    >
+                      No approved projects found
+                    </td>
+                  </tr>
+                ) : (
+                  projects.map((project) => (
+                    <tr key={project.project_id}>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.project_id}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.title}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.student_name}
+                      </td>{" "}
+                      <td className="border border-gray-300 p-3 text-left">
+                        {project.examiner_name ? (
+                          <div className="space-y-1">
+                            <div className="font-medium text-green-800">
+                              {project.examiner_name}
+                            </div>
+                            <div className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full inline-block">
+                              {project.assignment_status || "Assigned"}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            <div className="text-gray-500 font-medium">
+                              Not assigned
+                            </div>
+                            <div className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full inline-block">
+                              Unassigned
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 p-3 text-left">
+                        <select
+                          value={project.selected_examiner_id || ""}
+                          onChange={(e) =>
+                            handleExaminerChange(
+                              project.project_id,
+                              e.target.value
+                            )
+                          }
+                          className="w-full p-2 rounded border border-gray-300"
+                        >
+                          <option value="">Select Examiner</option>
+                          {examiners.map((examiner) => (
+                            <option
+                              key={examiner.user_id}
+                              value={examiner.user_id}
+                            >
+                              {examiner.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>{" "}
+                      <td className="border border-gray-300 p-3 text-left">
+                        <button
+                          onClick={() => handleAssign(project.project_id)}
+                          disabled={assigning || !project.selected_examiner_id}
+                          className={`px-4 py-2 text-white border-none rounded cursor-pointer text-sm ${
+                            assigning
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : !project.selected_examiner_id
+                              ? "bg-gray-300 cursor-not-allowed"
+                              : project.examiner_name
+                              ? "bg-orange-600 hover:bg-orange-700"
+                              : "bg-green-600 hover:bg-green-700"
+                          }`}
+                        >
+                          {assigning
+                            ? "Assigning..."
+                            : project.examiner_name
+                            ? "Reassign"
+                            : "Assign"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        <Link
-          to="/manager/dashboard"
-          className="inline-block mt-5 text-blue-600 font-bold no-underline hover:text-blue-800"
-        >
-          ← Back to Manager Dashboard
-        </Link>
+        <div className="text-center mt-6">
+          <Link
+            to="/manager/dashboard"
+            className="inline-block text-blue-600 font-bold no-underline hover:text-blue-800"
+          >
+            ← Back to Manager Dashboard{" "}
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -31,14 +31,8 @@ const PreviousProjectDetails = () => {
         "The model achieved 92% accuracy in diagnosing respiratory diseases.",
     });
   }, [searchParams]);
-
   const handleSignOut = () => {
     navigate("/login");
-  };
-
-  const handleDownload = (fileType) => {
-    // In a real app, this would trigger actual file download
-    alert(`Downloading ${fileType} for project: ${projectDetails.title}`);
   };
 
   return (
@@ -101,29 +95,10 @@ const PreviousProjectDetails = () => {
           </p>
           <p className="mb-2">
             <strong>Technologies Used:</strong> {projectDetails.technologies}
-          </p>
+          </p>{" "}
           <p className="mb-0">
             <strong>Outcome:</strong> {projectDetails.outcome}
           </p>
-        </div>
-
-        {/* Download Project Files */}
-        <div className="mt-5 text-left">
-          <h3 className="text-lg font-bold mb-4">Download Project Files</h3>
-          <div className="space-y-3">
-            <button
-              onClick={() => handleDownload("Report (PDF)")}
-              className="block w-full p-3 text-base text-white bg-green-600 border-none rounded cursor-pointer text-center hover:bg-green-700"
-            >
-              Download Report (PDF)
-            </button>
-            <button
-              onClick={() => handleDownload("Code (ZIP)")}
-              className="block w-full p-3 text-base text-white bg-green-600 border-none rounded cursor-pointer text-center hover:bg-green-700"
-            >
-              Download Code (ZIP)
-            </button>
-          </div>
         </div>
 
         <Link

@@ -45,7 +45,8 @@ const submitProposal = async (req, res, next) => {
     if (hasActive) {
       return res.status(400).json({
         success: false,
-        error: "You already have an active project. You can only have one active project at a time.",
+        error:
+          "You already have an active project. You can only have one active project at a time.",
       });
     }
 
@@ -297,7 +298,8 @@ const selectProject = async (req, res, next) => {
     if (hasActive) {
       return res.status(400).json({
         success: false,
-        error: "You already have an active project. You can only have one active project at a time.",
+        error:
+          "You already have an active project. You can only have one active project at a time.",
       });
     }
 
@@ -406,11 +408,11 @@ const getActiveProject = async (req, res, next) => {
   try {
     const studentId = req.params.studentId;
     const activeProject = await studentModel.getActiveProject(studentId);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       hasActiveProject: !!activeProject,
-      activeProject: activeProject 
+      activeProject: activeProject,
     });
   } catch (err) {
     next(err);

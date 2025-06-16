@@ -65,7 +65,7 @@ const getSupervisorOwnProposals = async (supervisorId) => {
     const [rows] = await pool.query(
       `SELECT p.proposal_id, p.title, p.proposal_description, 
               p.type, p.specialization, p.outcome,
-              ps.status_name, p.submission_date
+              ps.status_name
        FROM Proposal p
        JOIN Proposal_Status ps ON p.status_id = ps.status_id
        WHERE p.submitted_by = ? AND p.submitted_to IS NULL

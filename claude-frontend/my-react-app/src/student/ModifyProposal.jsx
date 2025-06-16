@@ -7,8 +7,8 @@ const ModifyProposal = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const proposalId = searchParams.get('id');
-  
+  const proposalId = searchParams.get("id");
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -25,22 +25,22 @@ const ModifyProposal = () => {
     const fetchProposal = async () => {
       try {
         if (!user?.id) {
-          setErrors({ general: 'User not found. Please log in again.' });
+          setErrors({ general: "User not found. Please log in again." });
           return;
         }
 
         if (!proposalId) {
-          setErrors({ general: 'Proposal ID not provided.' });
+          setErrors({ general: "Proposal ID not provided." });
           return;
         }
 
         setLoading(true);
         const response = await getProposalStatus(user.id, proposalId);
-        
+
         if (response.success) {
           const proposal = response.proposal;
           setOriginalProposal(proposal);
-          
+
           // Populate form with existing data
           setFormData({
             title: proposal.title || "",
@@ -50,11 +50,11 @@ const ModifyProposal = () => {
             outcome: proposal.outcome || "",
           });
         } else {
-          setErrors({ general: response.error || 'Failed to load proposal' });
+          setErrors({ general: response.error || "Failed to load proposal" });
         }
       } catch (err) {
-        console.error('Error fetching proposal:', err);
-        setErrors({ general: 'Failed to load proposal' });
+        console.error("Error fetching proposal:", err);
+        setErrors({ general: "Failed to load proposal" });
       } finally {
         setLoading(false);
       }
@@ -115,8 +115,8 @@ const ModifyProposal = () => {
 
     try {
       if (!user?.id) {
-        alert('User not found. Please log in again.');
-        navigate('/login');
+        alert("User not found. Please log in again.");
+        navigate("/login");
         return;
       }
 
@@ -129,18 +129,22 @@ const ModifyProposal = () => {
         );
         navigate("/student/project-status");
       } else {
-        alert("Failed to submit modified proposal: " + (response.error || 'Unknown error'));
+        alert(
+          "Failed to submit modified proposal: " +
+            (response.error || "Unknown error")
+        );
       }
     } catch (error) {
-      console.error('Error submitting modified proposal:', error);
-      
+      console.error("Error submitting modified proposal:", error);
+
       if (error.response) {
-        const errorMessage = error.response.data.error || 'Server error occurred';
-        alert('Error: ' + errorMessage);
+        const errorMessage =
+          error.response.data.error || "Server error occurred";
+        alert("Error: " + errorMessage);
       } else if (error.request) {
-        alert('Network error: Please check your connection');
+        alert("Network error: Please check your connection");
       } else {
-        alert('Unexpected error occurred');
+        alert("Unexpected error occurred");
       }
     } finally {
       setIsSubmitting(false);
@@ -192,16 +196,20 @@ const ModifyProposal = () => {
         <p className="text-gray-600 text-center mb-2">
           Edit your submitted proposal before resubmitting.
         </p>
-        
+
         {/* Original Proposal Info */}
         {originalProposal && (
           <div className="bg-blue-50 p-4 rounded-lg mb-8">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">Original Proposal</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">
+              Original Proposal
+            </h3>{" "}
             <div className="text-sm text-blue-700">
-              <p><strong>Status:</strong> {originalProposal.status_name}</p>
-              <p><strong>Submitted:</strong> {originalProposal.submission_date ? 
-                new Date(originalProposal.submission_date).toLocaleDateString() : 'N/A'}</p>
-              <p><strong>To:</strong> {originalProposal.reviewer_name || 'N/A'}</p>
+              <p>
+                <strong>Status:</strong> {originalProposal.status_name}
+              </p>
+              <p>
+                <strong>To:</strong> {originalProposal.reviewer_name || "N/A"}
+              </p>
             </div>
           </div>
         )}
@@ -310,7 +318,9 @@ const ModifyProposal = () => {
               required
             />
             {errors.specialization && (
-              <p className="mt-2 text-sm text-red-600">{errors.specialization}</p>
+              <p className="mt-2 text-sm text-red-600">
+                {errors.specialization}
+              </p>
             )}
           </div>
 
@@ -348,10 +358,14 @@ const ModifyProposal = () => {
             </h4>
             <ul className="text-sm text-yellow-700 space-y-1">
               <li>• Address any feedback provided by your supervisor</li>
-              <li>• Be specific about changes made since the original submission</li>
+              <li>
+                • Be specific about changes made since the original submission
+              </li>
               <li>• Ensure all technical details are accurate and feasible</li>
               <li>• Consider the scope and timeline of your project</li>
-              <li>• Make sure your modifications align with your specialization</li>
+              <li>
+                • Make sure your modifications align with your specialization
+              </li>
             </ul>
           </div>
 

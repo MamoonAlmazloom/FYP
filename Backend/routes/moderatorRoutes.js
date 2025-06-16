@@ -1,4 +1,3 @@
-
 import express from "express";
 import moderatorController from "../controllers/moderatorController.js";
 import auth from "../middleware/auth.js";
@@ -6,7 +5,7 @@ import auth from "../middleware/auth.js";
 const router = express.Router();
 
 // Apply auth middleware to all moderator routes
-router.use(auth.verifyToken, auth.hasRole("Moderator"));
+router.use(auth.verifyToken, auth.checkUserActive, auth.hasRole("Moderator"));
 
 // Get pending proposals for review
 router.get(

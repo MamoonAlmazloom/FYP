@@ -1,5 +1,6 @@
 // middleware/auth.js
 import jwt from "jsonwebtoken";
+import pool from "../db.js";
 
 /**
  * Verify JWT token and add user to request
@@ -46,6 +47,50 @@ const verifyToken = (req, res, next) => {
 };
 
 /**
+ * Check if user is active (not disabled by admin)
+ */
+const checkUserActive = async (req, res, next) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - User not found",
+      });
+    }
+
+    const [rows] = await pool.query(
+      "SELECT is_active FROM User WHERE user_id = ?",
+      [req.user.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - User not found",
+      });
+    }
+
+    const user = rows[0];
+    if (!user.is_active) {
+      return res.status(403).json({
+        success: false,
+        error:
+          "Access denied - Your account has been disabled by an administrator",
+        disabled: true,
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error checking user active status:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+/**
  * Check if user has the required role
  * @param {string} role - Required role
  */
@@ -85,6 +130,7 @@ const hasAnyRole = (roles) => {
 
 export default {
   verifyToken,
+  checkUserActive,
   hasRole,
   hasAnyRole,
 };

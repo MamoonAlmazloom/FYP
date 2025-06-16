@@ -5,8 +5,12 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Get all supervisors (this route doesn't need the supervisorId parameter)
+// Apply auth middleware to all supervisor routes (except the public getAllSupervisors)
+// Public route for getting all supervisors (no auth needed)
 router.get("/", supervisorController.getAllSupervisors);
+
+// Apply auth middleware to all other supervisor routes
+router.use(auth.verifyToken, auth.checkUserActive, auth.hasRole("Supervisor"));
 
 // Get current students enrolled under the supervisor
 router.get("/:supervisorId/students", supervisorController.getStudents);
@@ -98,8 +102,6 @@ router.put(
 // Review student proposal
 router.post(
   "/:supervisorId/review-proposal/:proposalId",
-  auth.verifyToken,
-  auth.hasRole("Supervisor"),
   supervisorController.reviewStudentProposal
 );
 

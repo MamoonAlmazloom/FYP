@@ -49,12 +49,6 @@ const PreviousProjectDetails = () => {
     navigate("/login");
   };
 
-  const handleDownload = (fileType) => {
-    console.log(`Downloading ${fileType} for project: ${project?.title}`);
-    // Handle download logic here - would typically trigger a file download
-    // This could be implemented by making an API call to get the file URL
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
@@ -159,36 +153,10 @@ const PreviousProjectDetails = () => {
               )}
               {project.outcome && (
                 <p className="mb-0">
+                  {" "}
                   <strong>Outcome:</strong> {project.outcome}
                 </p>
               )}
-            </div>
-
-            {/* Download Links */}
-            <div className="bg-blue-50 p-4 rounded mb-4">
-              <h3 className="text-lg font-bold text-gray-800 mb-3">
-                Available Documents
-              </h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                <button
-                  onClick={() => handleDownload("Final Report")}
-                  className="px-4 py-2 bg-blue-600 text-white border-0 rounded text-sm cursor-pointer hover:bg-blue-700"
-                >
-                  📄 Final Report
-                </button>
-                <button
-                  onClick={() => handleDownload("Source Code")}
-                  className="px-4 py-2 bg-green-600 text-white border-0 rounded text-sm cursor-pointer hover:bg-green-700"
-                >
-                  💻 Source Code
-                </button>
-                <button
-                  onClick={() => handleDownload("Presentation")}
-                  className="px-4 py-2 bg-purple-600 text-white border-0 rounded text-sm cursor-pointer hover:bg-purple-700"
-                >
-                  📊 Presentation
-                </button>
-              </div>
             </div>
           </>
         ) : (
@@ -196,30 +164,9 @@ const PreviousProjectDetails = () => {
             <p className="text-lg">Project not found</p>
             <p className="text-sm">
               The requested project details could not be loaded.
-            </p>
+            </p>{" "}
           </div>
         )}
-
-        {/* Download Project Files */}
-        <div className="mt-5 text-left">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
-            Download Project Files
-          </h3>
-          <div className="space-y-3">
-            <button
-              onClick={() => handleDownload("PDF")}
-              className="block w-full p-3 text-base text-white bg-green-600 border-0 rounded text-center cursor-pointer hover:bg-green-700"
-            >
-              Download Report (PDF)
-            </button>
-            <button
-              onClick={() => handleDownload("ZIP")}
-              className="block w-full p-3 text-base text-white bg-green-600 border-0 rounded text-center cursor-pointer hover:bg-green-700"
-            >
-              Download Code (ZIP)
-            </button>
-          </div>
-        </div>
 
         <Link
           to="/supervisor/previous-projects"

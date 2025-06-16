@@ -1,11 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { getPendingProposals } from "../API/ModeratorAPI";
 
 const ModeratorDashboard = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [pendingProposals, setPendingProposals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPendingProposals = async () => {
+      try {
+        if (!user?.id) {
+          setError('User not found. Please log in again.');
+          return;
+        }
+
+        setLoading(true);
+        const response = await getPendingProposals(user.id);
+        
+        if (response.success) {
+          setPendingProposals(response.proposals || []);
+        } else {
+          setError(response.error || 'Failed to load pending proposals');
+        }
+      } catch (err) {
+        console.error('Error fetching pending proposals:', err);
+        setError('Failed to load pending proposals');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPendingProposals();
+  }, [user]);
 
   const handleSignOut = () => {
-    // Handle sign out logic here
+    logout();
     navigate("/login");
   };
 

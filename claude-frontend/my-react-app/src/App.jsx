@@ -325,6 +325,10 @@ function App() {
           element={<ProtectedManageUserEligibility />}
         />
         <Route
+          path="/manager/manage-user-eligibility/:userId"
+          element={<ProtectedManageUserEligibility />}
+        />
+        <Route
           path="/manager/assign-examiners"
           element={<ProtectedAssignExaminers />}
         />

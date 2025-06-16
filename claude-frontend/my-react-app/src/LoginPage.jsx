@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { login as authLogin, initializeAuth } from "./API/authAPI";
@@ -12,6 +12,18 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { login: contextLogin, logout } = useAuth();
+
+  // Check for disabled account message on component mount
+  useEffect(() => {
+    const accountDisabled = localStorage.getItem("accountDisabled");
+    if (accountDisabled === "true") {
+      setErrors({
+        submit:
+          "Your account has been disabled by an administrator. Please contact support for assistance.",
+      });
+      localStorage.removeItem("accountDisabled"); // Clear the flag after showing
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
