@@ -119,19 +119,23 @@ const SelectTitle = () => {
             <p className="text-sm text-yellow-700">
               Current project: <strong>{activeProject?.title}</strong>
             </p>
-          </div>
+          </div>{" "}
           <div className="space-y-3">
             <Link
               to="/student/project-status"
-              className="block w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              View Current Project Status
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                View Current Project Status
+              </span>
             </Link>
             <Link
               to="/student/choose-path"
-              className="block w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Back to Select Path
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Back to Select Path
+              </span>
             </Link>
           </div>
         </div>
@@ -154,13 +158,28 @@ const SelectTitle = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-lg w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>{" "}
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             to="/student/choose-path"
-            className="inline-block px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-lg transition-all duration-300 no-underline shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            Back to Select Path
+            <svg
+              className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Back to Select Path
+            </span>
           </Link>
         </div>
       </div>
@@ -173,17 +192,32 @@ const SelectTitle = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Select a Project Title
         </h2>
-
         {projects.length === 0 ? (
           <div className="text-center py-8">
+            {" "}
             <p className="text-gray-600 mb-6">
               No available projects at the moment.
-            </p>
+            </p>{" "}
             <Link
               to="/student/propose-project"
-              className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline"
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 no-underline shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Propose Your Own Project
+              <svg
+                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Propose Your Own Project
+              </span>
             </Link>
           </div>
         ) : (
@@ -212,38 +246,53 @@ const SelectTitle = () => {
                         {project.specialization || "N/A"}
                       </span>
                     </div>
-                  </div>
+                  </div>{" "}
                   <button
                     onClick={() => handleSelectProject(project.project_id)}
                     disabled={selectingProject === project.project_id}
-                    className={`ml-4 px-6 py-2 rounded-lg font-semibold transition-colors ${
+                    className={`group ml-4 px-6 py-2 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 ${
                       selectingProject === project.project_id
                         ? "bg-gray-400 cursor-not-allowed text-white"
-                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                     }`}
                   >
-                    {" "}
                     {selectingProject === project.project_id ? (
                       <div className="flex items-center">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                         Applying...
                       </div>
                     ) : (
-                      "Apply for Project"
+                      <span className="transition-all duration-300 group-hover:tracking-wide">
+                        Apply for Project
+                      </span>
                     )}
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        )}
-
+        )}{" "}
         <div className="text-center">
           <Link
             to="/student/choose-path"
-            className="inline-block px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-lg transition-all duration-300 no-underline shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            Back to Select Path
+            <svg
+              className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Back to Select Path
+            </span>
           </Link>
         </div>
       </div>

@@ -331,6 +331,242 @@ const notifyForProgressSubmission = async (submissionType, submissionId) => {
   }
 };
 
+/**
+ * Notify student when examiner is assigned
+ * @param {number} projectId - The project ID
+ * @param {number} studentId - The student ID
+ * @param {number} examinerId - The examiner ID
+ * @returns {Promise<void>}
+ */
+const notifyExaminerAssignment = async (projectId, studentId, examinerId) => {
+  try {
+    // Get project and examiner details
+    const [details] = await pool.query(
+      `SELECT 
+        p.title as project_title,
+        u_examiner.name as examiner_name,
+        u_student.name as student_name
+      FROM Project p
+      JOIN User u_examiner ON u_examiner.user_id = ?
+      JOIN User u_student ON u_student.user_id = ?
+      WHERE p.project_id = ?`,
+      [examinerId, studentId, projectId]
+    );
+
+    if (details.length === 0) {
+      throw new Error(`Project or user details not found`);
+    }
+
+    const { project_title, examiner_name, student_name } = details[0];
+
+    // Notify student
+    const studentMessage = `Your project "${project_title}" has been assigned to examiner ${examiner_name} for evaluation`;
+    await createNotification(studentId, "examiner_assigned", studentMessage);
+
+    // Notify examiner
+    const examinerMessage = `You have been assigned to evaluate the project "${project_title}" by student ${student_name}`;
+    await createNotification(examinerId, "examiner_assigned", examinerMessage);
+  } catch (error) {
+    console.error("Error in notifyExaminerAssignment:", error);
+    throw error;
+  }
+};
+
+/**
+ * Notify student when project is evaluated
+ * @param {number} projectId - The project ID
+ * @param {number} examinerId - The examiner ID
+ * @param {string} evaluationResult - The evaluation result (e.g., "Pass", "Fail", "Resubmit")
+ * @param {number} score - The score given (optional)
+ * @returns {Promise<void>}
+ */
+const notifyProjectEvaluation = async (
+  projectId,
+  examinerId,
+  evaluationResult,
+  score = null
+) => {
+  try {
+    // Get project and student details
+    const [details] = await pool.query(
+      `SELECT 
+        p.title as project_title,
+        pr.submitted_by as student_id,
+        u_examiner.name as examiner_name,
+        u_student.name as student_name
+      FROM Project p
+      JOIN Proposal pr ON p.project_id = pr.project_id
+      JOIN User u_examiner ON u_examiner.user_id = ?
+      JOIN User u_student ON pr.submitted_by = u_student.user_id
+      WHERE p.project_id = ?`,
+      [examinerId, projectId]
+    );
+
+    if (details.length === 0) {
+      throw new Error(`Project details not found for project ID: ${projectId}`);
+    }
+
+    const { project_title, student_id, examiner_name } = details[0];
+
+    // Create message based on evaluation result
+    let message = `Your project "${project_title}" has been evaluated by ${examiner_name}. Result: ${evaluationResult}`;
+    if (score !== null) {
+      message += ` (Score: ${score})`;
+    }
+
+    await createNotification(student_id, "project_evaluated", message);
+  } catch (error) {
+    console.error("Error in notifyProjectEvaluation:", error);
+    throw error;
+  }
+};
+
+/**
+ * Notify supervisor when student submits a new log or report
+ * @param {string} submissionType - Type of submission ("log" or "report")
+ * @param {number} submissionId - The submission ID
+ * @param {number} studentId - The student ID
+ * @param {number} projectId - The project ID
+ * @returns {Promise<void>}
+ */
+const notifyProgressSubmissionToSupervisor = async (
+  submissionType,
+  submissionId,
+  studentId,
+  projectId
+) => {
+  try {
+    let submissionTitle = "";
+
+    if (submissionType === "log") {
+      const [logDetails] = await pool.query(
+        `SELECT details FROM Progress_Log WHERE log_id = ?`,
+        [submissionId]
+      );
+      submissionTitle =
+        logDetails.length > 0
+          ? `Progress Log #${submissionId}`
+          : "Progress Log";
+    } else if (submissionType === "report") {
+      const [reportDetails] = await pool.query(
+        `SELECT title FROM Progress_Report WHERE report_id = ?`,
+        [submissionId]
+      );
+      submissionTitle =
+        reportDetails.length > 0 ? reportDetails[0].title : "Progress Report";
+    }
+
+    // Get project and student details
+    const [details] = await pool.query(
+      `SELECT 
+        p.title as project_title,
+        u_student.name as student_name,
+        sp.user_id as supervisor_id
+      FROM Project p
+      JOIN User u_student ON u_student.user_id = ?
+      JOIN Supervisor_Project sp ON sp.project_id = p.project_id
+      WHERE p.project_id = ?`,
+      [studentId, projectId]
+    );
+
+    if (details.length === 0) {
+      throw new Error(
+        `Project or supervisor details not found for project ID: ${projectId}`
+      );
+    }
+
+    const { project_title, student_name, supervisor_id } = details[0];
+
+    const message = `${student_name} has submitted a new ${
+      submissionType === "log" ? "progress log" : "progress report"
+    } "${submissionTitle}" for project "${project_title}"`;
+
+    await createNotification(
+      supervisor_id,
+      `${submissionType}_submitted`,
+      message
+    );
+  } catch (error) {
+    console.error(
+      `Error in notifyProgressSubmissionToSupervisor (${submissionType}):`,
+      error
+    );
+    throw error;
+  }
+};
+
+/**
+ * Notify student when they receive feedback on log or report
+ * @param {string} feedbackType - Type of feedback ("log" or "report")
+ * @param {number} feedbackId - The feedback ID
+ * @param {number} reviewerId - The reviewer ID
+ * @param {number} targetId - The log_id or report_id
+ * @returns {Promise<void>}
+ */
+const notifyFeedbackReceived = async (
+  feedbackType,
+  feedbackId,
+  reviewerId,
+  targetId
+) => {
+  try {
+    let studentId = null;
+    let itemTitle = "";
+
+    // Get student and item details based on feedback type
+    if (feedbackType === "log") {
+      const [logDetails] = await pool.query(
+        `SELECT 
+          pl.student_id,
+          p.title as project_title
+        FROM Progress_Log pl
+        JOIN Project p ON pl.project_id = p.project_id
+        WHERE pl.log_id = ?`,
+        [targetId]
+      );
+
+      if (logDetails.length > 0) {
+        studentId = logDetails[0].student_id;
+        itemTitle = `Progress Log for "${logDetails[0].project_title}"`;
+      }
+    } else if (feedbackType === "report") {
+      const [reportDetails] = await pool.query(
+        `SELECT 
+          pr.student_id,
+          pr.title as report_title
+        FROM Progress_Report pr
+        WHERE pr.report_id = ?`,
+        [targetId]
+      );
+
+      if (reportDetails.length > 0) {
+        studentId = reportDetails[0].student_id;
+        itemTitle = `Progress Report "${reportDetails[0].report_title}"`;
+      }
+    }
+
+    if (!studentId) {
+      throw new Error(`Student not found for ${feedbackType} ID: ${targetId}`);
+    }
+
+    // Get reviewer name
+    const [reviewerDetails] = await pool.query(
+      `SELECT name FROM User WHERE user_id = ?`,
+      [reviewerId]
+    );
+
+    const reviewerName =
+      reviewerDetails.length > 0 ? reviewerDetails[0].name : "Unknown Reviewer";
+
+    const message = `You have received new feedback from ${reviewerName} on your ${itemTitle}`;
+
+    await createNotification(studentId, "feedback_received", message);
+  } catch (error) {
+    console.error(`Error in notifyFeedbackReceived (${feedbackType}):`, error);
+    throw error;
+  }
+};
+
 export default {
   createNotification,
   getUserNotifications,
@@ -340,4 +576,8 @@ export default {
   notifyForFeedbackEvent,
   notifyForUpcomingDeadline,
   notifyForProgressSubmission,
+  notifyExaminerAssignment,
+  notifyProjectEvaluation,
+  notifyProgressSubmissionToSupervisor,
+  notifyFeedbackReceived,
 };

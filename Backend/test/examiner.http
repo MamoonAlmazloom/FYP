@@ -24,3 +24,58 @@ Authorization: Bearer {{examinerToken}}
 GET {{examinersUrl}}/{{examinerId}}/project-details/1
 Authorization: Bearer {{examinerToken}}
 
+### Get project submission
+GET {{examinersUrl}}/{{examinerId}}/project-submissions/1
+Authorization: Bearer {{examinerToken}}
+
+### Provide examination feedback (create evaluation)
+POST {{examinersUrl}}/{{examinerId}}/examination-feedback/1
+Authorization: Bearer {{examinerToken}}
+Content-Type: application/json
+
+{
+  "feedback": "Excellent work on the project. Well structured and implemented.",
+  "grade": 85.5
+}
+
+### Update project status to "Evaluated" (mark as evaluated)
+PUT {{examinersUrl}}/{{examinerId}}/projects/1/status
+Authorization: Bearer {{examinerToken}}
+Content-Type: application/json
+
+{
+  "status": "Evaluated"
+}
+
+### Get examiner profile
+GET {{examinersUrl}}/{{examinerId}}/profile
+Authorization: Bearer {{examinerToken}}
+
+### Get all previous evaluations by this examiner
+GET {{examinersUrl}}/{{examinerId}}/evaluations
+Authorization: Bearer {{examinerToken}}
+
+### Get evaluation statistics
+GET {{examinersUrl}}/{{examinerId}}/statistics
+Authorization: Bearer {{examinerToken}}
+
+### --- MANAGER ENDPOINTS (To test archive retrieval) ---
+
+### Login as Manager to test previous projects retrieval
+# @name managerLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin"
+}
+
+### Store manager token and ID
+@managerToken = {{managerLogin.response.body.token}}
+@managerId = {{managerLogin.response.body.user.id}}
+
+### Get all previous (evaluated) projects - This shows the archived projects
+GET {{baseUrl}}/managers/{{managerId}}/previous-projects
+Authorization: Bearer {{managerToken}}
+

@@ -139,6 +139,19 @@ const ManagerAPI = {
       throw error;
     }
   },
+
+  // Get previous (completed) projects
+  getPreviousProjects: async (managerId) => {
+    try {
+      const response = await api.get(
+        `/api/managers/${managerId}/previous-projects`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching previous projects:", error);
+      throw error;
+    }
+  },
 };
 
 export default ManagerAPI;

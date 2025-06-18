@@ -20,6 +20,8 @@ const ModifyProposal = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -36,10 +38,16 @@ const ModifyProposal = () => {
 
         setLoading(true);
         const response = await getProposalStatus(user.id, proposalId);
-
         if (response.success) {
           const proposal = response.proposal;
           setOriginalProposal(proposal);
+
+          // Check if proposal is approved
+          const approvedStatuses = ["Approved", "Supervisor_Approved"];
+          const proposalIsApproved = approvedStatuses.includes(
+            proposal.status_name
+          );
+          setIsApproved(proposalIsApproved);
 
           // Populate form with existing data
           setFormData({
@@ -103,11 +111,16 @@ const ModifyProposal = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
+      return;
+    }
+
+    // If proposal is approved, show warning first
+    if (isApproved && !showWarning) {
+      setShowWarning(true);
       return;
     }
 
@@ -124,10 +137,19 @@ const ModifyProposal = () => {
       const response = await updateProposal(user.id, proposalId, formData);
 
       if (response.success) {
-        alert(
-          "Modified proposal submitted successfully! You will be notified once it's reviewed."
-        );
-        navigate("/student/project-status");
+        if (response.isNewProposal) {
+          // New proposal created for approved proposal
+          alert(
+            "A new proposal has been submitted! Your previous approved proposal remains unchanged. You will need to wait for supervisor and moderator approval again."
+          );
+          navigate("/student/choose-path");
+        } else {
+          // Regular update for non-approved proposal
+          alert(
+            "Modified proposal submitted successfully! You will be notified once it's reviewed."
+          );
+          navigate("/student/project-status");
+        }
       } else {
         alert(
           "Failed to submit modified proposal: " +
@@ -167,19 +189,23 @@ const ModifyProposal = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{errors.general}</p>
+          <p className="text-gray-600 mb-6">{errors.general}</p>{" "}
           <div className="space-y-3">
             <Link
               to="/student/project-status"
-              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              View All Proposals
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                View All Proposals
+              </span>
             </Link>
             <Link
               to="/student/project-work"
-              className="block w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full py-3 px-6 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Back to Project Work
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Back to Project Work
+              </span>
             </Link>
           </div>
         </div>
@@ -195,8 +221,7 @@ const ModifyProposal = () => {
         </h2>
         <p className="text-gray-600 text-center mb-2">
           Edit your submitted proposal before resubmitting.
-        </p>
-
+        </p>{" "}
         {/* Original Proposal Info */}
         {originalProposal && (
           <div className="bg-blue-50 p-4 rounded-lg mb-8">
@@ -213,7 +238,71 @@ const ModifyProposal = () => {
             </div>
           </div>
         )}
-
+        {/* Warning Dialog for Approved Proposals */}
+        {showWarning && isApproved && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="text-center">
+                <div className="mb-4">
+                  <span className="text-6xl">⚠️</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">
+                  Important Notice
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Your proposal is currently <strong>approved</strong>.
+                  Modifying it will create a<strong> new proposal</strong> that
+                  will need to go through the approval process again (supervisor
+                  and moderator approval). Your current approved proposal will
+                  remain unchanged.
+                </p>
+                <p className="text-gray-600 mb-6 font-semibold">
+                  Do you want to proceed with creating a new proposal?
+                </p>{" "}
+                <div className="flex space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowWarning(false)}
+                    className="group flex-1 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+                  >
+                    <span className="transition-all duration-300 group-hover:tracking-wide">
+                      Cancel
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowWarning(false);
+                      handleSubmit({ preventDefault: () => {} });
+                    }}
+                    className="group flex-1 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+                  >
+                    <span className="transition-all duration-300 group-hover:tracking-wide">
+                      Proceed
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Warning Banner for Approved Proposals */}
+        {isApproved && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <span className="text-yellow-400 text-xl">⚠️</span>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Notice:</strong> This proposal is currently approved.
+                  Modifying it will create a new proposal that requires
+                  re-approval from your supervisor and moderator.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Proposal Title */}
           <div>
@@ -241,7 +330,6 @@ const ModifyProposal = () => {
               <p className="mt-2 text-sm text-red-600">{errors.title}</p>
             )}
           </div>
-
           {/* Proposal Description */}
           <div>
             <label
@@ -273,7 +361,6 @@ const ModifyProposal = () => {
               </p>
             </div>
           </div>
-
           {/* Project Type */}
           <div>
             <label
@@ -294,7 +381,6 @@ const ModifyProposal = () => {
               <option value="Both">Both</option>
             </select>
           </div>
-
           {/* Specialization */}
           <div>
             <label
@@ -323,7 +409,6 @@ const ModifyProposal = () => {
               </p>
             )}
           </div>
-
           {/* Expected Outcome */}
           <div>
             <label
@@ -350,7 +435,6 @@ const ModifyProposal = () => {
               <p className="mt-2 text-sm text-red-600">{errors.outcome}</p>
             )}
           </div>
-
           {/* Modification Guidelines */}
           <div className="bg-yellow-50 p-6 rounded-lg">
             <h4 className="text-lg font-semibold text-yellow-800 mb-3">
@@ -368,35 +452,57 @@ const ModifyProposal = () => {
               </li>
             </ul>
           </div>
-
-          {/* Submit Button */}
+          {/* Submit Button */}{" "}
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-4 px-6 text-lg font-semibold text-white rounded-lg transition-all duration-200 ${
+            className={`group w-full py-4 px-6 text-lg font-semibold text-white rounded-lg transition-all duration-300 focus:outline-none shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 ${
               isSubmitting
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-yellow-500 hover:bg-yellow-600 focus:ring-4 focus:ring-yellow-200"
-            } focus:outline-none`}
+                : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 focus:ring-4 focus:ring-orange-200"
+            }`}
           >
+            {" "}
             {isSubmitting ? (
               <div className="flex items-center justify-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-                Submitting Modified Proposal...
+                {isApproved
+                  ? "Creating New Proposal..."
+                  : "Submitting Modified Proposal..."}
               </div>
+            ) : isApproved ? (
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Create New Proposal
+              </span>
             ) : (
-              "Submit Modified Proposal"
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Submit Modified Proposal
+              </span>
             )}
           </button>
         </form>
-
-        {/* Back Link */}
+        {/* Back Link */}{" "}
         <div className="text-center mt-6">
           <Link
             to="/student/project-work"
-            className="inline-block text-blue-600 hover:text-blue-800 font-bold no-underline transition-colors"
+            className="group inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-bold no-underline transition-all duration-300"
           >
-            ← Back to Project Work
+            <svg
+              className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Back to Project Work
+            </span>
           </Link>
         </div>
       </div>

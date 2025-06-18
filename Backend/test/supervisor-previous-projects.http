@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:5000/api
+@authUrl = {{baseUrl}}/auth
+
+### Login as Supervisor
+# @name supervisorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "sarah.johnson@example.com",
+  "password": "password123"
+}
+
+### Store the supervisor token and ID
+@supervisorToken = {{supervisorLogin.response.body.token}}
+@supervisorId = {{supervisorLogin.response.body.user.id}}
+
+### Test: Get supervisor previous projects (should work)
+GET {{baseUrl}}/supervisors/{{supervisorId}}/previous-projects
+Authorization: Bearer {{supervisorToken}}
+
+### Test: Direct call with hardcoded ID 8
+GET {{baseUrl}}/supervisors/8/previous-projects
+Authorization: Bearer {{supervisorToken}}
+
+### Test: Check what happens if we call the manager endpoint for comparison
+GET {{baseUrl}}/managers/{{supervisorId}}/previous-projects
+Authorization: Bearer {{supervisorToken}}
+
+### Test: Check if there are any evaluated examiner assignments at all
+GET {{baseUrl}}/managers/{{supervisorId}}/approved-projects
+Authorization: Bearer {{supervisorToken}}

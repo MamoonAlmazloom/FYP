@@ -15,9 +15,9 @@ const getAllUsers = async () => {
         IFNULL(u.is_active, 1) as is_active,
         GROUP_CONCAT(r.role_name) AS roles,
         GROUP_CONCAT(r.role_id) AS role_ids
-       FROM User u
-       LEFT JOIN User_Roles ur ON u.user_id = ur.user_id
-       LEFT JOIN Role r ON ur.role_id = r.role_id
+       FROM user u
+       LEFT JOIN user_roles ur ON u.user_id = ur.user_id
+       LEFT JOIN role r ON ur.role_id = r.role_id
        GROUP BY u.user_id, u.name, u.email, u.is_active
        ORDER BY u.name`
     );
@@ -47,7 +47,7 @@ const getAllUsers = async () => {
 const updateUserEligibility = async (userId, status) => {
   try {
     const [result] = await pool.query(
-      `UPDATE User SET is_active = ? WHERE user_id = ?`,
+      `UPDATE user SET is_active = ? WHERE user_id = ?`,
       [status, userId]
     );
     return result.affectedRows > 0;
@@ -66,9 +66,8 @@ const getApprovedProjects = async () => {
     const [rows] = await pool.query(
       `SELECT p.project_id, p.title, p.description, 
               u.name as student_name, u.user_id as student_id,
-              pr.proposal_id, 
-              (SELECT name FROM User WHERE user_id = (
-                  SELECT supervisor_id FROM Supervisor_Project
+              pr.proposal_id,              (SELECT name FROM user WHERE user_id = (
+                  SELECT supervisor_id FROM supervisor_project
                   WHERE project_id = p.project_id
                   LIMIT 1
               )) as supervisor_name,
@@ -79,12 +78,12 @@ const getApprovedProjects = async () => {
                 WHEN ea.examiner_id IS NOT NULL THEN 'Assigned'
                 ELSE 'Unassigned'
               END as current_status
-       FROM Project p
-       JOIN Proposal pr ON p.project_id = pr.project_id
-       JOIN User u ON pr.submitted_by = u.user_id
-       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
-       LEFT JOIN Examiner_Assignment ea ON p.project_id = ea.project_id
-       LEFT JOIN User ex ON ea.examiner_id = ex.user_id
+       FROM project p
+       JOIN proposal pr ON p.project_id = pr.project_id
+       JOIN user u ON pr.submitted_by = u.user_id
+       JOIN proposal_status ps ON pr.status_id = ps.status_id
+       LEFT JOIN examiner_assignment ea ON p.project_id = ea.project_id
+       LEFT JOIN user ex ON ea.examiner_id = ex.user_id
        WHERE ps.status_name = 'Approved'
        ORDER BY p.project_id DESC`
     );
@@ -104,9 +103,9 @@ const getExaminers = async () => {
   try {
     const [rows] = await pool.query(
       `SELECT u.user_id, u.name, u.email
-       FROM User u
-       JOIN User_Roles ur ON u.user_id = ur.user_id
-       JOIN Role r ON ur.role_id = r.role_id
+       FROM user u
+       JOIN user_roles ur ON u.user_id = ur.user_id
+       JOIN role r ON ur.role_id = r.role_id
        WHERE r.role_name = 'Examiner'
        ORDER BY u.name`
     );
@@ -130,11 +129,11 @@ const assignExaminer = async (projectId, examinerId) => {
     const [approved] = await pool.query(
       `SELECT p.project_id, p.title, pr.submitted_by as student_id, 
               u1.name as student_name, u2.name as examiner_name
-       FROM Project p
-       JOIN Proposal pr ON p.project_id = pr.project_id
-       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
-       JOIN User u1 ON pr.submitted_by = u1.user_id
-       JOIN User u2 ON u2.user_id = ?
+       FROM project p
+       JOIN proposal pr ON p.project_id = pr.project_id
+       JOIN proposal_status ps ON pr.status_id = ps.status_id
+       JOIN user u1 ON pr.submitted_by = u1.user_id
+       JOIN user u2 ON u2.user_id = ?
        WHERE p.project_id = ? AND ps.status_name = 'Approved'`,
       [examinerId, projectId]
     );
@@ -145,11 +144,9 @@ const assignExaminer = async (projectId, examinerId) => {
       );
     }
 
-    const projectData = approved[0];
-
-    // Check if project is already assigned to this examiner
+    const projectData = approved[0]; // Check if project is already assigned to this examiner
     const [existing] = await pool.query(
-      `SELECT assignment_id FROM Examiner_Assignment 
+      `SELECT assignment_id FROM examiner_assignment 
        WHERE project_id = ? AND examiner_id = ?`,
       [projectId, examinerId]
     );
@@ -164,29 +161,27 @@ const assignExaminer = async (projectId, examinerId) => {
     try {
       // 1. Assign the project to the examiner with status 'Assigned'
       const [result] = await connection.query(
-        `INSERT INTO Examiner_Assignment (project_id, examiner_id, status)
+        `INSERT INTO examiner_assignment (project_id, examiner_id, status)
          VALUES (?, ?, 'Assigned')`,
         [projectId, examinerId]
       );
 
-      const assignmentId = result.insertId;
-
-      // 2. Create notifications for student and examiner
+      const assignmentId = result.insertId; // 2. Create notifications for student and examiner
       // First ensure Event_Type exists
       await connection.query(
-        `INSERT IGNORE INTO Event_Type (event_name) VALUES ('Examiner Assignment')`
+        `INSERT IGNORE INTO event_type (event_name) VALUES ('Examiner Assignment')`
       );
 
       // Get event type ID
       const [eventType] = await connection.query(
-        `SELECT event_type_id FROM Event_Type WHERE event_name = 'Examiner Assignment'`
+        `SELECT event_type_id FROM event_type WHERE event_name = 'Examiner Assignment'`
       );
       const eventTypeId = eventType[0].event_type_id;
 
       // Send notification to student
       const studentMessage = `Your project "${projectData.title}" has been assigned to examiner ${projectData.examiner_name} for evaluation.`;
       await connection.query(
-        `INSERT INTO Notification (user_id, event_type_id, message, timestamp, is_read)
+        `INSERT INTO notification (user_id, event_type_id, message, timestamp, is_read)
          VALUES (?, ?, ?, NOW(), 0)`,
         [projectData.student_id, eventTypeId, studentMessage]
       );
@@ -194,7 +189,7 @@ const assignExaminer = async (projectId, examinerId) => {
       // Send notification to examiner
       const examinerMessage = `You have been assigned to evaluate the project "${projectData.title}" by student ${projectData.student_name}.`;
       await connection.query(
-        `INSERT INTO Notification (user_id, event_type_id, message, timestamp, is_read)
+        `INSERT INTO notification (user_id, event_type_id, message, timestamp, is_read)
          VALUES (?, ?, ?, NOW(), 0)`,
         [examinerId, eventTypeId, examinerMessage]
       );
@@ -224,8 +219,8 @@ const getStudentLogs = async (studentId) => {
     const [rows] = await pool.query(
       `SELECT pl.log_id, pl.project_id, pl.submission_date, pl.details,
               p.title as project_title
-       FROM Progress_Log pl
-       JOIN Project p ON pl.project_id = p.project_id
+       FROM progress_log pl
+       JOIN project p ON pl.project_id = p.project_id
        WHERE pl.student_id = ?
        ORDER BY pl.submission_date DESC`,
       [studentId]
@@ -245,7 +240,7 @@ const getStudentLogs = async (studentId) => {
 const getAllRoles = async () => {
   try {
     const [rows] = await pool.query(
-      `SELECT role_id, role_name FROM Role ORDER BY role_name`
+      `SELECT role_id, role_name FROM role ORDER BY role_name`
     );
 
     return rows;
@@ -264,7 +259,7 @@ const removeDuplicateAssignments = async () => {
     // Find the lowest assignment_id for each project-examiner pair
     const [assignments] = await pool.query(`
       SELECT MIN(assignment_id) AS keep_id, project_id, examiner_id
-      FROM Examiner_Assignment
+      FROM examiner_assignment
       GROUP BY project_id, examiner_id
     `);
 
@@ -274,7 +269,7 @@ const removeDuplicateAssignments = async () => {
     for (const assign of assignments) {
       const [result] = await pool.query(
         `
-        DELETE FROM Examiner_Assignment 
+        DELETE FROM examiner_assignment 
         WHERE project_id = ? 
         AND examiner_id = ?
         AND assignment_id != ?
@@ -293,6 +288,33 @@ const removeDuplicateAssignments = async () => {
   }
 };
 
+/**
+ * Get all previous (evaluated) projects for manager dashboard
+ * @returns {Promise<Array>} - Array of previous projects
+ */
+const getPreviousProjects = async () => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT DISTINCT p.project_id as id, p.title, p.proposal_description as description,
+              u.name as student_name, p.proposal_id,
+              supervisor.name as supervisor_name,
+              examiner.name as examiner_name,
+              ea.status as examination_status
+       FROM proposal p
+       JOIN user u ON p.submitted_by = u.user_id
+       JOIN examiner_assignment ea ON p.project_id = ea.project_id
+       LEFT JOIN user supervisor ON p.submitted_to = supervisor.user_id
+       LEFT JOIN user examiner ON ea.examiner_id = examiner.user_id
+       WHERE ea.status = 'Evaluated'
+       ORDER BY p.project_id DESC`
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error in getPreviousProjects:", error);
+    throw error;
+  }
+};
+
 export default {
   getAllUsers,
   updateUserEligibility,
@@ -302,4 +324,5 @@ export default {
   getStudentLogs,
   getAllRoles,
   removeDuplicateAssignments,
+  getPreviousProjects,
 };

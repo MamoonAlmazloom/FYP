@@ -1,5 +1,6 @@
 // controllers/examinerController.js
 import examinerModel from "../models/examinerModel.js";
+import notificationModel from "../models/notificationModel.js";
 
 /**
  * Get all projects assigned to an examiner
@@ -83,12 +84,20 @@ const provideExaminationFeedback = async (req, res, next) => {
         error: "Grade must be between 0 and 100",
       });
     }
-
     try {
       const evaluationId = await examinerModel.createEvaluation(
         examinerId,
         projectId,
         feedback,
+        grade
+      );
+
+      // Notify student about project evaluation
+      const evaluationResult = grade >= 60 ? "Pass" : "Fail"; // Assuming 60 is passing grade
+      await notificationModel.notifyProjectEvaluation(
+        projectId,
+        parseInt(examinerId),
+        evaluationResult,
         grade
       );
 

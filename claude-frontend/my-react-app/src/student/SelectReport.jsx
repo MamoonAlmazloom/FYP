@@ -13,21 +13,21 @@ const SelectReport = () => {
     const fetchReports = async () => {
       try {
         if (!user?.id) {
-          setError('User not found. Please log in again.');
+          setError("User not found. Please log in again.");
           return;
         }
 
         setLoading(true);
         const response = await getProgressReports(user.id);
-        
+
         if (response.success) {
           setReports(response.reports || []);
         } else {
-          setError(response.error || 'Failed to load progress reports');
+          setError(response.error || "Failed to load progress reports");
         }
       } catch (err) {
-        console.error('Error fetching progress reports:', err);
-        setError('Failed to load progress reports');
+        console.error("Error fetching progress reports:", err);
+        setError("Failed to load progress reports");
       } finally {
         setLoading(false);
       }
@@ -71,7 +71,7 @@ const SelectReport = () => {
       default:
         return (
           <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
-            {status || 'Unknown'}
+            {status || "Unknown"}
           </span>
         );
     }
@@ -132,7 +132,7 @@ const SelectReport = () => {
           <div className="space-y-3">
             <Link
               to="/student/progress-report-form"
-              className="block w-full py-3 px-6 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
             >
               Submit New Report
             </Link>
@@ -171,25 +171,26 @@ const SelectReport = () => {
                         {report.title || `Progress Report #${report.report_id}`}
                       </h3>
                       <p className="text-gray-600 text-sm mb-3">
-                        {report.details ? 
-                          (report.details.length > 150 ? 
-                            report.details.substring(0, 150) + '...' : 
-                            report.details) 
-                          : 'No details available'
-                        }
+                        {report.details
+                          ? report.details.length > 150
+                            ? report.details.substring(0, 150) + "..."
+                            : report.details
+                          : "No details available"}
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3">
                         <span>
-                          Submitted: {new Date(report.submission_date).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          Submitted:{" "}
+                          {new Date(report.submission_date).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </span>
                         {report.project_title && (
-                          <span>
-                            Project: {report.project_title}
-                          </span>
+                          <span>Project: {report.project_title}</span>
                         )}
                       </div>
                       <div className="flex items-center space-x-2">
@@ -242,7 +243,7 @@ const SelectReport = () => {
               </p>
               <Link
                 to="/student/progress-report-form"
-                className="inline-block px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors no-underline font-semibold"
+                className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors no-underline font-semibold"
               >
                 Submit Your First Report
               </Link>
@@ -257,7 +258,7 @@ const SelectReport = () => {
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/student/progress-report-form"
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm transition-colors no-underline font-semibold"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors no-underline font-semibold"
               >
                 + Submit New Report
               </Link>
@@ -294,9 +295,10 @@ const SelectReport = () => {
                   <div>
                     <div className="text-2xl font-bold text-green-600">
                       {
-                        reports.filter((report) => 
-                          report.status?.toLowerCase() === "reviewed" ||
-                          report.status?.toLowerCase() === "approved"
+                        reports.filter(
+                          (report) =>
+                            report.status?.toLowerCase() === "reviewed" ||
+                            report.status?.toLowerCase() === "approved"
                         ).length
                       }
                     </div>
@@ -305,8 +307,8 @@ const SelectReport = () => {
                   <div>
                     <div className="text-2xl font-bold text-yellow-600">
                       {
-                        reports.filter((report) => 
-                          report.status?.toLowerCase() === "pending"
+                        reports.filter(
+                          (report) => report.status?.toLowerCase() === "pending"
                         ).length
                       }
                     </div>
@@ -315,8 +317,9 @@ const SelectReport = () => {
                   <div>
                     <div className="text-2xl font-bold text-gray-600">
                       {
-                        reports.filter((report) => 
-                          report.status?.toLowerCase() === "submitted"
+                        reports.filter(
+                          (report) =>
+                            report.status?.toLowerCase() === "submitted"
                         ).length
                       }
                     </div>
@@ -332,7 +335,11 @@ const SelectReport = () => {
                 </h3>
                 <div className="space-y-3">
                   {reports
-                    .sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date))
+                    .sort(
+                      (a, b) =>
+                        new Date(b.submission_date) -
+                        new Date(a.submission_date)
+                    )
                     .slice(0, 3)
                     .map((report) => (
                       <div
@@ -343,7 +350,9 @@ const SelectReport = () => {
                           {report.title || `Report #${report.report_id}`}
                         </span>
                         <span className="text-xs text-indigo-600">
-                          {new Date(report.submission_date).toLocaleDateString()}
+                          {new Date(
+                            report.submission_date
+                          ).toLocaleDateString()}
                         </span>
                       </div>
                     ))}

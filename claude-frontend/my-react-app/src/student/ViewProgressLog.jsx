@@ -7,7 +7,7 @@ const ViewProgressLog = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const logId = searchParams.get("log");
-  
+
   const [logData, setLogData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,33 +16,33 @@ const ViewProgressLog = () => {
     const fetchLog = async () => {
       try {
         if (!user?.id) {
-          setError('User not found. Please log in again.');
+          setError("User not found. Please log in again.");
           return;
         }
 
         if (!logId) {
-          setError('Log ID not provided.');
+          setError("Log ID not provided.");
           return;
         }
 
         setLoading(true);
         const response = await getProgressLogs(user.id);
-        
+
         if (response.success) {
           const logs = response.logs || [];
-          const foundLog = logs.find(log => log.log_id === parseInt(logId));
-          
+          const foundLog = logs.find((log) => log.log_id === parseInt(logId));
+
           if (foundLog) {
             setLogData(foundLog);
           } else {
-            setError('Progress log not found.');
+            setError("Progress log not found.");
           }
         } else {
-          setError(response.error || 'Failed to load progress log');
+          setError(response.error || "Failed to load progress log");
         }
       } catch (err) {
-        console.error('Error fetching progress log:', err);
-        setError('Failed to load progress log');
+        console.error("Error fetching progress log:", err);
+        setError("Failed to load progress log");
       } finally {
         setLoading(false);
       }
@@ -80,7 +80,7 @@ const ViewProgressLog = () => {
       default:
         return (
           <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
-            {status || 'Unknown'}
+            {status || "Unknown"}
           </span>
         );
     }
@@ -118,8 +118,12 @@ const ViewProgressLog = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Log Not Found</h2>
-          <p className="text-gray-600 mb-6">The requested progress log could not be found.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Log Not Found
+          </h2>
+          <p className="text-gray-600 mb-6">
+            The requested progress log could not be found.
+          </p>
           <Link
             to="/student/select-log"
             className="inline-block py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
@@ -181,11 +185,15 @@ const ViewProgressLog = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded">
                   <div className="text-sm text-blue-600">Log ID</div>
-                  <div className="text-lg font-semibold text-blue-800">#{logData.log_id}</div>
+                  <div className="text-lg font-semibold text-blue-800">
+                    #{logData.log_id}
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded">
                   <div className="text-sm text-blue-600">Status</div>
-                  <div className="text-lg font-semibold text-blue-800">{logData.status || 'Submitted'}</div>
+                  <div className="text-lg font-semibold text-blue-800">
+                    {logData.status || "Submitted"}
+                  </div>
                 </div>
                 <div className="bg-white p-4 rounded">
                   <div className="text-sm text-blue-600">Submission Date</div>
@@ -196,7 +204,9 @@ const ViewProgressLog = () => {
                 {logData.project_id && (
                   <div className="bg-white p-4 rounded">
                     <div className="text-sm text-blue-600">Project ID</div>
-                    <div className="text-lg font-semibold text-blue-800">#{logData.project_id}</div>
+                    <div className="text-lg font-semibold text-blue-800">
+                      #{logData.project_id}
+                    </div>
                   </div>
                 )}
               </div>
@@ -220,7 +230,9 @@ const ViewProgressLog = () => {
                 📝 Progress Log Guidelines
               </h3>
               <div className="text-sm text-green-700 space-y-2">
-                <p><strong>What to include in your progress logs:</strong></p>
+                <p>
+                  <strong>What to include in your progress logs:</strong>
+                </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Specific tasks completed since the last log</li>
                   <li>Challenges encountered and how they were addressed</li>
@@ -246,10 +258,10 @@ const ViewProgressLog = () => {
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors no-underline font-semibold"
             >
               📋 View All Logs
-            </Link>
+            </Link>{" "}
             <Link
               to="/student/progress-report-form"
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors no-underline font-semibold"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors no-underline font-semibold"
             >
               📊 Submit Report
             </Link>

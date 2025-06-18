@@ -4,6 +4,29 @@ import studentModel from "../models/studentModel.js";
 import notificationModel from "../models/notificationModel.js";
 
 /**
+ * Helper function to check if student can submit new proposals
+ * Students with approved proposals can still submit new proposals (for modifications)
+ * but we should track this properly
+ */
+const canSubmitNewProposal = async (studentId) => {
+  try {
+    const activeProject = await studentModel.getActiveProject(studentId);
+
+    // Student can submit new proposals if:
+    // 1. They have no active project, OR
+    // 2. They have an approved proposal but want to modify it (creating new one)
+    return {
+      canSubmit: true, // Always allow for modification workflow
+      hasActiveProject: !!activeProject,
+      activeProject: activeProject,
+    };
+  } catch (error) {
+    console.error("Error checking proposal eligibility:", error);
+    return { canSubmit: false, hasActiveProject: false, activeProject: null };
+  }
+};
+
+/**
  * List all proposals for a student
  */
 const listProposals = async (req, res, next) => {
@@ -81,7 +104,8 @@ const submitProposal = async (req, res, next) => {
 };
 
 /**
- * Update a proposal
+ * Update a proposal - NEW BUSINESS LOGIC:
+ * If proposal is approved, create a new proposal instead of updating existing one
  */
 const updateProposal = async (req, res, next) => {
   try {
@@ -121,31 +145,65 @@ const updateProposal = async (req, res, next) => {
       });
     }
 
-    const success = await proposalModel.updateProposal(
-      proposalId,
-      title,
-      description,
-      type,
-      specialization,
-      outcome
-    );
+    // NEW BUSINESS LOGIC: Check if proposal is approved
+    const approvedStatuses = ["Approved", "Supervisor_Approved"];
+    const isApproved = approvedStatuses.includes(proposal.status_name);
 
-    if (success) {
-      // Notify supervisor about the modified proposal
-      await notificationModel.notifyForProposalEvent(
-        proposalId,
-        "proposal_modified"
+    if (isApproved) {
+      // If approved, create a NEW proposal instead of updating existing one
+      const newProposalId = await proposalModel.createProposal(
+        studentId,
+        title,
+        description,
+        type,
+        specialization,
+        outcome,
+        proposal.submitted_to // Same supervisor
       );
 
-      res.status(200).json({
+      // Notify supervisor about the NEW proposal submission
+      await notificationModel.notifyForProposalEvent(
+        newProposalId,
+        "proposal_submitted"
+      );
+
+      res.status(201).json({
         success: true,
-        message: "Proposal updated successfully",
+        message:
+          "New proposal created successfully. Your previous approved proposal remains unchanged.",
+        proposal_id: newProposalId,
+        isNewProposal: true,
+        previousProposalId: proposalId,
       });
     } else {
-      res.status(400).json({
-        success: false,
-        error: "Failed to update proposal",
-      });
+      // If not approved, update the existing proposal as before
+      const success = await proposalModel.updateProposal(
+        proposalId,
+        title,
+        description,
+        type,
+        specialization,
+        outcome
+      );
+
+      if (success) {
+        // Notify supervisor about the modified proposal
+        await notificationModel.notifyForProposalEvent(
+          proposalId,
+          "proposal_modified"
+        );
+
+        res.status(200).json({
+          success: true,
+          message: "Proposal updated successfully",
+          isNewProposal: false,
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: "Failed to update proposal",
+        });
+      }
     }
   } catch (err) {
     next(err);
@@ -208,7 +266,12 @@ const submitProgressLog = async (req, res, next) => {
     );
 
     // Notify supervisor about the new progress log
-    await notificationModel.notifyForProgressSubmission("log", logId);
+    await notificationModel.notifyProgressSubmissionToSupervisor(
+      "log",
+      logId,
+      parseInt(studentId),
+      project_id
+    );
 
     res.status(201).json({ success: true, log_id: logId });
   } catch (err) {
@@ -258,7 +321,12 @@ const submitProgressReport = async (req, res, next) => {
     );
 
     // Notify supervisor about the new progress report
-    await notificationModel.notifyForProgressSubmission("report", reportId);
+    await notificationModel.notifyProgressSubmissionToSupervisor(
+      "report",
+      reportId,
+      parseInt(studentId),
+      project_id
+    );
 
     res.status(201).json({ success: true, report_id: reportId });
   } catch (err) {
@@ -434,4 +502,5 @@ export default {
   getProposalStatus,
   getStudentProjects,
   getActiveProject,
+  canSubmitNewProposal, // Export the new helper function
 };

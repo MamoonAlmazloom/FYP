@@ -118,12 +118,9 @@ const PreviousProjectDetails = () => {
                 <strong>Project Title:</strong> {project.title}
               </p>
               <p className="mb-3">
-                <strong>Student Name:</strong> {project.studentName}
+                <strong>Student Name:</strong> {project.student_name}
               </p>
-              <p className="mb-3">
-                <strong>Year:</strong>{" "}
-                {project.year || new Date(project.createdAt).getFullYear()}
-              </p>
+           
               <p className="mb-3">
                 <strong>Status:</strong>
                 <span

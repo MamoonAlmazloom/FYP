@@ -42,4 +42,10 @@ router.get("/:managerId/roles", managerController.getRoles);
 // Get all examiners
 router.get("/:managerId/examiners", managerController.getExaminers);
 
+// Get previous (completed) projects
+router.get(
+  "/:managerId/previous-projects",
+  managerController.getPreviousProjects
+);
+
 export default router;

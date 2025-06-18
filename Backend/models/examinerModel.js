@@ -13,11 +13,11 @@ const getAssignedProjects = async (examinerId) => {
       `SELECT DISTINCT ea.assignment_id, p.project_id, p.title, p.description,
               u.name as student_name, u.user_id as student_id,
               ea.status, ps.status_name as proposal_status
-       FROM Examiner_Assignment ea
-       JOIN Project p ON ea.project_id = p.project_id
-       JOIN Proposal pr ON p.project_id = pr.project_id
-       JOIN User u ON pr.submitted_by = u.user_id
-       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
+       FROM examiner_assignment ea
+       JOIN project p ON ea.project_id = p.project_id
+       JOIN proposal pr ON p.project_id = pr.project_id
+       JOIN user u ON pr.submitted_by = u.user_id
+       JOIN proposal_status ps ON pr.status_id = ps.status_id
        WHERE ea.examiner_id = ?
        AND ps.status_name = 'Approved'
        ORDER BY ea.assignment_id DESC`,
@@ -48,13 +48,13 @@ const getProjectById = async (projectId, examinerId) => {
               u.name as student_name, u.user_id as student_id,
               u2.name as supervisor_name, sp.supervisor_id,
               ps.status_name as proposal_status
-       FROM Project p
-       JOIN Proposal pr ON p.project_id = pr.project_id
-       JOIN User u ON pr.submitted_by = u.user_id
-       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
-       LEFT JOIN Supervisor_Project sp ON p.project_id = sp.project_id
-       LEFT JOIN User u2 ON sp.supervisor_id = u2.user_id
-       JOIN Examiner_Assignment ea ON p.project_id = ea.project_id
+       FROM project p
+       JOIN proposal pr ON p.project_id = pr.project_id
+       JOIN user u ON pr.submitted_by = u.user_id
+       JOIN proposal_status ps ON pr.status_id = ps.status_id
+       LEFT JOIN supervisor_project sp ON p.project_id = sp.project_id
+       LEFT JOIN user u2 ON sp.supervisor_id = u2.user_id
+       JOIN examiner_assignment ea ON p.project_id = ea.project_id
        WHERE p.project_id = ? 
        AND ea.examiner_id = ?
        AND ps.status_name = 'Approved'`,
@@ -333,7 +333,7 @@ const requestExtension = async (
 };
 
 /**
- * Update project examination status
+ * Update project examination status - Mark as evaluated and make available to managers
  * @param {number} examinerId - The ID of the examiner
  * @param {number} projectId - The ID of the project
  * @param {string} status - The new status
@@ -343,7 +343,7 @@ const updateProjectStatus = async (examinerId, projectId, status) => {
   try {
     // First verify that this project is assigned to this examiner
     const [assigned] = await pool.query(
-      `SELECT assignment_id FROM Examiner_Assignment 
+      `SELECT assignment_id FROM examiner_assignment 
        WHERE examiner_id = ? AND project_id = ?`,
       [examinerId, projectId]
     );
@@ -351,14 +351,17 @@ const updateProjectStatus = async (examinerId, projectId, status) => {
       return false; // Project not assigned to this examiner
     }
 
-    // Update the assignment status
+    // Update the examiner assignment status
     const [result] = await pool.query(
-      `UPDATE Examiner_Assignment 
+      `UPDATE examiner_assignment 
        SET status = ? 
        WHERE examiner_id = ? AND project_id = ?`,
       [status, examinerId, projectId]
     );
 
+    console.log(
+      `Project ${projectId} marked as ${status} by examiner ${examinerId}`
+    );
     return result.affectedRows > 0;
   } catch (error) {
     console.error("Error in updateProjectStatus:", error);

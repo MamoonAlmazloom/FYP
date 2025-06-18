@@ -19,27 +19,30 @@ const ProgressLogForm = () => {
     const fetchProjects = async () => {
       try {
         if (!user?.id) {
-          setErrors({ general: 'User not found. Please log in again.' });
+          setErrors({ general: "User not found. Please log in again." });
           return;
         }
 
         const response = await getStudentProjects(user.id);
-        
+
         if (response.success && response.projects.length > 0) {
           setProjects(response.projects);
           // Auto-select first project if only one exists
           if (response.projects.length === 1) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
               ...prev,
-              project_id: response.projects[0].project_id
+              project_id: response.projects[0].project_id,
             }));
           }
         } else {
-          setErrors({ general: 'No active projects found. Please select or propose a project first.' });
+          setErrors({
+            general:
+              "No active projects found. Please select or propose a project first.",
+          });
         }
       } catch (err) {
-        console.error('Error fetching projects:', err);
-        setErrors({ general: 'Failed to load your projects.' });
+        console.error("Error fetching projects:", err);
+        setErrors({ general: "Failed to load your projects." });
       } finally {
         setLoading(false);
       }
@@ -80,46 +83,67 @@ const ProgressLogForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling that might trigger extensions
 
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
+    setErrors({}); // Clear any previous errors
 
     try {
       if (!user?.id) {
-        alert('User not found. Please log in again.');
-        navigate('/login');
+        setErrors({ general: "User not found. Please log in again." });
+        navigate("/login");
         return;
       }
 
-      // Use the actual StudentAPI function
-      const response = await submitProgressLog(user.id, {
+      console.log("Submitting progress log with data:", {
         project_id: parseInt(formData.project_id),
-        details: formData.details
+        details: formData.details,
       });
 
+      const response = await submitProgressLog(user.id, {
+        project_id: parseInt(formData.project_id),
+        details: formData.details,
+      });
+
+      console.log("Progress log response:", response);
+
       if (response.success) {
-        alert("Progress log submitted successfully!");
-        navigate("/student/project-work");
+        // Use a more subtle success notification to avoid extension conflicts
+        setErrors({ success: "Progress log submitted successfully!" });
+
+        // Navigate after a short delay
+        setTimeout(() => {
+          navigate("/student/project-work");
+        }, 2000);
       } else {
-        alert("Failed to submit progress log: " + (response.error || 'Unknown error'));
+        setErrors({
+          general: response.error || "Failed to submit progress log",
+        });
       }
     } catch (error) {
-      console.error('Error submitting progress log:', error);
-      
+      console.error("Error submitting progress log:", error);
+
+      let errorMessage = "An unexpected error occurred";
+
       if (error.response) {
-        const errorMessage = error.response.data.error || 'Server error occurred';
-        alert('Error: ' + errorMessage);
+        errorMessage =
+          error.response.data?.error ||
+          error.response.data?.message ||
+          "Server error occurred";
       } else if (error.request) {
-        alert('Network error: Please check your connection');
-      } else {
-        alert('Unexpected error occurred');
+        errorMessage =
+          "Network error: Please check your connection and try again";
+      } else if (error.message) {
+        errorMessage = error.message;
       }
+
+      setErrors({ general: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -136,31 +160,6 @@ const ProgressLogForm = () => {
     );
   }
 
-  if (errors.general) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{errors.general}</p>
-          <div className="space-y-3">
-            <Link
-              to="/student/choose-path"
-              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
-            >
-              Choose Project Path
-            </Link>
-            <Link
-              to="/student/project-work"
-              className="block w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
@@ -169,6 +168,58 @@ const ProgressLogForm = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Success Message */}
+          {errors.success && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-1 bg-green-100 rounded-lg">
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-green-800 font-medium">
+                  {errors.success}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errors.general && (
+            <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-1 bg-red-100 rounded-lg">
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-red-800 font-medium">
+                  {errors.general}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Project Selection */}
           {projects.length > 1 && (
             <div>

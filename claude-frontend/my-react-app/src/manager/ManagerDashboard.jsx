@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ManagerAPI from "../API/ManagerAPI";
+import NotificationCenter from "../components/NotificationCenter";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const ManagerDashboard = () => {
     department: "Loading...",
     projectCount: 0,
   });
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]); // Keep for backward compatibility but won't be used
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(""); // Get manager ID from the stored user data
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -74,114 +75,249 @@ const ManagerDashboard = () => {
     localStorage.removeItem("user");
     navigate("/login");
   };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Header */}
-      <div className="bg-gray-800 text-white flex justify-between items-center px-5 py-4">
-        <div className="text-xl font-bold">📊 Manager Dashboard</div>
-        <div className="flex-grow text-center">
-          <Link
-            to="/manager/dashboard"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Home
-          </Link>
-          <Link
-            to="#"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Students
-          </Link>
-          <Link
-            to="#"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Moderation
-          </Link>
-          <Link
-            to="#"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Reports
-          </Link>
-        </div>
-        <button
-          onClick={handleSignOut}
-          className="bg-red-600 text-white px-4 py-2 rounded text-sm cursor-pointer hover:bg-red-700"
-        >
-          Sign Out
-        </button>
-      </div>{" "}
-      {/* Manager Info Header */}
-      <div className="bg-gray-600 text-white px-4 py-4 text-base flex justify-around flex-wrap text-center">
-        <span>
-          <strong>Manager Name:</strong>{" "}
-          {loading ? "Loading..." : managerData.name}
-        </span>
-        <span>
-          <strong>Department:</strong>{" "}
-          {loading ? "Loading..." : managerData.department}
-        </span>
-        <span>
-          <strong>Supervised Projects:</strong>{" "}
-          {loading ? "Loading..." : managerData.projectCount}
-        </span>
-      </div>{" "}
-      <div className="max-w-4xl mx-auto mt-5 p-5 bg-white rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-bold mb-4">Manager Dashboard</h2>
-        <p className="mb-6">
-          Oversee and manage the Final Year Project process.
-        </p>
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">Manager Dashboard</h1>
+                <p className="text-indigo-100 text-sm">
+                  Final Year Project Management
+                </p>
+              </div>
+            </div>
+
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link
+                to="/manager/dashboard"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Home
+              </Link>
+              <Link
+                to="/manager/manage-users"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Users
+              </Link>
+              <Link
+                to="/manager/assign-examiners"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Examiners
+              </Link>
+              <Link
+                to="/manager/previous-projects"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Archive
+              </Link>
+            </div>
+
+            <button
+              onClick={handleSignOut}
+              className="group flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Sign Out
+              </span>
+            </button>
           </div>
-        )}
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <Link
-            to="/manager/manage-users"
-            className="block w-full p-4 bg-blue-600 text-white text-base rounded text-center no-underline hover:bg-blue-700"
-          >
-            Manage Users
-          </Link>
-          <Link
-            to="/manager/assign-examiners"
-            className="block w-full p-4 bg-blue-600 text-white text-base rounded text-center no-underline hover:bg-blue-700"
-          >
-            Assign Examiners
-          </Link>
-          <Link
-            to="/manager/approved-projects-logs"
-            className="block w-full p-4 bg-blue-600 text-white text-base rounded text-center no-underline hover:bg-blue-700"
-          >
-            View Approved Projects
-          </Link>
-          <Link
-            to="/manager/previous-projects"
-            className="block w-full p-4 bg-blue-600 text-white text-base rounded text-center no-underline hover:bg-blue-700"
-          >
-            Previous Project Archive
-          </Link>
-        </div>{" "}
-        {/* Notification Center */}
-        <div className="bg-yellow-300 p-4 rounded mt-5 text-sm text-black border border-yellow-600 text-left">
-          <h3 className="mt-0 mb-3 text-black text-left">
-            🔔 Notification Center
-          </h3>
-          {loading ? (
-            <p>Loading notifications...</p>
-          ) : (
-            notifications.map((notification) => (
-              <p key={notification.id} className="mb-2">
-                <strong>
-                  {notification.type === "reminder" ? "Reminder:" : "Update:"}
-                </strong>{" "}
-                {notification.message}
-              </p>
-            ))
+        </div>
+      </div>{" "}
+      {/* Manager Info Banner */}
+      <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white p-4 shadow-md">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-center flex-wrap gap-4">
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>Manager:</strong>{" "}
+              {loading ? "Loading..." : managerData.name}
+            </span>
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>Department:</strong>{" "}
+              {loading ? "Loading..." : managerData.department}
+            </span>
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>Supervised Projects:</strong>{" "}
+              {loading ? "Loading..." : managerData.projectCount}
+            </span>
+          </div>
+        </div>
+      </div>{" "}
+      {/* Main Container */}
+      <div className="max-w-4xl mx-auto mt-5 p-5">
+        {/* Welcome Card */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-6 text-center">
+          <div className="flex items-center justify-center mb-4">
+            <div className="p-3 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full">
+              <svg
+                className="w-8 h-8 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Manager Dashboard
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Oversee and manage the Final Year Project process with comprehensive
+            tools and insights.
+          </p>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                {error}
+              </div>
+            </div>
           )}
+
+          {/* Enhanced Action Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link
+              to="/manager/manage-users"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Manage Users
+              </span>
+            </Link>
+            <Link
+              to="/manager/assign-examiners"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Assign Examiners
+              </span>
+            </Link>
+            <Link
+              to="/manager/approved-projects-logs"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                View Approved Projects
+              </span>
+            </Link>
+            <Link
+              to="/manager/previous-projects"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 8h14M5 8a2 2 0 110-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H15a2 2 0 012 2v0M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m0 0V6a2 2 0 00-2-2H9.5a2 2 0 00-1.414.586L6.5 6.172A2 2 0 005.086 6.758L5 8z"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Previous Project Archive
+              </span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Notification Center */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <NotificationCenter userId={managerId} className="mt-0" />
         </div>
       </div>
     </div>

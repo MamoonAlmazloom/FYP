@@ -87,9 +87,7 @@ const PreviousProjectDetails = () => {
           <p className="mb-2">
             <strong>Student Name:</strong> {projectDetails.studentName}
           </p>
-          <p className="mb-2">
-            <strong>Year:</strong> {projectDetails.year}
-          </p>
+         
           <p className="mb-2">
             <strong>Project Summary:</strong> {projectDetails.summary}
           </p>

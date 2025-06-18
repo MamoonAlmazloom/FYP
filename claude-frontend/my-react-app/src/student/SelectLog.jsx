@@ -13,21 +13,21 @@ const SelectLog = () => {
     const fetchLogs = async () => {
       try {
         if (!user?.id) {
-          setError('User not found. Please log in again.');
+          setError("User not found. Please log in again.");
           return;
         }
 
         setLoading(true);
         const response = await getProgressLogs(user.id);
-        
+
         if (response.success) {
           setLogs(response.logs || []);
         } else {
-          setError(response.error || 'Failed to load progress logs');
+          setError(response.error || "Failed to load progress logs");
         }
       } catch (err) {
-        console.error('Error fetching progress logs:', err);
-        setError('Failed to load progress logs');
+        console.error("Error fetching progress logs:", err);
+        setError("Failed to load progress logs");
       } finally {
         setLoading(false);
       }
@@ -65,7 +65,7 @@ const SelectLog = () => {
       default:
         return (
           <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
-            {status || 'Unknown'}
+            {status || "Unknown"}
           </span>
         );
     }
@@ -130,25 +130,26 @@ const SelectLog = () => {
                         Progress Log #{log.log_id}
                       </h3>
                       <p className="text-gray-600 text-sm mb-2">
-                        {log.details ? 
-                          (log.details.length > 100 ? 
-                            log.details.substring(0, 100) + '...' : 
-                            log.details) 
-                          : 'No details available'
-                        }
+                        {log.details
+                          ? log.details.length > 100
+                            ? log.details.substring(0, 100) + "..."
+                            : log.details
+                          : "No details available"}
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-gray-500">
                         <span>
-                          Submitted: {new Date(log.submission_date).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          Submitted:{" "}
+                          {new Date(log.submission_date).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </span>
                         {log.project_title && (
-                          <span>
-                            Project: {log.project_title}
-                          </span>
+                          <span>Project: {log.project_title}</span>
                         )}
                       </div>
                     </div>
@@ -215,22 +216,33 @@ const SelectLog = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600">
-                    {logs.filter((log) => 
-                      log.status?.toLowerCase() === "reviewed" || 
-                      log.status?.toLowerCase() === "approved"
-                    ).length}
+                    {
+                      logs.filter(
+                        (log) =>
+                          log.status?.toLowerCase() === "reviewed" ||
+                          log.status?.toLowerCase() === "approved"
+                      ).length
+                    }
                   </div>
                   <div className="text-sm text-green-700">Reviewed</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-yellow-600">
-                    {logs.filter((log) => log.status?.toLowerCase() === "pending").length}
+                    {
+                      logs.filter(
+                        (log) => log.status?.toLowerCase() === "pending"
+                      ).length
+                    }
                   </div>
                   <div className="text-sm text-yellow-700">Pending</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-600">
-                    {logs.filter((log) => log.status?.toLowerCase() === "submitted").length}
+                    {
+                      logs.filter(
+                        (log) => log.status?.toLowerCase() === "submitted"
+                      ).length
+                    }
                   </div>
                   <div className="text-sm text-blue-700">Submitted</div>
                 </div>
@@ -252,7 +264,7 @@ const SelectLog = () => {
               </Link>
               <Link
                 to="/student/progress-report-form"
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors no-underline text-sm font-semibold"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors no-underline text-sm font-semibold"
               >
                 Submit Report
               </Link>

@@ -20,27 +20,30 @@ const ProgressReportForm = () => {
     const fetchProjects = async () => {
       try {
         if (!user?.id) {
-          setErrors({ general: 'User not found. Please log in again.' });
+          setErrors({ general: "User not found. Please log in again." });
           return;
         }
 
         const response = await getStudentProjects(user.id);
-        
+
         if (response.success && response.projects.length > 0) {
           setProjects(response.projects);
           // Auto-select first project if only one exists
           if (response.projects.length === 1) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
               ...prev,
-              project_id: response.projects[0].project_id
+              project_id: response.projects[0].project_id,
             }));
           }
         } else {
-          setErrors({ general: 'No active projects found. Please select or propose a project first.' });
+          setErrors({
+            general:
+              "No active projects found. Please select or propose a project first.",
+          });
         }
       } catch (err) {
-        console.error('Error fetching projects:', err);
-        setErrors({ general: 'Failed to load your projects.' });
+        console.error("Error fetching projects:", err);
+        setErrors({ general: "Failed to load your projects." });
       } finally {
         setLoading(false);
       }
@@ -97,8 +100,8 @@ const ProgressReportForm = () => {
 
     try {
       if (!user?.id) {
-        alert('User not found. Please log in again.');
-        navigate('/login');
+        alert("User not found. Please log in again.");
+        navigate("/login");
         return;
       }
 
@@ -106,25 +109,29 @@ const ProgressReportForm = () => {
       const response = await submitProgressReport(user.id, {
         project_id: parseInt(formData.project_id),
         title: formData.title,
-        details: formData.details
+        details: formData.details,
       });
 
       if (response.success) {
         alert("Progress report submitted successfully!");
         navigate("/student/project-work");
       } else {
-        alert("Failed to submit progress report: " + (response.error || 'Unknown error'));
+        alert(
+          "Failed to submit progress report: " +
+            (response.error || "Unknown error")
+        );
       }
     } catch (error) {
-      console.error('Error submitting progress report:', error);
-      
+      console.error("Error submitting progress report:", error);
+
       if (error.response) {
-        const errorMessage = error.response.data.error || 'Server error occurred';
-        alert('Error: ' + errorMessage);
+        const errorMessage =
+          error.response.data.error || "Server error occurred";
+        alert("Error: " + errorMessage);
       } else if (error.request) {
-        alert('Network error: Please check your connection');
+        alert("Network error: Please check your connection");
       } else {
-        alert('Unexpected error occurred');
+        alert("Unexpected error occurred");
       }
     } finally {
       setIsSubmitting(false);
@@ -299,10 +306,21 @@ const ProgressReportForm = () => {
               <div className="mt-4">
                 <h4 className="font-semibold">Report Types:</h4>
                 <ul className="list-disc list-inside space-y-1 mt-2">
-                  <li><strong>Weekly:</strong> Brief summary of weekly activities</li>
-                  <li><strong>Monthly:</strong> Comprehensive monthly progress review</li>
-                  <li><strong>Milestone:</strong> Detailed report on specific milestone completion</li>
-                  <li><strong>Final:</strong> Complete project summary and outcomes</li>
+                  <li>
+                    <strong>Weekly:</strong> Brief summary of weekly activities
+                  </li>
+                  <li>
+                    <strong>Monthly:</strong> Comprehensive monthly progress
+                    review
+                  </li>
+                  <li>
+                    <strong>Milestone:</strong> Detailed report on specific
+                    milestone completion
+                  </li>
+                  <li>
+                    <strong>Final:</strong> Complete project summary and
+                    outcomes
+                  </li>
                 </ul>
               </div>
             </div>
@@ -315,7 +333,7 @@ const ProgressReportForm = () => {
             className={`w-full py-4 px-6 text-lg font-semibold text-white rounded-lg transition-all duration-200 ${
               isSubmitting
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200"
+                : "bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200"
             } focus:outline-none`}
           >
             {isSubmitting ? (

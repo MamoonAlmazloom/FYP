@@ -57,9 +57,8 @@ const checkUserActive = async (req, res, next) => {
         error: "Unauthorized - User not found",
       });
     }
-
     const [rows] = await pool.query(
-      "SELECT is_active FROM User WHERE user_id = ?",
+      "SELECT is_active FROM user WHERE user_id = ?",
       [req.user.id]
     );
 

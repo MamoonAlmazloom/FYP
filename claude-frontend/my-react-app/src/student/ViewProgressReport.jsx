@@ -7,7 +7,7 @@ const ViewProgressReport = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const reportId = searchParams.get("report");
-  
+
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,33 +16,35 @@ const ViewProgressReport = () => {
     const fetchReport = async () => {
       try {
         if (!user?.id) {
-          setError('User not found. Please log in again.');
+          setError("User not found. Please log in again.");
           return;
         }
 
         if (!reportId) {
-          setError('Report ID not provided.');
+          setError("Report ID not provided.");
           return;
         }
 
         setLoading(true);
         const response = await getProgressReports(user.id);
-        
+
         if (response.success) {
           const reports = response.reports || [];
-          const foundReport = reports.find(report => report.report_id === parseInt(reportId));
-          
+          const foundReport = reports.find(
+            (report) => report.report_id === parseInt(reportId)
+          );
+
           if (foundReport) {
             setReportData(foundReport);
           } else {
-            setError('Progress report not found.');
+            setError("Progress report not found.");
           }
         } else {
-          setError(response.error || 'Failed to load progress report');
+          setError(response.error || "Failed to load progress report");
         }
       } catch (err) {
-        console.error('Error fetching progress report:', err);
-        setError('Failed to load progress report');
+        console.error("Error fetching progress report:", err);
+        setError("Failed to load progress report");
       } finally {
         setLoading(false);
       }
@@ -80,7 +82,7 @@ const ViewProgressReport = () => {
       default:
         return (
           <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
-            {status || 'Unknown'}
+            {status || "Unknown"}
           </span>
         );
     }
@@ -101,11 +103,11 @@ const ViewProgressReport = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>{" "}
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             to="/student/select-report"
-            className="inline-block py-3 px-6 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            className="inline-block py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
           >
             ← Back to Progress Reports
           </Link>
@@ -118,11 +120,15 @@ const ViewProgressReport = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Report Not Found</h2>
-          <p className="text-gray-600 mb-6">The requested progress report could not be found.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Report Not Found
+          </h2>{" "}
+          <p className="text-gray-600 mb-6">
+            The requested progress report could not be found.
+          </p>
           <Link
             to="/student/select-report"
-            className="inline-block py-3 px-6 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            className="inline-block py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
           >
             ← Back to Progress Reports
           </Link>
@@ -156,11 +162,13 @@ const ViewProgressReport = () => {
                 {new Date(reportData.submission_date).toLocaleDateString()}
               </div>
               <div>
-                <span className="font-medium">Report ID:</span> #{reportData.report_id}
+                <span className="font-medium">Report ID:</span> #
+                {reportData.report_id}
               </div>
               {reportData.project_title && (
                 <div>
-                  <span className="font-medium">Project:</span> {reportData.project_title}
+                  <span className="font-medium">Project:</span>{" "}
+                  {reportData.project_title}
                 </div>
               )}
             </div>
@@ -182,7 +190,7 @@ const ViewProgressReport = () => {
                 Status
               </h3>
               <div className="text-xl font-bold text-green-600">
-                {reportData.status || 'Submitted'}
+                {reportData.status || "Submitted"}
               </div>
               <p className="text-green-700 text-sm">Current status</p>
             </div>
@@ -209,7 +217,8 @@ const ViewProgressReport = () => {
                 <div className="bg-white p-4 rounded">
                   <div className="text-sm text-blue-600">Title</div>
                   <div className="text-lg font-semibold text-blue-800">
-                    {reportData.title || `Progress Report #${reportData.report_id}`}
+                    {reportData.title ||
+                      `Progress Report #${reportData.report_id}`}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded">
@@ -221,12 +230,16 @@ const ViewProgressReport = () => {
                 {reportData.project_id && (
                   <div className="bg-white p-4 rounded">
                     <div className="text-sm text-blue-600">Project ID</div>
-                    <div className="text-lg font-semibold text-blue-800">#{reportData.project_id}</div>
+                    <div className="text-lg font-semibold text-blue-800">
+                      #{reportData.project_id}
+                    </div>
                   </div>
                 )}
                 <div className="bg-white p-4 rounded">
                   <div className="text-sm text-blue-600">Status</div>
-                  <div className="text-lg font-semibold text-blue-800">{reportData.status || 'Submitted'}</div>
+                  <div className="text-lg font-semibold text-blue-800">
+                    {reportData.status || "Submitted"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -258,22 +271,39 @@ const ViewProgressReport = () => {
               </h3>
               <div className="text-sm text-cyan-700 space-y-3">
                 <div>
-                  <h4 className="font-semibold mb-2">What makes a good progress report:</h4>
+                  <h4 className="font-semibold mb-2">
+                    What makes a good progress report:
+                  </h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Clear summary of work completed during the reporting period</li>
+                    <li>
+                      Clear summary of work completed during the reporting
+                      period
+                    </li>
                     <li>Specific achievements and milestones reached</li>
-                    <li>Detailed analysis of challenges and how they were addressed</li>
-                    <li>Progress assessment against original project timeline</li>
+                    <li>
+                      Detailed analysis of challenges and how they were
+                      addressed
+                    </li>
+                    <li>
+                      Progress assessment against original project timeline
+                    </li>
                     <li>Comprehensive plans for the next reporting period</li>
-                    <li>Any changes to project scope, methodology, or timeline</li>
+                    <li>
+                      Any changes to project scope, methodology, or timeline
+                    </li>
                     <li>Resource utilization and budget considerations</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Tips for improvement:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Use quantitative measures where possible (hours, completion percentages)</li>
-                    <li>Include visual aids like charts, graphs, or screenshots</li>
+                    <li>
+                      Use quantitative measures where possible (hours,
+                      completion percentages)
+                    </li>
+                    <li>
+                      Include visual aids like charts, graphs, or screenshots
+                    </li>
                     <li>Be honest about challenges and setbacks</li>
                     <li>Connect progress to original project objectives</li>
                     <li>Seek feedback proactively from supervisors</li>
@@ -285,9 +315,10 @@ const ViewProgressReport = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200">
+            {" "}
             <Link
               to="/student/progress-report-form"
-              className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors no-underline font-semibold"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors no-underline font-semibold"
             >
               ✏️ Submit New Report
             </Link>
@@ -309,7 +340,7 @@ const ViewProgressReport = () => {
           <div className="text-center mt-8">
             <Link
               to="/student/select-report"
-              className="inline-block text-cyan-600 hover:text-cyan-800 font-bold no-underline transition-colors"
+              className="inline-block text-blue-600 hover:text-blue-800 font-bold no-underline transition-colors"
             >
               ← Back to Progress Reports
             </Link>

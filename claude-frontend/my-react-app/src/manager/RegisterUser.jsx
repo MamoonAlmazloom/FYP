@@ -94,173 +94,305 @@ const RegisterUser = () => {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Header */}
-      <div className="bg-gray-800 text-white flex justify-between items-center px-5 py-4">
-        <div className="text-xl font-bold">📊 Manager Dashboard</div>
-        <div className="flex-grow text-center">
-          <Link
-            to="/manager/dashboard"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Home
-          </Link>
-          <Link
-            to="#"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Students
-          </Link>
-          <Link
-            to="#"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Moderation
-          </Link>
-          <Link
-            to="#"
-            className="text-white no-underline mx-4 text-base font-bold hover:underline"
-          >
-            Reports
-          </Link>
-        </div>
-        <button
-          onClick={handleSignOut}
-          className="bg-red-600 text-white px-4 py-2 rounded text-sm cursor-pointer hover:bg-red-700"
-        >
-          Sign Out
-        </button>
-      </div>{" "}
-      <div className="max-w-2xl mx-auto mt-5 p-5 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          Register New User
-        </h2>
-        <p className="mb-6 text-center">
-          Fill in the details to register a new user.
-        </p>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="text-left">
-          <div className="mb-4">
-            <label htmlFor="name" className="block font-bold mb-2">
-              Full Name:
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="email" className="block font-bold mb-2">
-              Email Address:
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="password" className="block font-bold mb-2">
-              Password:
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              minLength="6"
-              className="w-full p-3 border border-gray-300 rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-bold mb-2">Select Roles:</label>
-            {roles.length > 0 ? (
-              roles.map((role) => (
-                <div key={role.role_id} className="mb-2">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value={role.role_name}
-                      checked={formData.roles.includes(role.role_name)}
-                      onChange={handleRoleChange}
-                      className="mr-2"
-                    />
-                    {role.role_name}
-                  </label>
-                </div>
-              ))
-            ) : (
-              <div className="mb-2">
-                {[
-                  "Student",
-                  "Supervisor",
-                  "Moderator",
-                  "Manager",
-                  "Examiner",
-                ].map((role) => (
-                  <div key={role} className="mb-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        value={role}
-                        checked={formData.roles.includes(role)}
-                        onChange={handleRoleChange}
-                        className="mr-2"
-                      />
-                      {role}
-                    </label>
-                  </div>
-                ))}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                  />
+                </svg>
               </div>
-            )}
+              <div>
+                <h1 className="text-xl font-bold">Register New User</h1>
+                <p className="text-indigo-100 text-sm">
+                  Add Users to the System
+                </p>
+              </div>
+            </div>
+
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link
+                to="/manager/dashboard"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/manager/manage-users"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Manage Users
+              </Link>
+            </div>
+
+            <button
+              onClick={handleSignOut}
+              className="group flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Sign Out
+              </span>
+            </button>
           </div>
+        </div>
+      </div>{" "}
+      {/* Main Container */}
+      <div className="max-w-2xl mx-auto mt-5 p-5">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-3 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full">
+                <svg
+                  className="w-8 h-8 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Register New User
+            </h2>
+            <p className="text-gray-600">
+              Add new users to the Final Year Project management system with
+              appropriate roles and permissions.{" "}
+            </p>
+          </div>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                {error}
+              </div>
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                {success}
+              </div>
+            </div>
+          )}{" "}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-gray-700"
+              >
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white shadow-sm"
+                placeholder="Enter full name"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full p-4 text-base text-white border-none rounded cursor-pointer mt-3 ${
-              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "Registering..." : "Register User"}
-          </button>
-        </form>
+            <div className="space-y-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700"
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white shadow-sm"
+                placeholder="Enter email address"
+              />
+            </div>
 
-        <div className="text-center mt-5">
-          <Link
-            to="/manager/manage-users"
-            className="inline-block text-blue-600 font-bold no-underline hover:text-blue-800"
-          >
-            ← Back to Manage Users
-          </Link>
+            <div className="space-y-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                minLength="6"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white shadow-sm"
+                placeholder="Enter password (minimum 6 characters)"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-700">
+                Select Roles
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {roles.length > 0
+                  ? roles.map((role) => (
+                      <label
+                        key={role.role_id}
+                        className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                      >
+                        <input
+                          type="checkbox"
+                          value={role.role_name}
+                          checked={formData.roles.includes(role.role_name)}
+                          onChange={handleRoleChange}
+                          className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <span className="ml-3 text-sm font-medium text-gray-700">
+                          {role.role_name}
+                        </span>
+                      </label>
+                    ))
+                  : [
+                      "Student",
+                      "Supervisor",
+                      "Moderator",
+                      "Manager",
+                      "Examiner",
+                    ].map((role) => (
+                      <label
+                        key={role}
+                        className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                      >
+                        <input
+                          type="checkbox"
+                          value={role}
+                          checked={formData.roles.includes(role)}
+                          onChange={handleRoleChange}
+                          className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <span className="ml-3 text-sm font-medium text-gray-700">
+                          {role}
+                        </span>
+                      </label>
+                    ))}
+              </div>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`flex-1 group relative overflow-hidden px-6 py-3 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl"
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                    />
+                  </svg>
+                  <span className="transition-all duration-300 group-hover:tracking-wide">
+                    {loading ? "Registering..." : "Register User"}
+                  </span>
+                </div>
+              </button>
+              <Link
+                to="/manager/manage-users"
+                className="flex-1 group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl no-underline"
+              >
+                <svg
+                  className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                <span className="transition-all duration-300 group-hover:tracking-wide">
+                  Back to Users
+                </span>
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </div>

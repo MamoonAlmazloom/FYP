@@ -97,12 +97,27 @@ const ProjectWork = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-600 mb-6">{error}</p>{" "}
           <button
             onClick={handleSignOut}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            Sign Out and Retry
+            <svg
+              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Sign Out and Retry
+            </span>
           </button>
         </div>
       </div>
@@ -120,12 +135,27 @@ const ProjectWork = () => {
           <p className="text-gray-600 mb-8">
             You don't have any active projects yet. Please select or propose a
             project first.
-          </p>
+          </p>{" "}
           <Link
             to="/student/choose-path"
-            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            Choose Your Path
+            <svg
+              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Choose Your Path
+            </span>
           </Link>
         </div>
       </div>
@@ -135,74 +165,97 @@ const ProjectWork = () => {
   const currentProposal = getCurrentProposal();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Header */}
-      <div className="bg-blue-700 text-white flex justify-between items-center px-5 py-4">
-        <div className="text-xl font-bold">📘 FYP Portal</div>
-        <div className="flex-grow text-center">
-          <Link
-            to="/student/project-work"
-            className="text-white no-underline mx-4 font-bold hover:underline"
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/student/choose-path"
-            className="text-white no-underline mx-4 font-bold hover:underline"
-          >
-            Projects
-          </Link>
-          <Link
-            to="/student/resources"
-            className="text-white no-underline mx-4 font-bold hover:underline"
-          >
-            Help
-          </Link>
-        </div>
-        <button
-          onClick={handleSignOut}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm transition-colors"
-        >
-          Sign Out
-        </button>
-      </div>
-
-      {/* Student Info Header */}
-      <div className="bg-blue-600 text-white p-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm md:text-base">
-            <div className="text-center md:text-left">
-              <strong>Student Name:</strong>
-              <br className="md:hidden" />
-              <span className="ml-2 md:ml-1">
-                {profile?.name || user?.name || "N/A"}
-              </span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {" "}
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">Project Work Dashboard</h1>
+                <p className="text-blue-100 text-sm">
+                  Final Year Project Management
+                </p>
+              </div>
             </div>
-            <div className="text-center md:text-left">
-              <strong>Student ID:</strong>
-              <br className="md:hidden" />
-              <span className="ml-2 md:ml-1">
-                {profile?.user_id || user?.id || "N/A"}
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link
+                to="/student/project-work"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/student/choose-path"
+                className="text-white/90 hover:text-white font-medium transition-colors no-underline"
+              >
+                Projects
+              </Link>
+            </div>{" "}
+            <button
+              onClick={handleSignOut}
+              className="group flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Sign Out
               </span>
-            </div>
-            <div className="text-center md:text-left">
-              <strong>Supervisor:</strong>
-              <br className="md:hidden" />
-              <span className="ml-2 md:ml-1">
-                {currentProject?.supervisor_name || "N/A"}
-              </span>
-            </div>
-            <div className="text-center md:text-left">
-              <strong>Project:</strong>
-              <br className="md:hidden" />
-              <span className="ml-2 md:ml-1">
-                {currentProject?.title || "N/A"}
-              </span>
-            </div>
+            </button>
           </div>
         </div>
       </div>
-
+      {/* Student Info Banner */}
+      <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white p-4 shadow-md">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-center flex-wrap gap-4">
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>Student:</strong>{" "}
+              {profile?.name || user?.name || "Loading..."}
+            </span>
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>ID:</strong>{" "}
+              {profile?.user_id || user?.id || "Loading..."}
+            </span>
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>Supervisor:</strong>{" "}
+              {currentProject?.supervisor_name || "Not Assigned"}
+            </span>
+            <span className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <strong>Project:</strong>{" "}
+              {currentProject?.title || "No Active Project"}
+            </span>
+          </div>
+        </div>
+      </div>
       {/* Main Container */}
       <div className="max-w-4xl mx-auto mt-5 p-5">
         {/* Project Overview Card */}
@@ -216,28 +269,11 @@ const ProjectWork = () => {
             </h3>
             <p className="text-gray-600 text-sm mb-3">
               {currentProject?.description}
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+            </p>{" "}
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-3 text-sm">
               <div>
-                <strong>Type:</strong> {currentProject?.type || "N/A"}
-              </div>
-              <div>
-                <strong>Status:</strong>
-                <span
-                  className={`ml-1 px-2 py-1 rounded text-xs ${
-                    currentProject?.status === "Active"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {currentProject?.status || "Active"}
-                </span>
-              </div>
-              <div>
-                <strong>Start Date:</strong>
-                {currentProject?.start_date
-                  ? new Date(currentProject.start_date).toLocaleDateString()
-                  : "N/A"}
+                <strong>Supervisor:</strong>{" "}
+                {currentProject?.supervisor_name || "Not Assigned"}
               </div>
             </div>
           </div>
@@ -247,63 +283,102 @@ const ProjectWork = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
             Project Work
-          </h2>
-
+          </h2>{" "}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               to="/student/progress-log-form"
-              className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              📝 Submit Progress Log
+              <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                📝
+              </span>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Submit Progress Log
+              </span>
             </Link>
             <Link
               to="/student/select-log"
-              className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              👁️ View Progress Logs
+              <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                👁️
+              </span>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                View Progress Logs
+              </span>
             </Link>
             <Link
               to="/student/progress-report-form"
-              className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              📊 Submit Progress Report
-            </Link>{" "}
+              <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                📊
+              </span>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Submit Progress Report
+              </span>
+            </Link>
             <Link
               to="/student/select-report"
-              className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              📋 View Progress Reports
+              <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                📋
+              </span>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                View Progress Reports
+              </span>
             </Link>
             {currentProposal ? (
               <>
                 <Link
                   to={`/student/modify-proposal?id=${currentProposal.proposal_id}`}
-                  className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+                  className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
-                  ✏️ Modify Proposal
+                  <span className="text-2xl transition-transform duration-300 group-hover:rotate-12">
+                    ✏️
+                  </span>
+                  <span className="transition-all duration-300 group-hover:tracking-wide">
+                    Modify Proposal
+                  </span>
                 </Link>
 
                 <Link
                   to={`/student/view-proposal?id=${currentProposal.proposal_id}`}
-                  className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+                  className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
-                  📄 View Proposal
+                  <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                    📄
+                  </span>
+                  <span className="transition-all duration-300 group-hover:tracking-wide">
+                    View Proposal
+                  </span>
                 </Link>
               </>
             ) : (
               <>
                 <Link
                   to="/student/project-status"
-                  className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+                  className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
-                  ✏️ Manage Proposals
+                  <span className="text-2xl transition-transform duration-300 group-hover:rotate-12">
+                    ✏️
+                  </span>
+                  <span className="transition-all duration-300 group-hover:tracking-wide">
+                    Manage Proposals
+                  </span>
                 </Link>
 
                 <Link
                   to="/student/project-status"
-                  className="block w-full py-4 px-6 text-center text-white bg-red-800 hover:bg-red-900 rounded-lg transition-colors duration-200 no-underline font-semibold"
+                  className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
-                  📄 View Proposals
+                  <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                    📄
+                  </span>
+                  <span className="transition-all duration-300 group-hover:tracking-wide">
+                    View Proposals
+                  </span>
                 </Link>
               </>
             )}

@@ -99,17 +99,22 @@ const ViewProposal = () => {
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <div className="space-y-3">
+            {" "}
             <Link
               to="/student/project-status"
-              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              View All Proposals
-            </Link>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                View All Proposals
+              </span>
+            </Link>{" "}
             <Link
               to="/student/project-work"
-              className="block w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full py-3 px-6 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Back to Project Work
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Back to Project Work
+              </span>
             </Link>
           </div>
         </div>
@@ -270,9 +275,24 @@ const ViewProposal = () => {
                 "requires modification") && (
               <Link
                 to={`/student/modify-proposal?id=${proposal.proposal_id}`}
-                className="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors no-underline font-semibold"
+                className="group inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
               >
-                ✏️ Modify Proposal
+                <svg
+                  className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                <span className="transition-all duration-300 group-hover:tracking-wide">
+                  Modify Proposal
+                </span>
               </Link>
             )}
 

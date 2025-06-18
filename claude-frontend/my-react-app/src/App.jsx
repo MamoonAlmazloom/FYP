@@ -56,6 +56,10 @@ import ModeratorPreviousProjectDetails from "./moderator/ModeratorPreviousProjec
 
 // Examiner Components
 import ExaminerDashboard from "./examiner/ExaminerDashboard";
+import ExaminerProjectDetails from "./examiner/ExaminerProjectDetails";
+
+// Test Components
+import NotificationTest from "./pages/NotificationTest";
 
 // Auth components
 import { withAuth } from "./contexts/AuthContext";
@@ -148,6 +152,9 @@ const ProtectedModeratorPreviousProjectDetails = withAuth(
 );
 
 const ProtectedExaminerDashboard = withAuth(ExaminerDashboard, ["Examiner"]);
+const ProtectedExaminerProjectDetails = withAuth(ExaminerProjectDetails, [
+  "Examiner",
+]);
 
 // Placeholder components for additional features
 const Resources = withAuth(
@@ -168,6 +175,7 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/notification-test" element={<NotificationTest />} />
 
         {/* Student Routes - Choose A Path (from chooseAPath subfolder) */}
         <Route
@@ -353,6 +361,10 @@ function App() {
         <Route
           path="/examiner/dashboard"
           element={<ProtectedExaminerDashboard />}
+        />
+        <Route
+          path="/examiner/project/:projectId"
+          element={<ProtectedExaminerProjectDetails />}
         />
 
         {/* Moderator Routes */}

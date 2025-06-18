@@ -1,0 +1,46 @@
+### Test Notification API endpoints
+
+### Health Check
+GET http://localhost:3000/api/health
+Content-Type: application/json
+
+###
+
+### Create a test notification (Manager only)
+POST http://localhost:3000/api/notifications
+Content-Type: application/json
+Authorization: Bearer your_jwt_token_here
+
+{
+  "userId": 1,
+  "eventName": "test_notification",
+  "message": "This is a test notification to verify the notification service is working"
+}
+
+###
+
+### Get notifications for a user
+GET http://localhost:3000/api/notifications/1?limit=10&onlyUnread=false
+Content-Type: application/json
+Authorization: Bearer your_jwt_token_here
+
+###
+
+### Get only unread notifications for a user
+GET http://localhost:3000/api/notifications/1?limit=5&onlyUnread=true
+Content-Type: application/json
+Authorization: Bearer your_jwt_token_here
+
+###
+
+### Mark a specific notification as read
+PATCH http://localhost:3000/api/notifications/1/read
+Content-Type: application/json
+Authorization: Bearer your_jwt_token_here
+
+###
+
+### Mark all notifications as read for a user
+PATCH http://localhost:3000/api/notifications/1/read-all
+Content-Type: application/json
+Authorization: Bearer your_jwt_token_here

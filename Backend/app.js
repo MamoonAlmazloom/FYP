@@ -1,134 +1,233 @@
 // app.js
-import dotenv from "dotenv"; // Load environment variables
 import express from "express";
-import morgan from "morgan"; // HTTP request logger
-import cors from "cors"; // Enable CORS
-import path from "path";
-import { fileURLToPath } from "url";
-
-// Initialize dotenv
-dotenv.config();
-
-// Get directory name in ES module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Import database configuration
-import db from "./db.js";
-
-// Import auth model to initialize admin
-import authModel from "./models/authModel.js";
-
-// Import scheduler for deadline notifications
-import scheduler from "./scheduler.js";
-
-// Initialize admin user
-authModel
-  .initializeAdmin()
-  .then(() => console.log("Admin initialization attempted"))
-  .catch((err) => console.error("Error during admin initialization:", err));
-
-// Test database connection
-db.getConnection();
+import cors from "cors";
+import morgan from "morgan";
+import dotenv from "dotenv";
 
 // Import routes
-import studentRoutes from "./routes/studentRoutes.js";
-import supervisorRoutes from "./routes/supervisorRoutes.js";
-import moderatorRoutes from "./routes/moderatorRoutes.js";
-import managerRoutes from "./routes/managerRoutes.js";
-import examinerRoutes from "./routes/examinerRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import studentRoutes from "./routes/studentRoutes.js";
+import supervisorRoutes from "./routes/supervisorRoutes.js";
+import managerRoutes from "./routes/managerRoutes.js";
+import moderatorRoutes from "./routes/moderatorRoutes.js";
+import examinerRoutes from "./routes/examinerRoutes.js";
 import deadlineRoutes from "./routes/deadlineRoutes.js";
-import testRoutes from "./routes/testRoutes.js";
 
-// Initialize app
+// Import notification model for test endpoints
+import notificationModel from "./models/notificationModel.js";
+
+// Load environment variables
+dotenv.config();
+
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(morgan("dev")); // Log HTTP requests
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
-
-// Static files (if needed)
-app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://127.0.0.1:5173",
+      "http://127.0.0.1:5174",
+    ],
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/supervisors", supervisorRoutes);
-app.use("/api/moderators", moderatorRoutes);
 app.use("/api/managers", managerRoutes);
+app.use("/api/moderators", moderatorRoutes);
 app.use("/api/examiners", examinerRoutes);
-app.use("/api/notifications", notificationRoutes);
 app.use("/api/deadlines", deadlineRoutes);
 
-// Test routes only enabled in development
-if (process.env.NODE_ENV === "development") {
-  app.use("/api/test", testRoutes);
-  console.log("⚠️  Test routes enabled - DEVELOPMENT MODE");
-}
+// Simple notification test endpoint (without authentication for testing)
+app.get("/api/notifications/test", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Notification service is working",
+    data: [
+      {
+        notification_id: 1,
+        message: "Test notification 1 - New proposal submitted for review",
+        timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+        is_read: false,
+        event_name: "proposal_submitted",
+      },
+      {
+        notification_id: 2,
+        message: "Test notification 2 - Your proposal has been approved",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+        is_read: true,
+        event_name: "proposal_approved",
+      },
+      {
+        notification_id: 3,
+        message:
+          "Test notification 3 - Deadline reminder: Project submission due in 3 days",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+        is_read: false,
+        event_name: "deadline_reminder",
+      },
+      {
+        notification_id: 4,
+        message: "Test notification 4 - Your proposal needs modification",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
+        is_read: false,
+        event_name: "proposal_needs_modification",
+      },
+      {
+        notification_id: 5,
+        message:
+          "Test notification 5 - Examiner John Doe has been assigned to your project",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 days ago
+        is_read: false,
+        event_name: "examiner_assigned",
+      },
+      {
+        notification_id: 6,
+        message:
+          "Test notification 6 - Your project has been evaluated. Result: Pass (Score: 85)",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(), // 4 days ago
+        is_read: false,
+        event_name: "project_evaluated",
+      },
+      {
+        notification_id: 7,
+        message:
+          "Test notification 7 - You have received feedback from Prof. Smith on your Progress Report",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
+        is_read: true,
+        event_name: "feedback_received",
+      },
+      {
+        notification_id: 8,
+        message:
+          "Test notification 8 - Student Alice submitted a new progress log for 'AI Medical Diagnosis'",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(), // 6 days ago
+        is_read: false,
+        event_name: "log_submitted",
+      },
+    ],
+  });
+});
+
+// Test notification trigger endpoints
+app.post("/api/notifications/test/examiner-assignment", async (req, res) => {
+  try {
+    const { projectId, studentId, examinerId } = req.body;
+    await notificationModel.notifyExaminerAssignment(
+      projectId,
+      studentId,
+      examinerId
+    );
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Examiner assignment notification sent",
+      });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/notifications/test/project-evaluation", async (req, res) => {
+  try {
+    const { projectId, examinerId, evaluationResult, score } = req.body;
+    await notificationModel.notifyProjectEvaluation(
+      projectId,
+      examinerId,
+      evaluationResult,
+      score
+    );
+    res
+      .status(200)
+      .json({ success: true, message: "Project evaluation notification sent" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/notifications/test/progress-submission", async (req, res) => {
+  try {
+    const { submissionType, submissionId, studentId, projectId } = req.body;
+    await notificationModel.notifyProgressSubmissionToSupervisor(
+      submissionType,
+      submissionId,
+      studentId,
+      projectId
+    );
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Progress submission notification sent",
+      });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/notifications/test/feedback-received", async (req, res) => {
+  try {
+    const { feedbackType, feedbackId, reviewerId, targetId } = req.body;
+    await notificationModel.notifyFeedbackReceived(
+      feedbackType,
+      feedbackId,
+      reviewerId,
+      targetId
+    );
+    res
+      .status(200)
+      .json({ success: true, message: "Feedback received notification sent" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.use("/api/notifications", notificationRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.status(200).json({
-    status: "healthy",
-    message: "FYP Management API is running",
+    success: true,
+    message: "Backend server is running",
     timestamp: new Date().toISOString(),
   });
 });
 
-// 404 handler
-app.use((req, res, next) => {
-  res.status(404).json({
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
     success: false,
-    error: "Not Found",
-    message: `Route ${req.originalUrl} not found`,
+    error: "Something went wrong!",
+    message: err.message,
   });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error(`Error: ${err.message}`);
-  console.error(err.stack);
-
-  res.status(err.status || 500).json({
+// 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({
     success: false,
-    error: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    error: "Route not found",
   });
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
-  console.log(`🩺 Health check: http://localhost:${PORT}/api/health`);
-
-  // Run the deadline check on server start
-  scheduler
-    .runScheduler()
-    .then((count) =>
-      console.log(
-        `Initial deadline check: ${count} upcoming deadlines processed`
-      )
-    )
-    .catch((err) => console.error("Error in initial deadline check:", err));
-
-  // Set up periodic deadline checks (every 24 hours)
-  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-  setInterval(() => {
-    scheduler
-      .runScheduler()
-      .then((count) =>
-        console.log(
-          `Scheduled deadline check: ${count} upcoming deadlines processed`
-        )
-      )
-      .catch((err) => console.error("Error in scheduled deadline check:", err));
-  }, TWENTY_FOUR_HOURS);
+  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+  console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`🔔 Notification service ready!`);
 });
 
 export default app;

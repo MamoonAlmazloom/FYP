@@ -90,7 +90,7 @@ POST {{authUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "emily.carter@example.com",
+  "email": "Failed to load pending proposals",
   "password": "password123"
 }
 

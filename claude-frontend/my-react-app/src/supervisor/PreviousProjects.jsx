@@ -20,9 +20,9 @@ const PreviousProjects = () => {
           return;
         }
         setUser(currentUser);
-
         const response = await getPreviousProjects(currentUser.id);
         if (response.success) {
+          console.log("Previous projects loaded:", response.projects);
           setProjects(response.projects);
         } else {
           setError(response.error || "Failed to load previous projects");
@@ -125,9 +125,7 @@ const PreviousProjects = () => {
                     <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
                       Student Name
                     </th>
-                    <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
-                      Year
-                    </th>
+
                     <th className="border border-gray-300 p-3 text-left bg-blue-600 text-white">
                       Status
                     </th>
@@ -143,12 +141,9 @@ const PreviousProjects = () => {
                         {project.title}
                       </td>
                       <td className="border border-gray-300 p-3 text-left">
-                        {project.studentName}
+                        {project.student_name}
                       </td>
-                      <td className="border border-gray-300 p-3 text-left">
-                        {project.year ||
-                          new Date(project.createdAt).getFullYear()}
-                      </td>
+
                       <td className="border border-gray-300 p-3 text-left">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${

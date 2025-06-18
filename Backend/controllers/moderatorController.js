@@ -7,17 +7,15 @@ import pool from "../db.js";
  */
 const getPendingProposals = async (req, res, next) => {
   try {
-    const moderatorId = parseInt(req.params.moderatorId);
-
     // Get proposals with Supervisor_Approved status
     const [proposals] = await pool.query(
       `SELECT p.proposal_id, p.title, p.submitted_by, p.submitted_to,
               u.name AS submitter_name,
               sv.name AS supervisor_name
-       FROM Proposal p
-       JOIN Proposal_Status ps ON p.status_id = ps.status_id
-       JOIN User u ON p.submitted_by = u.user_id
-       LEFT JOIN User sv ON p.submitted_to = sv.user_id
+       FROM proposal p
+       JOIN proposal_status ps ON p.status_id = ps.status_id
+       JOIN user u ON p.submitted_by = u.user_id
+       LEFT JOIN user sv ON p.submitted_to = sv.user_id
        WHERE ps.status_name = 'Supervisor_Approved'
        ORDER BY p.proposal_id DESC`
     );
@@ -33,9 +31,9 @@ const getPendingProposals = async (req, res, next) => {
  */
 const reviewProposal = async (req, res, next) => {
   try {
-    const moderatorId = parseInt(req.params.moderatorId);
     const proposalId = parseInt(req.params.proposalId);
     const { decision, comments } = req.body;
+    const moderatorId = req.user.id; // Get from authenticated user (using 'id' not 'user_id')
 
     if (!["approve", "reject", "modify"].includes(decision)) {
       return res.status(400).json({
@@ -132,9 +130,9 @@ const reviewProposal = async (req, res, next) => {
  */
 const reviewSupervisorProposal = async (req, res, next) => {
   try {
-    const moderatorId = parseInt(req.params.moderatorId);
     const proposalId = parseInt(req.params.proposalId);
     const { decision, comments } = req.body;
+    const moderatorId = req.user.user_id; // Get from authenticated user
 
     if (!["approve", "reject", "modify"].includes(decision)) {
       return res.status(400).json({
@@ -156,8 +154,8 @@ const reviewSupervisorProposal = async (req, res, next) => {
     // Check if the submitter is a supervisor
     const [userRoles] = await pool.query(
       `SELECT r.role_name
-       FROM User_Roles ur
-       JOIN Role r ON ur.role_id = r.role_id
+       FROM user_roles ur
+       JOIN role r ON ur.role_id = r.role_id
        WHERE ur.user_id = ?`,
       [proposal.submitted_by]
     );
@@ -192,7 +190,7 @@ const reviewSupervisorProposal = async (req, res, next) => {
     // Add feedback if provided
     if (comments) {
       await pool.query(
-        `INSERT INTO Feedback (proposal_id, reviewer_id, comments)
+        `INSERT INTO feedback (proposal_id, reviewer_id, comments)
          VALUES (?, ?, ?)`,
         [proposalId, moderatorId, comments]
       );
@@ -223,8 +221,151 @@ const reviewSupervisorProposal = async (req, res, next) => {
   }
 };
 
+/**
+ * Get proposal details for moderator review
+ */
+const getProposalDetails = async (req, res, next) => {
+  try {
+    const proposalId = parseInt(req.params.proposalId); // Get detailed proposal information
+    const [proposals] = await pool.query(
+      `SELECT p.proposal_id, p.title, p.proposal_description, p.type, 
+              p.specialization, p.outcome, p.submitted_by, p.submitted_to,
+              u.name AS submitter_name, u.email AS submitter_email,
+              sv.name AS supervisor_name, sv.email AS supervisor_email,
+              ps.status_name
+       FROM proposal p
+       JOIN proposal_status ps ON p.status_id = ps.status_id
+       JOIN user u ON p.submitted_by = u.user_id
+       LEFT JOIN user sv ON p.submitted_to = sv.user_id
+       WHERE p.proposal_id = ?`,
+      [proposalId]
+    );
+
+    if (proposals.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Proposal not found",
+      });
+    }
+
+    const proposal = proposals[0];
+
+    // Get any existing feedback for this proposal
+    const [feedback] = await pool.query(
+      `SELECT f.comments, f.created_at,
+              u.name AS reviewer_name
+       FROM feedback f
+       JOIN user u ON f.reviewer_id = u.user_id
+       WHERE f.proposal_id = ?
+       ORDER BY f.created_at DESC`,
+      [proposalId]
+    );
+
+    res.status(200).json({
+      success: true,
+      proposal: {
+        id: proposal.proposal_id,
+        title: proposal.title,
+        description: proposal.proposal_description,
+        type: proposal.type,
+        specialization: proposal.specialization,
+        outcome: proposal.outcome,
+        status: proposal.status_name,
+        submitter: {
+          id: proposal.submitted_by,
+          name: proposal.submitter_name,
+          email: proposal.submitter_email,
+        },
+        supervisor: {
+          id: proposal.submitted_to,
+          name: proposal.supervisor_name,
+          email: proposal.supervisor_email,
+        },
+        feedback: feedback.map((f) => ({
+          comments: f.comments,
+          reviewerName: f.reviewer_name,
+          createdAt: f.created_at,
+        })),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get moderator profile
+ */
+const getModeratorProfile = async (req, res, next) => {
+  try {
+    const moderatorId = req.user.id; // Get from authenticated user (using 'id' not 'user_id')
+
+    const [moderators] = await pool.query(
+      `SELECT u.user_id, u.name, u.email, u.is_active
+       FROM user u
+       JOIN user_roles ur ON u.user_id = ur.user_id
+       JOIN role r ON ur.role_id = r.role_id
+       WHERE u.user_id = ? AND r.role_name = 'Moderator'`,
+      [moderatorId]
+    );
+
+    if (moderators.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Moderator not found",
+      });
+    }
+
+    const moderator = moderators[0];
+
+    res.status(200).json({
+      success: true,
+      moderator: {
+        id: moderator.user_id,
+        name: moderator.name,
+        email: moderator.email,
+        isActive: moderator.is_active,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get all previous (completed) projects
+ */
+const getPreviousProjects = async (req, res, next) => {
+  try {
+    const [projects] = await pool.query(
+      `SELECT DISTINCT p.project_id as id, p.title, p.description,
+              u.name as student_name, pr.proposal_id,
+              sv.name as supervisor_name,
+              ex.name as examiner_name,
+              ea.status as examination_status
+       FROM project p
+       JOIN proposal pr ON p.project_id = pr.project_id
+       JOIN user u ON pr.submitted_by = u.user_id
+       JOIN proposal_status ps ON pr.status_id = ps.status_id
+       LEFT JOIN supervisor_project sp ON p.project_id = sp.project_id
+       LEFT JOIN user sv ON sp.supervisor_id = sv.user_id
+       LEFT JOIN examiner_assignment ea ON p.project_id = ea.project_id
+       LEFT JOIN user ex ON ea.examiner_id = ex.user_id
+       WHERE ps.status_name = 'Approved' AND ea.status = 'Evaluated'
+       ORDER BY p.project_id DESC`
+    );
+
+    res.status(200).json({ success: true, projects });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   getPendingProposals,
   reviewProposal,
   reviewSupervisorProposal,
+  getProposalDetails,
+  getModeratorProfile,
+  getPreviousProjects,
 };

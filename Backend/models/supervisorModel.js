@@ -251,16 +251,19 @@ const provideFeedbackOnReport = async (reportId, supervisorId, comments) => {
 const getPreviousProjects = async (supervisorId) => {
   try {
     const [rows] = await pool.query(
-      `SELECT p.project_id, p.title, p.description,
-              u.name as student_name, pr.proposal_id
-       FROM Project p
-       JOIN Supervisor_Project sp ON p.project_id = sp.project_id
-       JOIN Proposal pr ON p.project_id = pr.project_id
-       JOIN User u ON pr.submitted_by = u.user_id
-       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
-       WHERE sp.supervisor_id = ? AND ps.status_name = 'Approved'
+      `SELECT DISTINCT p.project_id as id, p.title, p.proposal_description as description,
+              u.name as student_name, p.proposal_id,
+              supervisor.name as supervisor_name,
+              examiner.name as examiner_name,
+              ea.status as examination_status
+       FROM proposal p
+       JOIN user u ON p.submitted_by = u.user_id
+       JOIN examiner_assignment ea ON p.project_id = ea.project_id
+       LEFT JOIN user supervisor ON p.submitted_to = supervisor.user_id
+       LEFT JOIN user examiner ON ea.examiner_id = examiner.user_id
+       WHERE ea.status = 'Evaluated'
        ORDER BY p.project_id DESC`,
-      [supervisorId]
+      []
     );
     return rows;
   } catch (error) {
@@ -277,13 +280,13 @@ const getPreviousProjects = async (supervisorId) => {
 const getProjectById = async (projectId) => {
   try {
     const [rows] = await pool.query(
-      `SELECT p.project_id, p.title, p.description,
+      `SELECT p.project_id as id, p.title, p.description,
               u.name as student_name, u.user_id as student_id,
               ps.status_name
-       FROM Project p
-       JOIN Proposal pr ON p.project_id = pr.project_id
-       JOIN User u ON pr.submitted_by = u.user_id
-       JOIN Proposal_Status ps ON pr.status_id = ps.status_id
+       FROM project p
+       JOIN proposal pr ON p.project_id = pr.project_id
+       JOIN user u ON pr.submitted_by = u.user_id
+       JOIN proposal_status ps ON pr.status_id = ps.status_id
        WHERE p.project_id = ?`,
       [projectId]
     );

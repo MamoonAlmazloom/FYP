@@ -88,13 +88,29 @@ const ProjectStatus = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          {" "}
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             to="/student/choose-path"
-            className="inline-block px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-lg transition-all duration-300 no-underline shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            Back to Select Path
+            <svg
+              className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Back to Select Path
+            </span>
           </Link>
         </div>
       </div>
@@ -113,23 +129,43 @@ const ProjectStatus = () => {
             one now?
           </p>
           <div className="space-y-4">
+            {" "}
             <Link
               to="/student/propose-project"
-              className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Propose New Project
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Propose New Project
+              </span>
             </Link>
             <Link
               to="/student/select-title"
-              className="block w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+              className="group block w-full py-3 px-6 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Select Available Project
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Select Available Project
+              </span>
             </Link>
             <Link
               to="/student/choose-path"
-              className="inline-block px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-lg transition-all duration-300 no-underline shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
             >
-              Back to Select Path
+              <svg
+                className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              <span className="transition-all duration-300 group-hover:tracking-wide">
+                Back to Select Path
+              </span>
             </Link>
           </div>
         </div>
@@ -143,7 +179,6 @@ const ProjectStatus = () => {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
           My Project Proposals
         </h2>
-
         <div className="space-y-6">
           {proposals.map((proposal) => {
             const statusDisplay = getStatusDisplay(proposal.status_name);
@@ -211,7 +246,6 @@ const ProjectStatus = () => {
                     </div>
                   )}
                 </div>
-
                 {/* Status Display */}
                 <div className="mb-6">
                   <p className="text-gray-600 text-center mb-4">
@@ -223,8 +257,7 @@ const ProjectStatus = () => {
                     <span className="text-2xl mr-2">{statusDisplay.icon}</span>
                     {statusDisplay.text}
                   </div>
-                </div>
-
+                </div>{" "}
                 {/* Additional Actions based on status */}
                 {proposal.status_name?.toLowerCase() === "approved" && (
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -235,14 +268,28 @@ const ProjectStatus = () => {
                     <div className="text-center">
                       <Link
                         to="/student/project-work"
-                        className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+                        className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                       >
-                        Start Project Work
+                        <svg
+                          className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          />
+                        </svg>
+                        <span className="transition-all duration-300 group-hover:tracking-wide">
+                          Start Project Work
+                        </span>
                       </Link>
                     </div>
                   </div>
                 )}
-
                 {(proposal.status_name?.toLowerCase() ===
                   "requires modification" ||
                   proposal.status_name?.toLowerCase() === "modify") && (
@@ -254,14 +301,28 @@ const ProjectStatus = () => {
                     <div className="text-center">
                       <Link
                         to={`/student/modify-proposal?id=${proposal.proposal_id}`}
-                        className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+                        className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                       >
-                        Modify Proposal
+                        <svg
+                          className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                        <span className="transition-all duration-300 group-hover:tracking-wide">
+                          Modify Proposal
+                        </span>
                       </Link>
                     </div>
                   </div>
                 )}
-
                 {proposal.status_name?.toLowerCase() === "rejected" && (
                   <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-800 text-center mb-4">
@@ -269,16 +330,31 @@ const ProjectStatus = () => {
                       new proposal.
                     </p>
                     <div className="text-center">
+                      {" "}
                       <Link
                         to="/student/propose-project"
-                        className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+                        className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                       >
-                        Submit New Proposal
+                        <svg
+                          className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          />
+                        </svg>
+                        <span className="transition-all duration-300 group-hover:tracking-wide">
+                          Submit New Proposal
+                        </span>
                       </Link>
                     </div>
                   </div>
                 )}
-
                 {/* Feedback Section */}
                 {proposal.feedback && proposal.feedback.length > 0 && (
                   <div className="mb-6">
@@ -306,39 +382,89 @@ const ProjectStatus = () => {
                       ))}
                     </div>
                   </div>
-                )}
-
+                )}{" "}
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 justify-center">
+                  {" "}
                   <Link
                     to={`/student/view-proposal?id=${proposal.proposal_id}`}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline text-sm font-semibold"
+                    className="group inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
                   >
-                    View Full Details
+                    <svg
+                      className="w-4 h-4 transition-transform duration-300 group-hover:scale-110"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                    <span className="transition-all duration-300 group-hover:tracking-wide">
+                      View Full Details
+                    </span>
                   </Link>
                   {(proposal.status_name?.toLowerCase() === "pending" ||
                     proposal.status_name?.toLowerCase() ===
                       "requires modification") && (
                     <Link
                       to={`/student/modify-proposal?id=${proposal.proposal_id}`}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 no-underline text-sm font-semibold"
+                      className="group inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-lg transition-all duration-300 no-underline text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
                     >
-                      Edit Proposal
+                      <svg
+                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      <span className="transition-all duration-300 group-hover:tracking-wide">
+                        Edit Proposal
+                      </span>
                     </Link>
                   )}
                 </div>
               </div>
             );
           })}
-        </div>
-
+        </div>{" "}
         {/* Navigation */}
         <div className="text-center mt-8">
           <Link
             to="/student/choose-path"
-            className="inline-block px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 no-underline font-semibold"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            ← Back to Select a Path
+            <svg
+              className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Back to Select a Path
+            </span>
           </Link>
         </div>
       </div>
