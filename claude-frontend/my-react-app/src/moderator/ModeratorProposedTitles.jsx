@@ -35,12 +35,16 @@ const ModeratorProposedTitles = () => {
     logout();
     navigate("/login");
   };
-
-  const handleProposalAction = (proposalId, title, studentName) => {
+  const handleProposalAction = (
+    proposalId,
+    title,
+    submitterName,
+    proposalType
+  ) => {
     navigate(
       `/moderator/proposal-action?id=${proposalId}&title=${encodeURIComponent(
         title
-      )}&student=${encodeURIComponent(studentName)}`
+      )}&submitter=${encodeURIComponent(submitterName)}&type=${proposalType}`
     );
   };
   return (
@@ -137,10 +141,11 @@ const ModeratorProposedTitles = () => {
             </div>
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
               Review Proposed Titles
-            </h2>
+            </h2>{" "}
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Review and moderate student project proposals. Ensure all
-              submissions meet academic standards and requirements.
+              Review and moderate project proposals from both students and
+              supervisors. Ensure all submissions meet academic standards and
+              requirements.
             </p>
           </div>{" "}
           {loading ? (
@@ -248,10 +253,14 @@ const ModeratorProposedTitles = () => {
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
+                    {" "}
                     <thead>
                       <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                         <th className="px-6 py-4 text-left text-sm font-semibold">
-                          Student Name
+                          Type
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold">
+                          Submitter
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-semibold">
                           Proposed Title
@@ -272,26 +281,53 @@ const ModeratorProposedTitles = () => {
                             index % 2 === 0 ? "bg-white" : "bg-gray-50"
                           } hover:bg-indigo-50 transition-colors duration-200`}
                         >
+                          <td className="px-6 py-4 text-sm">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                proposal.proposal_type === "supervisor"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}
+                            >
+                              {proposal.proposal_type === "supervisor"
+                                ? "Supervisor"
+                                : "Student"}
+                            </span>
+                          </td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">
                             {proposal.submitter_name}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
                             <div className="font-medium">{proposal.title}</div>
+                            {proposal.proposal_type === "supervisor" && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Type: {proposal.type} •{" "}
+                                {proposal.specialization}
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
-                            {proposal.supervisor_name || (
-                              <span className="text-gray-400 italic">
-                                Not assigned
+                            {proposal.proposal_type === "supervisor" ? (
+                              <span className="text-green-600 font-medium">
+                                Self-proposed
                               </span>
+                            ) : (
+                              proposal.supervisor_name || (
+                                <span className="text-gray-400 italic">
+                                  Not assigned
+                                </span>
+                              )
                             )}
                           </td>
                           <td className="px-6 py-4 text-sm">
+                            {" "}
                             <button
                               onClick={() =>
                                 handleProposalAction(
                                   proposal.proposal_id,
                                   proposal.title,
-                                  proposal.submitter_name
+                                  proposal.submitter_name,
+                                  proposal.proposal_type
                                 )
                               }
                               className="group inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"

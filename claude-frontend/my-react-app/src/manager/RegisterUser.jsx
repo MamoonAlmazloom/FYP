@@ -21,15 +21,21 @@ const RegisterUser = () => {
   useEffect(() => {
     loadRoles();
   }, []);
-
   const loadRoles = async () => {
     try {
       const response = await ManagerAPI.getRoles(managerId);
+      console.log("Full API response:", response);
       if (response.success) {
+        console.log("Loaded roles from API:", response.roles);
+        console.log("Number of roles from API:", response.roles.length);
         setRoles(response.roles);
+      } else {
+        console.error("Failed to load roles:", response.error);
+        setError("Failed to load roles");
       }
     } catch (error) {
       console.error("Error loading roles:", error);
+      setError("Error loading roles");
     }
   };
   const handleSignOut = () => {
@@ -252,7 +258,6 @@ const RegisterUser = () => {
                 placeholder="Enter full name"
               />
             </div>
-
             <div className="space-y-2">
               <label
                 htmlFor="email"
@@ -271,7 +276,6 @@ const RegisterUser = () => {
                 placeholder="Enter email address"
               />
             </div>
-
             <div className="space-y-2">
               <label
                 htmlFor="password"
@@ -290,57 +294,31 @@ const RegisterUser = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white shadow-sm"
                 placeholder="Enter password (minimum 6 characters)"
               />
-            </div>
-
+            </div>{" "}
             <div className="space-y-3">
               <label className="block text-sm font-semibold text-gray-700">
                 Select Roles
               </label>
               <div className="grid grid-cols-2 gap-3">
-                {roles.length > 0
-                  ? roles.map((role) => (
-                      <label
-                        key={role.role_id}
-                        className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-                      >
-                        <input
-                          type="checkbox"
-                          value={role.role_name}
-                          checked={formData.roles.includes(role.role_name)}
-                          onChange={handleRoleChange}
-                          className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                        <span className="ml-3 text-sm font-medium text-gray-700">
-                          {role.role_name}
-                        </span>
-                      </label>
-                    ))
-                  : [
-                      "Student",
-                      "Supervisor",
-                      "Moderator",
-                      "Manager",
-                      "Examiner",
-                    ].map((role) => (
-                      <label
-                        key={role}
-                        className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-                      >
-                        <input
-                          type="checkbox"
-                          value={role}
-                          checked={formData.roles.includes(role)}
-                          onChange={handleRoleChange}
-                          className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                        <span className="ml-3 text-sm font-medium text-gray-700">
-                          {role}
-                        </span>
-                      </label>
-                    ))}
+                {roles.map((role) => (
+                  <label
+                    key={role.role_id}
+                    className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <input
+                      type="checkbox"
+                      value={role.role_name}
+                      checked={formData.roles.includes(role.role_name)}
+                      onChange={handleRoleChange}
+                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    />
+                    <span className="ml-3 text-sm font-medium text-gray-700">
+                      {role.role_name}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
-
             <div className="flex gap-4 pt-4">
               <button
                 type="submit"

@@ -153,7 +153,6 @@ const ManageUsers = () => {
               Register new users and manage existing user accounts
             </p>
           </div>
-
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
               <div className="flex items-center">
@@ -173,11 +172,9 @@ const ManageUsers = () => {
                 {error}
               </div>
             </div>
-          )}
-
+          )}{" "}
           {/* Enhanced Action Buttons */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {" "}
             <Link
               to="/manager/register-user"
               className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
@@ -221,7 +218,6 @@ const ManageUsers = () => {
               </span>
             </button>
           </div>
-
           {/* Users List */}
           {loading ? (
             <div className="text-center py-8">
@@ -291,19 +287,18 @@ const ManageUsers = () => {
                         <td className="border border-gray-300 px-4 py-2">
                           <Link
                             to={`/manager/manage-user-eligibility/${user.user_id}`}
-                            className="text-blue-600 hover:text-blue-800 no-underline"
+                            className="text-blue-600 hover:text-blue-800 no-underline text-sm"
                           >
-                            Edit Eligibility
+                            Edit
                           </Link>
-                        </td>
+                        </td>{" "}
                       </tr>
                     ))
                   )}
                 </tbody>
-              </table>
+              </table>{" "}
             </div>
           )}
-
           <div className="text-center mt-6">
             <Link
               to="/manager/dashboard"

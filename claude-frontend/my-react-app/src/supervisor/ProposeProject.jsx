@@ -12,9 +12,9 @@ const ProposeProject = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    objectives: "",
-    requirements: "",
-    duration: "",
+    type: "",
+    specialization: "",
+    outcome: "",
   });
 
   useEffect(() => {
@@ -47,9 +47,9 @@ const ProposeProject = () => {
         setFormData({
           title: "",
           description: "",
-          objectives: "",
-          requirements: "",
-          duration: "",
+          type: "",
+          specialization: "",
+          outcome: "",
         });
         // Redirect after a short delay to show success message
         setTimeout(() => {
@@ -108,7 +108,6 @@ const ProposeProject = () => {
               className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
           </div>
-
           <div className="mb-4">
             <label
               htmlFor="description"
@@ -127,68 +126,67 @@ const ProposeProject = () => {
               placeholder="Describe the project in detail..."
               className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
-          </div>
-
+          </div>{" "}
           <div className="mb-4">
             <label
-              htmlFor="objectives"
+              htmlFor="type"
               className="block font-bold text-gray-700 mb-2"
             >
-              Project Objectives:
-            </label>
-            <textarea
-              id="objectives"
-              name="objectives"
-              rows="3"
-              value={formData.objectives}
-              onChange={handleInputChange}
-              disabled={loading}
-              placeholder="List the main objectives of this project..."
-              className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="requirements"
-              className="block font-bold text-gray-700 mb-2"
-            >
-              Prerequisites/Requirements:
-            </label>
-            <textarea
-              id="requirements"
-              name="requirements"
-              rows="3"
-              value={formData.requirements}
-              onChange={handleInputChange}
-              disabled={loading}
-              placeholder="What skills or knowledge should students have?"
-              className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="duration"
-              className="block font-bold text-gray-700 mb-2"
-            >
-              Expected Duration:
+              Project Type: *
             </label>
             <select
-              id="duration"
-              name="duration"
-              value={formData.duration}
+              id="type"
+              name="type"
+              value={formData.type}
               onChange={handleInputChange}
+              required
               disabled={loading}
               className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             >
-              <option value="">Select duration</option>
-              <option value="1 semester">1 Semester</option>
-              <option value="2 semesters">2 Semesters</option>
-              <option value="1 year">1 Year</option>
+              <option value="">Select project type</option>
+              <option value="Research">Research</option>
+              <option value="Application">Application</option>
+              <option value="Both">Both</option>
             </select>
           </div>
-
+          <div className="mb-4">
+            <label
+              htmlFor="specialization"
+              className="block font-bold text-gray-700 mb-2"
+            >
+              Specialization Area: *
+            </label>
+            <input
+              type="text"
+              id="specialization"
+              name="specialization"
+              value={formData.specialization}
+              onChange={handleInputChange}
+              required
+              disabled={loading}
+              placeholder="e.g., Machine Learning, Web Development, Mobile Apps..."
+              className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="outcome"
+              className="block font-bold text-gray-700 mb-2"
+            >
+              Expected Outcome: *
+            </label>
+            <textarea
+              id="outcome"
+              name="outcome"
+              rows="3"
+              value={formData.outcome}
+              onChange={handleInputChange}
+              required
+              disabled={loading}
+              placeholder="Describe the expected deliverables and outcomes..."
+              className="w-full p-3 mt-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}

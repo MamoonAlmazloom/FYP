@@ -347,6 +347,81 @@ const getAvailableAcademicPeriods = async (req, res, next) => {
   }
 };
 
+/**
+ * Delete a user
+ */
+const deleteUser = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+    }
+
+    // Check if user exists first
+    const users = await managerModel.getAllUsers();
+    const userExists = users.find((user) => user.user_id == userId);
+
+    if (!userExists) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    // Prevent deletion of the current manager
+    if (userId == req.user.id) {
+      return res.status(400).json({
+        success: false,
+        error: "Cannot delete your own account",
+      });
+    }
+
+    // Try to delete the user
+    const deleted = await managerModel.deleteUser(userId);
+
+    if (!deleted) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to delete user - no rows affected",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `User ${userExists.name} has been deleted successfully`,
+    });
+  } catch (err) {
+    console.error("Error in deleteUser controller:", err);
+
+    // Handle specific database errors
+    if (err.code === "ER_ROW_IS_REFERENCED_2") {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Cannot delete user: User has associated data that prevents deletion",
+      });
+    }
+
+    if (err.code === "ER_NO_REFERENCED_ROW_2") {
+      return res.status(400).json({
+        success: false,
+        error: "Cannot delete user: Referenced data not found",
+      });
+    }
+
+    // Generic error response
+    res.status(500).json({
+      success: false,
+      error: "Internal server error while deleting user",
+      details: err.message,
+    });
+  }
+};
+
 export default {
   getUsers,
   updateUserEligibility,
@@ -363,4 +438,5 @@ export default {
   searchArchivedProjects,
   getProjectsByAcademicPeriod,
   getAvailableAcademicPeriods,
+  deleteUser,
 };

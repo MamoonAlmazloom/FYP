@@ -152,6 +152,19 @@ const ManagerAPI = {
       throw error;
     }
   },
+
+  // Delete user
+  deleteUser: async (managerId, userId) => {
+    try {
+      const response = await api.delete(
+        `/api/managers/${managerId}/users/${userId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      throw error;
+    }
+  },
 };
 
 export default ManagerAPI;

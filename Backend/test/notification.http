@@ -1,13 +1,23 @@
 ### Test Notification API endpoints
 
 ### Health Check
-GET http://localhost:3000/api/health
+GET http://localhost:5000/api/health
 Content-Type: application/json
 
 ###
+### Login as Admin (Manager)
+# @name login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin"
+}
+
 
 ### Create a test notification (Manager only)
-POST http://localhost:3000/api/notifications
+POST http://localhost:5000/api/notifications
 Content-Type: application/json
 Authorization: Bearer your_jwt_token_here
 
@@ -20,7 +30,7 @@ Authorization: Bearer your_jwt_token_here
 ###
 
 ### Get notifications for a user
-GET http://localhost:3000/api/notifications/1?limit=10&onlyUnread=false
+GET http://localhost:5000/api/notifications/1?limit=10&onlyUnread=false
 Content-Type: application/json
 Authorization: Bearer your_jwt_token_here
 
@@ -41,6 +51,6 @@ Authorization: Bearer your_jwt_token_here
 ###
 
 ### Mark all notifications as read for a user
-PATCH http://localhost:3000/api/notifications/1/read-all
+PATCH http://localhost:5000/api/notifications/1/read-all
 Content-Type: application/json
 Authorization: Bearer your_jwt_token_here

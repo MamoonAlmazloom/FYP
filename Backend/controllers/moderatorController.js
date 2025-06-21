@@ -7,16 +7,25 @@ import pool from "../db.js";
  */
 const getPendingProposals = async (req, res, next) => {
   try {
-    // Get proposals with Supervisor_Approved status
+    // Get proposals that need moderator review:
+    // 1. Student proposals that are Supervisor_Approved
+    // 2. Supervisor proposals that are Pending
     const [proposals] = await pool.query(
       `SELECT p.proposal_id, p.title, p.submitted_by, p.submitted_to,
+              p.type, p.specialization, p.outcome,
               u.name AS submitter_name,
-              sv.name AS supervisor_name
+              sv.name AS supervisor_name,
+              ps.status_name,
+              CASE 
+                WHEN p.submitted_to IS NULL THEN 'supervisor'
+                ELSE 'student'
+              END AS proposal_type
        FROM proposal p
        JOIN proposal_status ps ON p.status_id = ps.status_id
        JOIN user u ON p.submitted_by = u.user_id
        LEFT JOIN user sv ON p.submitted_to = sv.user_id
-       WHERE ps.status_name = 'Supervisor_Approved'
+       WHERE (ps.status_name = 'Supervisor_Approved' AND p.submitted_to IS NOT NULL)
+          OR (ps.status_name = 'Pending' AND p.submitted_to IS NULL)
        ORDER BY p.proposal_id DESC`
     );
 

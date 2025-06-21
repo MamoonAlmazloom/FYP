@@ -129,12 +129,10 @@ app.post("/api/notifications/test/examiner-assignment", async (req, res) => {
       studentId,
       examinerId
     );
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Examiner assignment notification sent",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Examiner assignment notification sent",
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -166,12 +164,10 @@ app.post("/api/notifications/test/progress-submission", async (req, res) => {
       studentId,
       projectId
     );
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Progress submission notification sent",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Progress submission notification sent",
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

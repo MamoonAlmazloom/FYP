@@ -97,27 +97,14 @@ const ProjectWork = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>{" "}
-          <button
+          <p className="text-gray-600 mb-6">{error}</p>          <button
             onClick={handleSignOut}
             className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            <svg
-              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
+            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="transition-all duration-300 group-hover:tracking-wide">
-              Sign Out and Retry
-            </span>
+            <span className="transition-all duration-300 group-hover:tracking-wide">Sign Out and Retry</span>
           </button>
         </div>
       </div>
@@ -135,27 +122,14 @@ const ProjectWork = () => {
           <p className="text-gray-600 mb-8">
             You don't have any active projects yet. Please select or propose a
             project first.
-          </p>{" "}
-          <Link
+          </p>          <Link
             to="/student/choose-path"
             className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            <svg
-              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
+            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span className="transition-all duration-300 group-hover:tracking-wide">
-              Choose Your Path
-            </span>
+            <span className="transition-all duration-300 group-hover:tracking-wide">Choose Your Path</span>
           </Link>
         </div>
       </div>
@@ -333,7 +307,7 @@ const ProjectWork = () => {
               <>
                 <Link
                   to={`/student/modify-proposal?id=${currentProposal.proposal_id}`}
-                  className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  className="group flex items-center justify-center gap-3 w-full py-4 px-6 text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
                   <span className="text-2xl transition-transform duration-300 group-hover:rotate-12">
                     ✏️

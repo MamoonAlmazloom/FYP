@@ -20,7 +20,10 @@ const ProgressReportForm = () => {
     const fetchProjects = async () => {
       try {
         if (!user?.id) {
-          setErrors({ general: "User not found. Please log in again." });
+          setErrors({
+            general: "User not found. Please log in again.",
+            loading: true,
+          });
           return;
         }
 
@@ -39,11 +42,12 @@ const ProgressReportForm = () => {
           setErrors({
             general:
               "No active projects found. Please select or propose a project first.",
+            loading: true,
           });
         }
       } catch (err) {
         console.error("Error fetching projects:", err);
-        setErrors({ general: "Failed to load your projects." });
+        setErrors({ general: "Failed to load your projects.", loading: true });
       } finally {
         setLoading(false);
       }
@@ -111,28 +115,38 @@ const ProgressReportForm = () => {
         title: formData.title,
         details: formData.details,
       });
+      console.log("Progress report response:", response);
 
-      if (response.success) {
-        alert("Progress report submitted successfully!");
-        navigate("/student/project-work");
+      if (response && response.success) {
+        setErrors({ success: "Progress report submitted successfully!" });
+
+        // Navigate after a short delay
+        setTimeout(() => {
+          navigate("/student/project-work");
+        }, 2000);
       } else {
-        alert(
-          "Failed to submit progress report: " +
-            (response.error || "Unknown error")
-        );
+        setErrors({
+          general: response?.error || "Failed to submit progress report",
+        });
       }
     } catch (error) {
       console.error("Error submitting progress report:", error);
 
+      let errorMessage = "An unexpected error occurred";
+
       if (error.response) {
-        const errorMessage =
-          error.response.data.error || "Server error occurred";
-        alert("Error: " + errorMessage);
+        errorMessage =
+          error.response.data?.error ||
+          error.response.data?.message ||
+          "Server error occurred";
       } else if (error.request) {
-        alert("Network error: Please check your connection");
-      } else {
-        alert("Unexpected error occurred");
+        errorMessage =
+          "Network error: Please check your connection and try again";
+      } else if (error.message) {
+        errorMessage = error.message;
       }
+
+      setErrors({ general: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -149,7 +163,7 @@ const ProgressReportForm = () => {
     );
   }
 
-  if (errors.general) {
+  if (errors.general && errors.loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
@@ -179,9 +193,60 @@ const ProgressReportForm = () => {
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Submit Progress Report
-        </h2>
-
+        </h2>{" "}
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Success Message */}
+          {errors.success && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-1 bg-green-100 rounded-lg">
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-green-800 font-medium">
+                  {errors.success}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errors.general && !errors.success && (
+            <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-1 bg-red-100 rounded-lg">
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-red-800 font-medium">
+                  {errors.general}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Project Selection */}
           {projects.length > 1 && (
             <div>
@@ -346,7 +411,6 @@ const ProgressReportForm = () => {
             )}
           </button>
         </form>
-
         {/* Back Link */}
         <div className="text-center mt-6">
           <Link

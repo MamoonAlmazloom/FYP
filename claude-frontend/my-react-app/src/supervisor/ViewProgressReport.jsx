@@ -221,9 +221,9 @@ const ViewProgressReport = () => {
             {/* Student Information */}
             {currentReport && (
               <div className="bg-gray-50 p-4 rounded mb-4 text-left">
+                {" "}
                 <p className="mb-2">
-                  <strong>Student Name:</strong>{" "}
-                  {student?.name || "Unknown Student"}
+                  <strong>Student Name:</strong> {student?.name || "Student"}
                 </p>
                 <p className="mb-2">
                   <strong>Report:</strong>{" "}

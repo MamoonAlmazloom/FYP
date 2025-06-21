@@ -110,12 +110,15 @@ const ProgressLogForm = () => {
         project_id: parseInt(formData.project_id),
         details: formData.details,
       });
-
       console.log("Progress log response:", response);
+      if (response && response.success) {
+        // Use a more subtle success notification to avoid extension conflicts        setErrors({ success: "Progress log submitted successfully! Your supervisor has been notified." });
 
-      if (response.success) {
-        // Use a more subtle success notification to avoid extension conflicts
-        setErrors({ success: "Progress log submitted successfully!" });
+        // Clear form data after successful submission
+        setFormData({
+          project_id: "",
+          details: "",
+        });
 
         // Navigate after a short delay
         setTimeout(() => {
@@ -123,7 +126,7 @@ const ProgressLogForm = () => {
         }, 2000);
       } else {
         setErrors({
-          general: response.error || "Failed to submit progress log",
+          general: response?.error || "Failed to submit progress log",
         });
       }
     } catch (error) {

@@ -242,7 +242,6 @@ const getAllRoles = async () => {
     const [rows] = await pool.query(
       `SELECT role_id, role_name FROM role ORDER BY role_name`
     );
-
     return rows;
   } catch (error) {
     console.error("Error in getAllRoles:", error);
@@ -315,6 +314,136 @@ const getPreviousProjects = async () => {
   }
 };
 
+/**
+ * Delete a user and all associated data
+ * @param {number} userId - The ID of the user to delete
+ * @returns {Promise<boolean>} - True if deleted successfully
+ */
+const deleteUser = async (userId) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    console.log(`Starting deletion process for user ID: ${userId}`);
+
+    // Delete in the correct order to avoid foreign key constraint violations
+
+    // 1. Delete user roles first (foreign key constraint)
+    console.log("Deleting user_roles...");
+    const [userRolesResult] = await connection.query(
+      `DELETE FROM user_roles WHERE user_id = ?`,
+      [userId]
+    );
+    console.log(`Deleted ${userRolesResult.affectedRows} user_roles records`);
+
+    // 2. Delete user notifications
+    console.log("Deleting notifications...");
+    const [notificationResult] = await connection.query(
+      `DELETE FROM notification WHERE user_id = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${notificationResult.affectedRows} notification records`
+    );
+
+    // 3. Delete examiner assignments where user is examiner
+    console.log("Deleting examiner_assignment...");
+    const [examinerResult] = await connection.query(
+      `DELETE FROM examiner_assignment WHERE examiner_id = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${examinerResult.affectedRows} examiner_assignment records`
+    ); // 4. Delete feedback given by this user as reviewer
+    console.log("Deleting feedback by user as reviewer...");
+    const [feedbackByUserResult] = await connection.query(
+      `DELETE FROM feedback WHERE reviewer_id = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${feedbackByUserResult.affectedRows} feedback records where user was reviewer`
+    );
+
+    // 4b. Delete feedback on proposals submitted by this user (before deleting proposals)
+    console.log("Deleting feedback on proposals by this user...");
+    const [feedbackOnProposalsResult] = await connection.query(
+      `DELETE FROM feedback WHERE proposal_id IN (SELECT proposal_id FROM proposal WHERE submitted_by = ?)`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${feedbackOnProposalsResult.affectedRows} feedback records on user's proposals`
+    );
+
+    // 5. Delete progress logs submitted by this user (if student)
+    console.log("Deleting progress_log...");
+    const [progressLogResult] = await connection.query(
+      `DELETE FROM progress_log WHERE student_id = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${progressLogResult.affectedRows} progress_log records`
+    );
+
+    // 6. Delete progress reports submitted by this user (if student)
+    console.log("Deleting progress_report...");
+    const [progressReportResult] = await connection.query(
+      `DELETE FROM progress_report WHERE student_id = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${progressReportResult.affectedRows} progress_report records`
+    ); // 7. Handle proposals - delete proposals submitted by this user, update proposals submitted to this user
+    console.log("Handling proposals...");
+    // Delete proposals where this user was the submitter (since submitted_by cannot be NULL)
+    const [proposalDeleteResult] = await connection.query(
+      `DELETE FROM proposal WHERE submitted_by = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${proposalDeleteResult.affectedRows} proposal records where user was submitter`
+    );
+    // Update proposals where this user was the target (submitted_to can be NULL)
+    const [proposalToResult] = await connection.query(
+      `UPDATE proposal SET submitted_to = NULL WHERE submitted_to = ?`,
+      [userId]
+    );
+    console.log(
+      `Updated ${proposalToResult.affectedRows} proposal.submitted_to records`
+    );
+
+    // 8. Delete supervisor-project relationships
+    console.log("Deleting supervisor_project...");
+    const [supervisorProjectResult] = await connection.query(
+      `DELETE FROM supervisor_project WHERE supervisor_id = ?`,
+      [userId]
+    );
+    console.log(
+      `Deleted ${supervisorProjectResult.affectedRows} supervisor_project records`
+    );
+
+    // 9. Finally delete the user
+    console.log("Deleting user...");
+    const [result] = await connection.query(
+      `DELETE FROM user WHERE user_id = ?`,
+      [userId]
+    );
+    console.log(`Deleted ${result.affectedRows} user records`);
+
+    await connection.commit();
+    console.log(`Successfully deleted user ${userId}`);
+    return result.affectedRows > 0;
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error in deleteUser:", error);
+    console.error("Error code:", error.code);
+    console.error("Error sqlState:", error.sqlState);
+    console.error("Error sqlMessage:", error.sqlMessage);
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
 export default {
   getAllUsers,
   updateUserEligibility,
@@ -325,4 +454,5 @@ export default {
   getAllRoles,
   removeDuplicateAssignments,
   getPreviousProjects,
+  deleteUser,
 };

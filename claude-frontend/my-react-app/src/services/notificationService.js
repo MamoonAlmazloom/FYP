@@ -15,35 +15,52 @@ export const getUserNotifications = async (
   onlyUnread = false
 ) => {
   try {
+    console.log("getUserNotifications called with:", {
+      userId,
+      limit,
+      onlyUnread,
+    });
+
     const token = localStorage.getItem("token");
     if (!token) {
+      console.error("No authentication token found in localStorage");
       throw new Error("No authentication token found");
     }
+
+    console.log("Token found, length:", token.length);
 
     const queryParams = new URLSearchParams({
       limit: limit.toString(),
       onlyUnread: onlyUnread.toString(),
     });
 
-    const response = await fetch(
-      `${API_BASE_URL}/notifications/${userId}?${queryParams}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const url = `${API_BASE_URL}/notifications/${userId}?${queryParams}`;
+    console.log("Fetching notifications from URL:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("Response status:", response.status);
+    console.log("Response ok:", response.ok);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Response error text:", errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
     }
 
     const data = await response.json();
+    console.log("Notification data received:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("Error in getUserNotifications:", error);
     throw error;
   }
 };

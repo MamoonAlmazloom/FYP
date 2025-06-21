@@ -52,7 +52,6 @@ const ModeratorProposalAction = () => {
     logout();
     navigate("/login");
   };
-
   const handleSubmitDecision = async () => {
     if (!decision) {
       alert("Please select a decision.");
@@ -70,9 +69,16 @@ const ModeratorProposalAction = () => {
       const reviewData = {
         decision,
         comments: comments.trim() || undefined,
-      }; // Determine if this is a supervisor proposal or student proposal
-      // For now, we'll assume it's a student proposal (supervisor-approved)
-      const response = await reviewProposal(proposalId, reviewData);
+      };
+
+      // Determine if this is a supervisor proposal or student proposal
+      const proposalType = searchParams.get("type");
+      const isSupervisorProposal =
+        proposalType === "supervisor" || proposal?.submitted_to === null;
+
+      const response = isSupervisorProposal
+        ? await reviewSupervisorProposal(proposalId, reviewData)
+        : await reviewProposal(proposalId, reviewData);
 
       if (response.success) {
         alert(

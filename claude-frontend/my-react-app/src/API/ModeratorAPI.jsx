@@ -1,5 +1,23 @@
-/* eslint-disable no-useless-catch */
 import api from "./clientAPI";
+
+// Get authentication token from localStorage
+const getAuthToken = () => {
+  return localStorage.getItem("token");
+};
+
+// Set up request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Get pending proposals for moderator review

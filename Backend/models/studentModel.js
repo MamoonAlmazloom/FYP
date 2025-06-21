@@ -145,8 +145,11 @@ const createProgressReport = async (studentId, projectId, title, details) => {
  */
 const getAvailableProjects = async () => {
   try {
-    const [rows] = await pool.query(
-      `SELECT p.project_id, p.title, p.description, u.name as supervisor_name, sp.supervisor_id
+    // Get regular projects
+    const [projectRows] = await pool.query(
+      `SELECT p.project_id, p.title, p.description, u.name as supervisor_name, 
+              sp.supervisor_id, 'project' as source_type,
+              NULL as type, NULL as specialization, NULL as outcome
        FROM Project p
        JOIN Supervisor_Project sp ON p.project_id = sp.project_id
        JOIN User u ON sp.supervisor_id = u.user_id
@@ -162,7 +165,54 @@ const getAvailableProjects = async () => {
          AND pr.project_id IS NOT NULL
        )`
     );
-    return rows;
+
+    // Get approved supervisor proposals
+    const [proposalRows] = await pool.query(
+      `SELECT p.proposal_id as project_id, p.title, p.proposal_description as description,
+              u.name as supervisor_name, p.submitted_by as supervisor_id,
+              'supervisor_proposal' as source_type, p.type, p.specialization, p.outcome
+       FROM Proposal p
+       JOIN Proposal_Status ps ON p.status_id = ps.status_id
+       JOIN User u ON p.submitted_by = u.user_id
+       WHERE ps.status_name = 'Approved'
+         AND p.submitted_to IS NULL  -- Supervisor-created proposals
+         AND p.proposal_id NOT IN (
+           -- Exclude proposals already selected by students
+           SELECT DISTINCT pr2.project_id
+           FROM Proposal pr2
+           JOIN User_Roles ur ON pr2.submitted_by = ur.user_id
+           JOIN Role r ON ur.role_id = r.role_id
+           WHERE r.role_name = 'Student'
+             AND pr2.status_id IN (
+               SELECT status_id FROM Proposal_Status 
+               WHERE status_name IN ('Pending', 'Approved', 'Supervisor_Approved')
+             )
+             AND pr2.project_id IS NOT NULL
+         )
+       ORDER BY p.proposal_id DESC`
+    );
+
+    // Combine both sources
+    const allProjects = [...projectRows, ...proposalRows];
+
+    // Deduplicate by title and supervisor combination to avoid showing
+    // the same project from both regular projects and supervisor proposals
+    const uniqueProjects = [];
+    const seen = new Set();
+
+    allProjects.forEach((project) => {
+      // Create a unique key using title and supervisor_id
+      const uniqueKey = `${project.title.trim().toLowerCase()}-${
+        project.supervisor_id
+      }`;
+
+      if (!seen.has(uniqueKey)) {
+        seen.add(uniqueKey);
+        uniqueProjects.push(project);
+      }
+    });
+
+    return uniqueProjects;
   } catch (error) {
     console.error("Error in getAvailableProjects:", error);
     throw error;
@@ -177,9 +227,10 @@ const getAvailableProjects = async () => {
  */
 const selectProject = async (studentId, projectId) => {
   try {
-    // First check if the project is available and get supervisor info
-    const [available] = await pool.query(
-      `SELECT p.project_id, p.title, p.description, sp.supervisor_id
+    // First, check if this is a regular project or an approved supervisor proposal
+    // Try to find it as a regular project first
+    const [regularProject] = await pool.query(
+      `SELECT p.project_id, p.title, p.description, sp.supervisor_id, 'project' as source_type
        FROM Project p
        JOIN Supervisor_Project sp ON p.project_id = sp.project_id
        WHERE p.project_id = ? 
@@ -197,11 +248,50 @@ const selectProject = async (studentId, projectId) => {
       [projectId]
     );
 
-    if (available.length === 0) {
+    // If not found as regular project, try to find it as an approved supervisor proposal
+    let project = null;
+    let sourceType = null;
+
+    if (regularProject.length > 0) {
+      project = regularProject[0];
+      sourceType = "project";
+    } else {
+      // Check if it's an approved supervisor proposal
+      const [supervisorProposal] = await pool.query(
+        `SELECT p.proposal_id as project_id, p.title, p.proposal_description as description,
+                p.submitted_by as supervisor_id, 'supervisor_proposal' as source_type,
+                p.type, p.specialization, p.outcome
+         FROM Proposal p
+         JOIN Proposal_Status ps ON p.status_id = ps.status_id
+         WHERE p.proposal_id = ?
+           AND ps.status_name = 'Approved'
+           AND p.submitted_to IS NULL  -- Supervisor-created proposals
+           AND p.proposal_id NOT IN (
+             -- Exclude proposals already selected by students
+             SELECT DISTINCT pr2.project_id
+             FROM Proposal pr2
+             JOIN User_Roles ur ON pr2.submitted_by = ur.user_id
+             JOIN Role r ON ur.role_id = r.role_id
+             WHERE r.role_name = 'Student'
+               AND pr2.status_id IN (
+                 SELECT status_id FROM Proposal_Status 
+                 WHERE status_name IN ('Pending', 'Approved', 'Supervisor_Approved')
+               )
+               AND pr2.project_id IS NOT NULL
+           )`,
+        [projectId]
+      );
+
+      if (supervisorProposal.length > 0) {
+        project = supervisorProposal[0];
+        sourceType = "supervisor_proposal";
+      }
+    }
+
+    if (!project) {
       throw new Error("Project is not available for selection");
     }
 
-    const project = available[0];
     const supervisorId = project.supervisor_id;
 
     // Create a proposal with Pending status for the selected project
@@ -216,18 +306,32 @@ const selectProject = async (studentId, projectId) => {
     const statusId = statusResult[0].status_id;
 
     // Insert the proposal with Pending status and supervisor ID
+    // For supervisor proposals, we reference the original proposal as project_id
+    // For regular projects, we use the project_id as usual
     const [result] = await pool.query(
       `INSERT INTO Proposal (project_id, submitted_by, submitted_to, status_id, title, proposal_description, type, specialization, outcome)
-       VALUES (?, ?, ?, ?, ?, ?, 'Application', 'General', 'Project completion')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        projectId,
+        sourceType === "supervisor_proposal" ? null : projectId, // project_id is null for supervisor proposals
         studentId,
         supervisorId,
         statusId,
         project.title,
-        project.description,
+        project.description || project.proposal_description,
+        project.type || "Application",
+        project.specialization || "General",
+        project.outcome || "Project completion",
       ]
     );
+
+    // If this was a supervisor proposal, we need to link it back to the original proposal
+    if (sourceType === "supervisor_proposal") {
+      // Update the student's proposal to reference the original supervisor proposal
+      await pool.query(
+        `UPDATE Proposal SET project_id = ? WHERE proposal_id = ?`,
+        [projectId, result.insertId]
+      );
+    }
 
     return result.insertId; // Return the proposal ID instead of boolean
   } catch (error) {
@@ -376,6 +480,42 @@ const getActiveProject = async (studentId) => {
   }
 };
 
+/**
+ * Get approved supervisor proposals available for student selection
+ * @returns {Promise<Array>} - Array of approved supervisor proposals
+ */
+const getApprovedSupervisorProposals = async () => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT p.proposal_id, p.title, p.proposal_description as description,
+              p.type, p.specialization, p.outcome,
+              u.name as supervisor_name, p.submitted_by as supervisor_id
+       FROM Proposal p
+       JOIN Proposal_Status ps ON p.status_id = ps.status_id
+       JOIN User u ON p.submitted_by = u.user_id
+       WHERE ps.status_name = 'Approved'
+         AND p.submitted_to IS NULL  -- Supervisor-created proposals
+         AND p.proposal_id NOT IN (
+           -- Exclude proposals already selected by students
+           SELECT DISTINCT pr.proposal_id
+           FROM Proposal pr2
+           JOIN User_Roles ur ON pr2.submitted_by = ur.user_id
+           JOIN Role r ON ur.role_id = r.role_id
+           WHERE pr2.proposal_id = p.proposal_id
+             AND r.role_name = 'Student'
+             AND pr2.status_id = (
+               SELECT status_id FROM Proposal_Status WHERE status_name = 'Approved'
+             )
+         )
+       ORDER BY p.proposal_id DESC`
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error in getApprovedSupervisorProposals:", error);
+    throw error;
+  }
+};
+
 export default {
   getStudentById,
   getProgressLogs,
@@ -388,4 +528,5 @@ export default {
   getStudentProjects,
   hasActiveProject,
   getActiveProject,
+  getApprovedSupervisorProposals,
 };

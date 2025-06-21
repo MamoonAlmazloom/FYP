@@ -265,13 +265,21 @@ const submitProgressLog = async (req, res, next) => {
       details
     );
 
-    // Notify supervisor about the new progress log
-    await notificationModel.notifyProgressSubmissionToSupervisor(
-      "log",
-      logId,
-      parseInt(studentId),
-      project_id
-    );
+    // Notify supervisor about the new progress log (don't let notification errors break the main flow)
+    try {
+      await notificationModel.notifyProgressSubmissionToSupervisor(
+        "log",
+        logId,
+        parseInt(studentId),
+        project_id
+      );
+    } catch (notificationError) {
+      console.error(
+        "Failed to send progress log notification:",
+        notificationError
+      );
+      // Continue without failing the main request
+    }
 
     res.status(201).json({ success: true, log_id: logId });
   } catch (err) {
@@ -320,13 +328,21 @@ const submitProgressReport = async (req, res, next) => {
       details
     );
 
-    // Notify supervisor about the new progress report
-    await notificationModel.notifyProgressSubmissionToSupervisor(
-      "report",
-      reportId,
-      parseInt(studentId),
-      project_id
-    );
+    // Notify supervisor about the new progress report (don't let notification errors break the main flow)
+    try {
+      await notificationModel.notifyProgressSubmissionToSupervisor(
+        "report",
+        reportId,
+        parseInt(studentId),
+        project_id
+      );
+    } catch (notificationError) {
+      console.error(
+        "Failed to send progress report notification:",
+        notificationError
+      );
+      // Continue without failing the main request
+    }
 
     res.status(201).json({ success: true, report_id: reportId });
   } catch (err) {

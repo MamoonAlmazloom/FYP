@@ -1,0 +1,19 @@
+### Test Delete User API
+
+# Get all users first to see who we can delete
+GET http://localhost:5000/api/managers/6/users
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+
+# Try to delete a specific user (replace with actual user ID and token)
+DELETE http://localhost:5000/api/managers/6/users/1
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+###
+
+# Test with a non-existent user ID
+DELETE http://localhost:5000/api/managers/6/users/999
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json

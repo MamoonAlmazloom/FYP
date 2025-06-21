@@ -110,19 +110,19 @@ const LoginPage = () => {
   // Demo credentials for different roles
   const demoCredentials = [
     { role: "Manager", email: "admin@gmail.com", password: "admin" },
-    { role: "Student", email: "student@gmail.com", password: "student" },
+    { role: "Student", email: "mamoon@example.com", password: "password123" },
     {
       role: "Supervisor",
-      email: "dr.smith@example.com",
-      password: "supervisor123",
+      email: "sarah.johnson@example.com",
+      password: "password123",
     },
     {
       role: "Supervisor 2",
       email: "supervisor@example.com",
-      password: "supervisor123",
+      password: "password123",
     },
-    { role: "Moderator", email: "moderator@gmail.com", password: "moderator" },
-    { role: "Examiner", email: "examiner@gmail.com", password: "examiner" },
+    { role: "Moderator", email: "emily.carter@example.com", password: "password123" },
+    { role: "Examiner", email: "robert.brown@example.com", password: "password123" },
   ];
 
   const fillDemoCredentials = (credentials) => {

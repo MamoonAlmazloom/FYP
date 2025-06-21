@@ -232,19 +232,23 @@ const SelectTitle = () => {
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
                       {project.title}
                     </h3>
-                    <p className="text-gray-600 mb-3">{project.description}</p>
+                    <p className="text-gray-600 mb-3">{project.description}</p>{" "}
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                       <span>
                         <strong>Supervisor:</strong>{" "}
                         {project.supervisor_name || "N/A"}
                       </span>
-                      <span>
-                        <strong>Type:</strong> {project.type || "N/A"}
-                      </span>
-                      <span>
-                        <strong>Specialization:</strong>{" "}
-                        {project.specialization || "N/A"}
-                      </span>
+                      {project.type && (
+                        <span>
+                          <strong>Type:</strong> {project.type}
+                        </span>
+                      )}
+                      {project.specialization && (
+                        <span>
+                          <strong>Specialization:</strong>{" "}
+                          {project.specialization}
+                        </span>
+                      )}
                     </div>
                   </div>{" "}
                   <button

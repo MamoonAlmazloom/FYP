@@ -48,4 +48,7 @@ router.get(
   managerController.getPreviousProjects
 );
 
+// Delete user route
+router.delete("/:managerId/users/:userId", managerController.deleteUser);
+
 export default router;

@@ -129,9 +129,9 @@ const notifyForProposalEvent = async (proposalId, eventType) => {
     // Get proposal details with submitter and reviewer
     const [proposalDetails] = await pool.query(
       `SELECT 
-        p.proposal_id, p.title, p.submitted_by, p.submitted_to,
-        u_submitter.name as submitter_name,
-        u_reviewer.name as reviewer_name
+        p.proposal_id, p.title, p.description, p.submitted_by, p.submitted_to,
+        u_submitter.name as submitter_name, u_submitter.email as submitter_email,
+        u_reviewer.name as reviewer_name, u_reviewer.email as reviewer_email
       FROM Proposal p
       JOIN User u_submitter ON p.submitted_by = u_submitter.user_id
       LEFT JOIN User u_reviewer ON p.submitted_to = u_reviewer.user_id
@@ -149,8 +149,17 @@ const notifyForProposalEvent = async (proposalId, eventType) => {
 
     switch (eventType) {
       case "proposal_submitted":
-        notificationMessage = `New proposal "${proposal.title}" submitted by ${proposal.submitter_name}`;
+        notificationMessage = `New proposal "${proposal.title}" submitted by ${
+          proposal.submitter_name
+        } (${
+          proposal.submitter_email
+        }). Description: ${proposal.description.substring(0, 200)}${
+          proposal.description.length > 200 ? "..." : ""
+        }`;
         targetUserId = proposal.submitted_to;
+        console.log(
+          `Creating proposal submission notification for reviewer ${proposal.reviewer_name} (ID: ${targetUserId})`
+        );
         break;
       case "proposal_approved":
         notificationMessage = `Your proposal "${proposal.title}" has been approved by ${proposal.reviewer_name}`;
@@ -172,6 +181,13 @@ const notifyForProposalEvent = async (proposalId, eventType) => {
 
     if (targetUserId && notificationMessage) {
       await createNotification(targetUserId, eventType, notificationMessage);
+      console.log(
+        `Successfully created ${eventType} notification for user ${targetUserId}`
+      );
+    } else {
+      console.warn(
+        `No notification created for ${eventType} - targetUserId: ${targetUserId}, message: ${!!notificationMessage}`
+      );
     }
   } catch (error) {
     console.error(`Error in notifyForProposalEvent (${eventType}):`, error);
@@ -437,54 +453,88 @@ const notifyProgressSubmissionToSupervisor = async (
 ) => {
   try {
     let submissionTitle = "";
+    let submissionDetails = "";
 
     if (submissionType === "log") {
       const [logDetails] = await pool.query(
         `SELECT details FROM Progress_Log WHERE log_id = ?`,
         [submissionId]
       );
-      submissionTitle =
-        logDetails.length > 0
-          ? `Progress Log #${submissionId}`
-          : "Progress Log";
+      submissionTitle = `Progress Log #${submissionId}`;
+      submissionDetails = logDetails.length > 0 ? logDetails[0].details : "";
     } else if (submissionType === "report") {
       const [reportDetails] = await pool.query(
-        `SELECT title FROM Progress_Report WHERE report_id = ?`,
+        `SELECT title, details FROM Progress_Report WHERE report_id = ?`,
         [submissionId]
       );
-      submissionTitle =
-        reportDetails.length > 0 ? reportDetails[0].title : "Progress Report";
+      if (reportDetails.length > 0) {
+        submissionTitle = reportDetails[0].title;
+        submissionDetails = reportDetails[0].details || "";
+      } else {
+        submissionTitle = "Progress Report";
+      }
     }
 
-    // Get project and student details
+    // Get project and student details with better error handling
     const [details] = await pool.query(
       `SELECT 
         p.title as project_title,
         u_student.name as student_name,
-        sp.user_id as supervisor_id
+        u_student.email as student_email,
+        sp.user_id as supervisor_id,
+        u_supervisor.name as supervisor_name
       FROM Project p
       JOIN User u_student ON u_student.user_id = ?
       JOIN Supervisor_Project sp ON sp.project_id = p.project_id
+      JOIN User u_supervisor ON u_supervisor.user_id = sp.user_id
       WHERE p.project_id = ?`,
       [studentId, projectId]
     );
 
     if (details.length === 0) {
-      throw new Error(
-        `Project or supervisor details not found for project ID: ${projectId}`
+      console.error(
+        `No supervisor found for project ${projectId} and student ${studentId}`
       );
+      // Try alternative approach - check if project exists at all
+      const [projectCheck] = await pool.query(
+        `SELECT title FROM Project WHERE project_id = ?`,
+        [projectId]
+      );
+      if (projectCheck.length === 0) {
+        throw new Error(`Project not found: ${projectId}`);
+      } else {
+        throw new Error(`No supervisor assigned to project ${projectId}`);
+      }
     }
 
-    const { project_title, student_name, supervisor_id } = details[0];
+    const {
+      project_title,
+      student_name,
+      student_email,
+      supervisor_id,
+      supervisor_name,
+    } = details[0];
 
-    const message = `${student_name} has submitted a new ${
+    const message = `${student_name} (${student_email}) has submitted a new ${
       submissionType === "log" ? "progress log" : "progress report"
-    } "${submissionTitle}" for project "${project_title}"`;
+    } "${submissionTitle}" for project "${project_title}". ${
+      submissionType === "log" ? "Log details" : "Report summary"
+    }: ${submissionDetails.substring(0, 200)}${
+      submissionDetails.length > 200 ? "..." : ""
+    }`;
+
+    console.log(
+      `Creating notification for supervisor ${supervisor_name} (ID: ${supervisor_id}) about ${submissionType} submission`
+    );
 
     await createNotification(
       supervisor_id,
       `${submissionType}_submitted`,
       message
+    );
+
+    console.log(
+      `Successfully notified supervisor about ${submissionType} submission`
     );
   } catch (error) {
     console.error(

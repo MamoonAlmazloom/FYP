@@ -12,42 +12,66 @@ const NotificationCenter = ({ userId, className = "" }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false);
-
   useEffect(() => {
+    console.log("NotificationCenter useEffect - userId:", userId);
     fetchNotifications();
   }, [userId]);
 
   const fetchNotifications = async () => {
+    console.log("NotificationCenter fetchNotifications - userId:", userId);
+
     if (!userId) {
       // If no userId (not authenticated), show test notifications
+      console.log("No userId provided, fetching test notifications");
       try {
         const testData = await testNotificationService();
+        console.log("Test notification data:", testData);
         setNotifications(testData.data || []);
         setLoading(false);
       } catch (error) {
+        console.error("Failed to load test notifications:", error);
         setError("Failed to load test notifications");
         setLoading(false);
       }
       return;
     }
-
     try {
       setLoading(true);
       setError(null);
+      console.log(
+        "Fetching notifications for userId:",
+        userId,
+        "showAll:",
+        showAll
+      );
+
       const response = await getUserNotifications(
         userId,
         showAll ? 50 : 10,
         false
       );
+
+      console.log("Notification response:", response);
       setNotifications(response.notifications || []);
+
+      if (response.notifications && response.notifications.length > 0) {
+        console.log(
+          `Successfully loaded ${response.notifications.length} notifications`
+        );
+      } else {
+        console.log("No notifications found for user");
+      }
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setError("Failed to load notifications. Please try again.");
       // Fallback to test notifications
       try {
+        console.log("Falling back to test notifications");
         const testData = await testNotificationService();
+        console.log("Fallback test data:", testData);
         setNotifications(testData.data || []);
       } catch (testError) {
+        console.error("Fallback test notifications also failed:", testError);
         setNotifications([]);
       }
     } finally {
