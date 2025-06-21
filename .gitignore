@@ -1,9 +1,12 @@
+# General
+/node_modules
+
 # Ignore files in /Backend directory
-/Backend/node_modules/
-/Backend/.env
-/Backend/dist/
+Backend/node_modules/
+Backend/.env
+Backend/dist/
 
 # Ignore files in /Frontend directory
-/Frontend/node_modules/
-/Frontend/.env
-/Frontend/build/
+Frontend/node_modules/
+Frontend/.env
+Frontend/build/
