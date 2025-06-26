@@ -127,7 +127,85 @@ const hasAnyRole = (roles) => {
   };
 };
 
+// Combined authentication middleware (token verification + active check)
+const authenticate = async (req, res, next) => {
+  try {
+    // First verify the token
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - No token provided",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - No token provided",
+      });
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    );
+    req.user = decoded;
+
+    // Then check if user is active
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - User not found",
+      });
+    }
+
+    const [rows] = await pool.query(
+      "SELECT is_active FROM user WHERE user_id = ?",
+      [req.user.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - User not found",
+      });
+    }
+
+    const user = rows[0];
+    if (!user.is_active) {
+      return res.status(403).json({
+        success: false,
+        error:
+          "Access denied - Your account has been disabled by an administrator",
+        disabled: true,
+      });
+    }
+
+    next();
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized - Token expired",
+      });
+    }
+
+    console.error("Error in authentication:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+export { authenticate, verifyToken, checkUserActive, hasRole, hasAnyRole };
+
 export default {
+  authenticate,
   verifyToken,
   checkUserActive,
   hasRole,

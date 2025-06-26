@@ -12,6 +12,9 @@ router.get("/", supervisorController.getAllSupervisors);
 // Apply auth middleware to all other supervisor routes
 router.use(auth.verifyToken, auth.checkUserActive, auth.hasRole("Supervisor"));
 
+// Get current students enrolled under the supervisor (token-based)
+router.get("/my/students", supervisorController.getMyStudents);
+
 // Get current students enrolled under the supervisor
 router.get("/:supervisorId/students", supervisorController.getStudents);
 

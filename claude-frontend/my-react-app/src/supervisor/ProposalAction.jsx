@@ -148,12 +148,9 @@ const ProposalAction = () => {
           </div>
         ) : proposal ? (
           <>
-            <div className="bg-gray-50 p-4 rounded mb-4 text-left">
-              <p className="mb-2">
+            <div className="bg-gray-50 p-4 rounded mb-4 text-left">              <p className="mb-2">
                 <strong>Student Name:</strong>{" "}
-                {proposal.student_name ||
-                  proposal.submitted_by_name ||
-                  "Unknown Student"}
+                {proposal.submitter_name || "Unknown Student"}
               </p>
               <p className="mb-2">
                 <strong>Project Title:</strong>{" "}

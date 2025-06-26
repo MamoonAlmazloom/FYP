@@ -24,6 +24,32 @@ const getStudents = async (req, res, next) => {
 };
 
 /**
+ * Get students under supervision (token-based)
+ */
+const getMyStudents = async (req, res, next) => {
+  try {
+    // Check if user is a supervisor
+    if (!req.user.roles || !req.user.roles.includes("supervisor")) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied. Supervisor role required.",
+      });
+    }
+
+    const supervisorId = req.user.id; // Get from token
+    const activeOnly = req.query.active === "true";
+
+    const students = await supervisorModel.getStudentsBySupervisor(
+      supervisorId,
+      activeOnly
+    );
+    res.status(200).json({ success: true, students });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * View project proposals
  */
 const viewProjectProposals = async (req, res, next) => {
@@ -542,6 +568,7 @@ const getAllSupervisors = async (req, res, next) => {
 
 export default {
   getStudents,
+  getMyStudents,
   viewProjectProposals,
   getProposalDetails,
   submitProposalDecision,

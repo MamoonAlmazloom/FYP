@@ -40,7 +40,7 @@ const getProposalsBySupervisor = async (supervisorId) => {
   try {
     const [rows] = await pool.query(
       `SELECT p.proposal_id, p.title, p.proposal_description, ps.status_name,
-              u.name as student_name, u.user_id as student_id
+              u.name as submitter_name, u.user_id as student_id
        FROM Proposal p
        JOIN Proposal_Status ps ON p.status_id = ps.status_id
        JOIN User u ON p.submitted_by = u.user_id

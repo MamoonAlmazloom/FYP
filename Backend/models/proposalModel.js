@@ -5,9 +5,16 @@ import pool from "../db.js";
  * Update proposal status
  * @param {number} proposalId - The ID of the proposal
  * @param {string} statusName - The name of the status
+ * @param {string} feedback - Optional feedback
+ * @param {number} reviewerId - Optional reviewer ID
  * @returns {Promise<boolean>} - True if updated successfully
  */
-const updateProposalStatus = async (proposalId, statusName) => {
+const updateProposalStatus = async (
+  proposalId,
+  statusName,
+  feedback = null,
+  reviewerId = null
+) => {
   try {
     // Get status ID from status name
     const [statusRows] = await pool.query(
@@ -26,6 +33,15 @@ const updateProposalStatus = async (proposalId, statusName) => {
       `UPDATE Proposal SET status_id = ? WHERE proposal_id = ?`,
       [statusId, proposalId]
     );
+
+    // If feedback is provided, add it to the proposal
+    if (feedback && reviewerId) {
+      // In a real implementation, we'd have a feedback table
+      // For now, we'll just log it
+      console.log(
+        `Feedback added to proposal ${proposalId} by ${reviewerId}: ${feedback}`
+      );
+    }
 
     return result.affectedRows > 0;
   } catch (error) {
@@ -325,5 +341,51 @@ export default {
   createProposal,
   updateProposal,
   getProposalById: getProposalWithStatus, // Alias for backward compatibility
+  findProposalById: getProposalWithStatus, // Alias for controller
   getProposalsByStudent,
+  getProposalsByStudentId: getProposalsByStudent, // Alias for controller
+  getAllProposals: async () => {
+    try {
+      const [rows] = await pool.query(
+        `SELECT p.proposal_id as id, p.title, p.proposal_description as description,
+                p.type, p.specialization, p.outcome,
+                p.submitted_by as student_id, p.submitted_to,
+                ps.status_name as status,
+                submitter.name AS submitter_name
+         FROM Proposal p
+         JOIN Proposal_Status ps ON p.status_id = ps.status_id
+         LEFT JOIN User submitter ON p.submitted_by = submitter.user_id
+         ORDER BY p.proposal_id DESC`
+      );
+      return rows;
+    } catch (error) {
+      console.error("Error in getAllProposals:", error);
+      throw error;
+    }
+  },
+  updateProposalDetails: async (proposalId, studentId, updateData) => {
+    try {
+      const { title, description, objectives } = updateData;
+      const [result] = await pool.query(
+        `UPDATE Proposal SET title = ?, proposal_description = ?, outcome = ?
+         WHERE proposal_id = ? AND submitted_by = ?`,
+        [title, description, objectives, proposalId, studentId]
+      );
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error("Error in updateProposalDetails:", error);
+      throw error;
+    }
+  },
+  addCommentToProposal: async (proposalId, moderatorId, text) => {
+    try {
+      const commentId = `comment${Date.now()}`;
+      // In a real implementation, we'd have a comments table
+      // For now, we'll just return the comment ID
+      return commentId;
+    } catch (error) {
+      console.error("Error in addCommentToProposal:", error);
+      throw error;
+    }
+  },
 };

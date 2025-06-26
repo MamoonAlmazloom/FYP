@@ -27,13 +27,34 @@ const AssignExaminers = () => {
         ManagerAPI.getApprovedProjects(managerId),
         ManagerAPI.getExaminers(managerId),
       ]);
-
       if (projectsResponse.success) {
-        setProjects(projectsResponse.projects);
+        // Remove any potential duplicates based on project_id
+        const uniqueProjects = projectsResponse.projects.filter(
+          (project, index, self) =>
+            index === self.findIndex((p) => p.project_id === project.project_id)
+        );
+        console.log(
+          "Original projects:",
+          projectsResponse.projects.length,
+          "Unique projects:",
+          uniqueProjects.length
+        );
+        setProjects(uniqueProjects);
       }
 
       if (examinersResponse.success) {
-        setExaminers(examinersResponse.examiners);
+        // Remove any potential duplicates based on user_id
+        const uniqueExaminers = examinersResponse.examiners.filter(
+          (examiner, index, self) =>
+            index === self.findIndex((e) => e.user_id === examiner.user_id)
+        );
+        console.log(
+          "Original examiners:",
+          examinersResponse.examiners.length,
+          "Unique examiners:",
+          uniqueExaminers.length
+        );
+        setExaminers(uniqueExaminers);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -450,7 +471,7 @@ const AssignExaminers = () => {
                     ) : (
                       projects.map((project, index) => (
                         <tr
-                          key={project.project_id}
+                          key={`project-${project.project_id}-${index}`}
                           className={`${
                             index % 2 === 0 ? "bg-white" : "bg-gray-50"
                           } hover:bg-indigo-50 transition-colors duration-200`}
@@ -498,10 +519,11 @@ const AssignExaminers = () => {
                               }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 bg-white text-sm"
                             >
+                              {" "}
                               <option value="">Select Examiner</option>
-                              {examiners.map((examiner) => (
+                              {examiners.map((examiner, examinerIndex) => (
                                 <option
-                                  key={examiner.user_id}
+                                  key={`examiner-${examiner.user_id}-${examinerIndex}`}
                                   value={examiner.user_id}
                                 >
                                   {examiner.name}

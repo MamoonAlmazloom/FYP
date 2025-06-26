@@ -109,11 +109,22 @@ const submitProposal = async (req, res, next) => {
  */
 const updateProposal = async (req, res, next) => {
   try {
+    console.log("=== UPDATE PROPOSAL DEBUG ===");
     const studentId = req.params.studentId;
     const proposalId = req.params.proposalId;
     const { title, description, type, specialization, outcome } = req.body;
 
+    console.log("Request params:", { studentId, proposalId });
+    console.log("Request body:", {
+      title,
+      description,
+      type,
+      specialization,
+      outcome,
+    });
+
     if (!title || !description || !type || !specialization || !outcome) {
+      console.log("Missing required fields");
       return res.status(400).json({
         success: false,
         error:
@@ -123,15 +134,20 @@ const updateProposal = async (req, res, next) => {
 
     // Validate type enum
     if (!["Research", "Application", "Both"].includes(type)) {
+      console.log("Invalid type:", type);
       return res.status(400).json({
         success: false,
         error: "Type must be one of: Research, Application, Both",
       });
     }
 
+    console.log("Getting proposal by ID:", proposalId);
     // Verify the proposal belongs to the student
     const proposal = await proposalModel.getProposalById(proposalId);
+    console.log("Retrieved proposal:", proposal);
+
     if (!proposal) {
+      console.log("Proposal not found");
       return res.status(404).json({
         success: false,
         error: "Proposal not found",
@@ -139,6 +155,10 @@ const updateProposal = async (req, res, next) => {
     }
 
     if (proposal.submitted_by !== parseInt(studentId)) {
+      console.log("Permission denied - student mismatch:", {
+        proposalSubmittedBy: proposal.submitted_by,
+        requestStudentId: parseInt(studentId),
+      });
       return res.status(403).json({
         success: false,
         error: "You don't have permission to update this proposal",
@@ -148,8 +168,13 @@ const updateProposal = async (req, res, next) => {
     // NEW BUSINESS LOGIC: Check if proposal is approved
     const approvedStatuses = ["Approved", "Supervisor_Approved"];
     const isApproved = approvedStatuses.includes(proposal.status_name);
+    console.log("Proposal status check:", {
+      status: proposal.status_name,
+      isApproved,
+    });
 
     if (isApproved) {
+      console.log("Creating new proposal for approved proposal modification");
       // If approved, create a NEW proposal instead of updating existing one
       const newProposalId = await proposalModel.createProposal(
         studentId,
@@ -160,8 +185,10 @@ const updateProposal = async (req, res, next) => {
         outcome,
         proposal.submitted_to // Same supervisor
       );
+      console.log("New proposal created with ID:", newProposalId);
 
       // Notify supervisor about the NEW proposal submission
+      console.log("Sending notification for new proposal");
       await notificationModel.notifyForProposalEvent(
         newProposalId,
         "proposal_submitted"
@@ -176,6 +203,7 @@ const updateProposal = async (req, res, next) => {
         previousProposalId: proposalId,
       });
     } else {
+      console.log("Updating existing proposal");
       // If not approved, update the existing proposal as before
       const success = await proposalModel.updateProposal(
         proposalId,
@@ -185,9 +213,11 @@ const updateProposal = async (req, res, next) => {
         specialization,
         outcome
       );
+      console.log("Update proposal result:", success);
 
       if (success) {
         // Notify supervisor about the modified proposal
+        console.log("Sending notification for modified proposal");
         await notificationModel.notifyForProposalEvent(
           proposalId,
           "proposal_modified"

@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import studentRoutes from "./routes/studentRoutes.js";
 import supervisorRoutes from "./routes/supervisorRoutes.js";
@@ -13,6 +14,10 @@ import managerRoutes from "./routes/managerRoutes.js";
 import moderatorRoutes from "./routes/moderatorRoutes.js";
 import examinerRoutes from "./routes/examinerRoutes.js";
 import deadlineRoutes from "./routes/deadlineRoutes.js";
+import proposalRoutes from "./routes/proposalRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
+import progressLogRoutes from "./routes/progressLogRoutes.js";
 
 // Import notification model for test endpoints
 import notificationModel from "./models/notificationModel.js";
@@ -42,12 +47,18 @@ app.use(morgan("dev"));
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/supervisors", supervisorRoutes);
 app.use("/api/managers", managerRoutes);
+app.use("/api/admin", managerRoutes); // Admin routes use manager controller
 app.use("/api/moderators", moderatorRoutes);
 app.use("/api/examiners", examinerRoutes);
 app.use("/api/deadlines", deadlineRoutes);
+app.use("/api/proposals", proposalRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/progress-logs", progressLogRoutes);
 
 // Simple notification test endpoint (without authentication for testing)
 app.get("/api/notifications/test", (req, res) => {
@@ -219,11 +230,13 @@ app.use("*", (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-  console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
-  console.log(`🔔 Notification service ready!`);
-});
+// Only start server if this file is run directly (not imported)
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+    console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+    console.log(`🔔 Notification service ready!`);
+  });
+}
 
 export default app;

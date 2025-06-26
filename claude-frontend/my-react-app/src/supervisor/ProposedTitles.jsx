@@ -145,9 +145,8 @@ const ProposedTitles = () => {
               </thead>
               <tbody>
                 {proposals.map((proposal) => (
-                  <tr key={proposal.proposal_id}>
-                    <td className="border border-gray-300 p-3 text-left">
-                      {proposal.student_name}
+                  <tr key={proposal.proposal_id}>                    <td className="border border-gray-300 p-3 text-left">
+                      {proposal.submitter_name || "Unknown Student"}
                     </td>
                     <td className="border border-gray-300 p-3 text-left">
                       {proposal.title}
@@ -162,11 +161,10 @@ const ProposedTitles = () => {
                       </span>
                     </td>
                     <td className="border border-gray-300 p-3 text-left">
-                      <Link
-                        to={`/supervisor/proposal-action/${
+                      <Link                        to={`/supervisor/proposal-action/${
                           proposal.proposal_id
                         }?student=${encodeURIComponent(
-                          proposal.student_name
+                          proposal.submitter_name || "Unknown Student"
                         )}&title=${encodeURIComponent(proposal.title)}`}
                         className="px-3 py-2 bg-cyan-600 text-white border-0 rounded text-sm cursor-pointer no-underline hover:bg-cyan-700"
                       >

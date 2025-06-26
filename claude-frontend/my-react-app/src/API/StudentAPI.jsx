@@ -26,9 +26,12 @@ api.interceptors.request.use(
  */
 export const getStudentProfile = async (studentId) => {
   try {
+    console.log("StudentAPI: Fetching profile for student ID:", studentId);
     const response = await api.get(`/api/students/${studentId}`);
+    console.log("StudentAPI: Profile response:", response.data);
     return response.data;
   } catch (error) {
+    console.error("StudentAPI: Error fetching profile:", error);
     throw error;
   }
 };
@@ -40,9 +43,12 @@ export const getStudentProfile = async (studentId) => {
  */
 export const getStudentProjects = async (studentId) => {
   try {
+    console.log("StudentAPI: Fetching projects for student ID:", studentId);
     const response = await api.get(`/api/students/${studentId}/projects`);
+    console.log("StudentAPI: Projects response:", response.data);
     return response.data;
   } catch (error) {
+    console.error("StudentAPI: Error fetching projects:", error);
     throw error;
   }
 };
@@ -54,9 +60,12 @@ export const getStudentProjects = async (studentId) => {
  */
 export const getStudentProposals = async (studentId) => {
   try {
+    console.log("StudentAPI: Fetching proposals for student ID:", studentId);
     const response = await api.get(`/api/students/${studentId}/proposals`);
+    console.log("StudentAPI: Proposals response:", response.data);
     return response.data;
   } catch (error) {
+    console.error("StudentAPI: Error fetching proposals:", error);
     throw error;
   }
 };

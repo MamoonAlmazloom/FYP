@@ -15,14 +15,29 @@ const ProjectWork = () => {
   const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
+        console.log("ProjectWork: Current user:", user);
+
         if (!user?.id) {
+          console.error("ProjectWork: No user ID found");
           setError("User not found. Please log in again.");
           return;
         }
+
+        // Check if token exists
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("ProjectWork: No authentication token found");
+          setError("Authentication token missing. Please log in again.");
+          return;
+        }
+
+        console.log(
+          "ProjectWork: Token found, fetching data for user ID:",
+          user.id
+        );
         setLoading(true);
 
         // Fetch student profile, projects, and proposals
@@ -32,6 +47,12 @@ const ProjectWork = () => {
             getStudentProjects(user.id),
             getStudentProposals(user.id),
           ]);
+
+        console.log("ProjectWork: API responses:", {
+          profile: profileResponse,
+          projects: projectsResponse,
+          proposals: proposalsResponse,
+        });
 
         if (profileResponse.success) {
           setProfile(profileResponse.student);
@@ -52,7 +73,26 @@ const ProjectWork = () => {
         }
       } catch (err) {
         console.error("Error fetching student data:", err);
-        setError("Failed to load student data");
+        console.error("Error details:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
+
+        // Handle specific error types
+        if (err.response?.status === 401) {
+          setError("Authentication expired. Please log in again.");
+        } else if (err.response?.status === 403) {
+          setError(
+            "Access denied. Please ensure you have the correct permissions."
+          );
+        } else if (err.response?.status === 404) {
+          setError("Student data not found. Please contact support.");
+        } else {
+          setError(
+            `Failed to load student data: ${err.message || "Unknown error"}`
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -97,14 +137,27 @@ const ProjectWork = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>          <button
+          <p className="text-gray-600 mb-6">{error}</p>{" "}
+          <button
             onClick={handleSignOut}
             className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg
+              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
             </svg>
-            <span className="transition-all duration-300 group-hover:tracking-wide">Sign Out and Retry</span>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Sign Out and Retry
+            </span>
           </button>
         </div>
       </div>
@@ -122,25 +175,35 @@ const ProjectWork = () => {
           <p className="text-gray-600 mb-8">
             You don't have any active projects yet. Please select or propose a
             project first.
-          </p>          <Link
+          </p>{" "}
+          <Link
             to="/student/choose-path"
             className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 no-underline font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
           >
-            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <svg
+              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
             </svg>
-            <span className="transition-all duration-300 group-hover:tracking-wide">Choose Your Path</span>
+            <span className="transition-all duration-300 group-hover:tracking-wide">
+              Choose Your Path
+            </span>
           </Link>
         </div>
       </div>
     );
   }
   const currentProject = projects[0]; // Assuming student has one active project
-  const currentProposal = getCurrentProposal();
-
-  return (
+  const currentProposal = getCurrentProposal();  return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {" "}
       {/* Enhanced Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-6 py-4">

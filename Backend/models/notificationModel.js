@@ -129,7 +129,7 @@ const notifyForProposalEvent = async (proposalId, eventType) => {
     // Get proposal details with submitter and reviewer
     const [proposalDetails] = await pool.query(
       `SELECT 
-        p.proposal_id, p.title, p.description, p.submitted_by, p.submitted_to,
+        p.proposal_id, p.title, p.proposal_description as description, p.submitted_by, p.submitted_to,
         u_submitter.name as submitter_name, u_submitter.email as submitter_email,
         u_reviewer.name as reviewer_name, u_reviewer.email as reviewer_email
       FROM Proposal p

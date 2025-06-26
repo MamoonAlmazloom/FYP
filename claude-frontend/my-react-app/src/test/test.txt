@@ -1,0 +1,1274 @@
+ frontend testing
+ 
+ 
+ -----------------------------------------
+ RERUN  rerun all tests 
+
+
+ Test Files  no tests
+      Tests  no tests
+   Start at  15:18:24
+   Duration  0ms
+
+ PASS  Waiting for file changes...
+       press h to show help, press q to quit    
+
+ Test Files  no tests
+      Tests  no tests
+   Start at  15:18:24
+   Duration  0ms
+
+ PASS  Waiting for file changes...
+       press h to show help, press q to quit    
+? Input test name pattern (RegExp) › endclaude-     · getPreviousProjects (1)
+       · should fetch previous projects successf
+ully
+     · getProjectDetails (1)
+       · should fetch project details successful
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successf
+ully
+     ✓ getProjectDetails (1)
+       ✓ should fetch project details successful
+stdout | src/test/API/ExaminerAPI.test.js > ExaminerAPI > Authorization and error handling > should include authorization token in requests     
+Authorization header: null
+
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successf
+ully
+     ✓ getProjectDetails (1)
+       ✓ should fetch project details successful
+stdout | src/test/API/ManagerAPI.test.js > ManagerAPI > assignExaminer > should assign examiner successfully
+Assigning examiner: {
+  managerId: 1,
+  examinerData: { projectId: 1, examinerId: 1, examinerType: 'internal' }
+}
+Assignment response: {
+  success: true,
+  message: 'Examiner assigned successfully',    
+  assignment: { projectId: 1, examinerId: 1, examinerType: 'internal' }
+}
+
+stdout | src/test/API/ManagerAPI.test.js > ManagerAPI > assignExaminer > should handle assignment conflicts
+Assigning examiner: { managerId: 1, examinerData: {} }
+
+stdout | src/test/API/ManagerAPI.test.js > ManagerAPI > Error handling and logging > should consistently log errors to console
+Assigning examiner: { managerId: 1, examinerData: {} }
+
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successf
+ully
+     ✓ getProjectDetails (1)
+       ✓ should fetch project details successful
+ ✓ src/test/API/ExaminerAPI.test.js (23) 467ms  
+   ✓ ExaminerAPI (23) 462ms
+     ✓ getAssignedProjects (2)
+       ✓ should fetch assigned projects successfully
+       ✓ should handle no assigned projects     
+     ✓ getProjectDetails (2)
+       ✓ should fetch project details successfully
+       ✓ should handle project not found        
+     ✓ getProjectSubmission (2)
+       ✓ should fetch project submission successfully
+       ✓ should handle no submission found      
+     ✓ provideExaminationFeedback (2)
+       ✓ should provide examination feedback successfully
+       ✓ should handle invalid feedback data    
+     ✓ updateExaminationFeedback (1)
+       ✓ should update examination feedback successfully
+     ✓ getExaminerProfile (1)
+       ✓ should fetch examiner profile successfully
+     ✓ getPreviousEvaluations (2)
+       ✓ should fetch previous evaluations successfully
+       ✓ should handle date range parameters    
+     ✓ updateProjectStatus (2)
+       ✓ should update project status successfully
+       ✓ should handle invalid status
+     ✓ getEvaluationStatistics (1)
+       ✓ should fetch evaluation statistics successfully
+     ✓ scheduleExamination (2)
+       ✓ should schedule examination successfully
+       ✓ should handle scheduling conflicts     
+     ✓ getScheduledExaminations (2)
+       ✓ should fetch scheduled examinations successfully
+       ✓ should handle date range filtering     
+     ✓ requestExtension (2)
+       ✓ should request extension successfully  
+       ✓ should handle invalid extension request
+     ✓ Authorization and error handling (2)     
+       ✓ should include authorization token in requests
+       ✓ should handle unauthorized requests    
+ ✓ src/test/API/SupervisorAPI.test.js (22) 413ms
+   ✓ SupervisorAPI (22) 406ms
+     ✓ getStudentsBySupervisor (2)
+       ✓ should fetch supervisor students successfully
+       ✓ should handle includePrevious parameter
+     ✓ getProposalsBySupervisor (1)
+       ✓ should fetch supervisor proposals successfully
+     ✓ getSupervisorOwnProposals (1)
+       ✓ should fetch supervisor own proposals successfully
+     ✓ getProposalDetails (1)
+       ✓ should fetch proposal details successfully
+     ✓ submitProposalDecision (2)
+       ✓ should submit proposal decision successfully
+       ✓ should handle rejection with modifications
+     ✓ reviewStudentProposal (1)
+       ✓ should review student proposal successfully
+     ✓ getStudentDetails (1)
+       ✓ should fetch student details successfully
+     ✓ getStudentLogs (2)
+       ✓ should fetch student logs successfully 
+       ✓ should handle date range parameters    
+     ✓ provideFeedbackOnLog (1)
+       ✓ should provide feedback on log successfully
+     ✓ getStudentReports (2)
+       ✓ should fetch student reports successfully
+       ✓ should handle date range parameters    
+     ✓ provideFeedbackOnReport (1)
+       ✓ should provide feedback on report successfully
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successfully
+     ✓ getProjectDetails (1)
+       ✓ should fetch project details successfully
+     ✓ proposeProject (1)
+       ✓ should propose project successfully    
+     ✓ getSupervisorProposal (1)
+       ✓ should fetch supervisor proposal successfully
+     ✓ updateSupervisorProposal (1)
+       ✓ should update supervisor proposal successfully
+     ✓ getAllSupervisors (2)
+       ✓ should fetch all supervisors successfully
+       ✓ should handle empty supervisors list   
+ ✓ src/test/API/StudentAPI.test.js (22) 605ms   
+   ✓ StudentAPI (22) 598ms
+     ✓ getStudentProfile (2)
+       ✓ should fetch student profile successfully
+       ✓ should handle API error
+     ✓ getStudentProjects (2)
+       ✓ should fetch student projects successfully
+       ✓ should handle no projects case
+     ✓ getStudentProposals (1)
+       ✓ should fetch student proposals successfully
+     ✓ submitProposal (2)
+       ✓ should submit proposal successfully    
+       ✓ should handle validation errors        
+     ✓ updateProposal (1)
+       ✓ should update proposal successfully    
+     ✓ getProposalStatus (1)
+       ✓ should fetch proposal status successfully
+     ✓ getAvailableProjects (1)
+       ✓ should fetch available projects successfully
+     ✓ selectProject (1)
+       ✓ should select project successfully     
+     ✓ getProgressLogs (1)
+       ✓ should fetch progress logs successfully
+     ✓ submitProgressLog (1)
+       ✓ should submit progress log successfully
+     ✓ getProgressReports (2)
+       ✓ should fetch progress reports successfully
+       ✓ should handle startDate and endDate parameters
+     ✓ submitProgressReport (1)
+       ✓ should submit progress report successfully
+     ✓ getFeedback (2)
+       ✓ should fetch feedback successfully     
+       ✓ should handle different feedback types 
+     ✓ hasActiveProject (2)
+       ✓ should return true when student has active project
+       ✓ should return false when student has no active project
+     ✓ getActiveProject (2)
+       ✓ should fetch active project successfully
+       ✓ should handle no active project case   
+ ✓ src/test/API/ManagerAPI.test.js (17) 720ms   
+   ✓ ManagerAPI (17) 714ms
+     ✓ getAllUsers (2)
+       ✓ should fetch all users successfully    
+       ✓ should handle API error
+     ✓ updateUserEligibility (2)
+       ✓ should update user eligibility successfully
+       ✓ should handle invalid status
+     ✓ registerUser (2)
+       ✓ should register user successfully      
+       ✓ should handle validation errors        
+     ✓ getApprovedProjects (1)
+       ✓ should fetch approved projects successfully
+     ✓ assignExaminer (2)
+       ✓ should assign examiner successfully    
+       ✓ should handle assignment conflicts     
+     ✓ getStudentLogs (1)
+       ✓ should fetch student logs successfully 
+     ✓ getRoles (1)
+       ✓ should fetch roles successfully        
+     ✓ getExaminers (1)
+       ✓ should fetch examiners successfully    
+     ✓ getPreviousProjects (2)
+       ✓ should fetch previous projects successfully
+       ✓ should handle query parameters
+     ✓ deleteUser (2)
+       ✓ should delete user successfully        
+       ✓ should handle deletion errors
+     ✓ Error handling and logging (1)
+       ✓ should consistently log errors to console
+ ✓ src/test/API/authAPI.test.js (33)
+   ✓ AuthAPI (33)
+     ✓ login (3)
+       ✓ should login successfully and store token and user data
+       ✓ should handle login failure
+       ✓ should not store data if login unsuccessful
+     ✓ logout (1)
+       ✓ should clear localStorage and remove authorization header
+     ✓ getCurrentUser (3)
+       ✓ should return parsed user data from localStorage
+       ✓ should return null if no user data exists
+       ✓ should return null if user data is invalid JSON
+     ✓ getToken (2)
+       ✓ should return token from localStorage  
+       ✓ should return null if no token exists  
+     ✓ isAuthenticated (4)
+       ✓ should return true when both token and user exist
+       ✓ should return false when token is missing
+       ✓ should return false when user is missing
+       ✓ should return false when both are missing
+     ✓ initializeAuth (2)
+       ✓ should set authorization header if token exists
+       ✓ should not set authorization header if no token exists
+     ✓ getUserPrimaryRole (4)
+       ✓ should return first role from roles array
+       ✓ should return null for user without roles
+       ✓ should return null for null user       
+       ✓ should return null for user with no roles property
+     ✓ hasRole (4)
+       ✓ should return true when user has the specified role
+       ✓ should return false when user does not have the specified role
+       ✓ should return false for null user      
+       ✓ should return false for user without roles
+     ✓ getDashboardRoute (7)
+       ✓ should return correct route for Manager
+       ✓ should return correct route for Supervisor
+       ✓ should return correct route for SV (alternative naming)
+       ✓ should return correct route for Moderator
+       ✓ should return correct route for Examiner
+       ✓ should return null for Student (requires additional logic)
+       ✓ should return login route for unknown role
+     ✓ getStudentRoute (3)
+       ✓ should return project-work route when student has active projects
+       ✓ should return choose-path route when student has no projects
+       ✓ should return choose-path route on API error
+ ✓ src/test/API/ModeratorAPI.test.js (14) 301ms 
+   ✓ ModeratorAPI (14)
+     ✓ getPendingProposals (3)
+       ✓ should fetch pending proposals successfully
+       ✓ should handle empty pending proposals  
+       ✓ should handle API error
+     ✓ reviewProposal (5)
+       ✓ should review proposal with approval successfully
+       ✓ should review proposal with rejection successfully
+       ✓ should review proposal with modification request
+       ✓ should handle invalid proposal ID      
+       ✓ should handle invalid decision
+     ✓ reviewSupervisorProposal (1)
+       ✓ should review supervisor proposal successfully
+     ✓ getModeratorProfile (1)
+       ✓ should fetch moderator profile successfully
+     ✓ getProposalDetails (1)
+       ✓ should fetch proposal details successfully
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successfully
+     ✓ Authorization and token handling (2)     
+       ✓ should include authorization token in requests
+       ✓ should handle unauthorized requests    
+ ✓ src/test/API/clientAPI.test.js (3)
+   ✓ ClientAPI (3)
+     ✓ API configuration (1)
+       ✓ should have correct base configuration 
+     ✓ Response interceptor (1)
+       ✓ should pass through successful responses
+     ✓ HTTP methods (1)
+       ✓ should make GET requests
+ ✓ src/test/infrastructure.test.js (6)
+   ✓ Test Infrastructure (6)
+     ✓ Setup and Configuration (4)
+       ✓ should have MSW server running
+       ✓ should clear localStorage between tests
+revious test
+       ✓ should have jsdom environment
+     ✓ Testing Utilities (2)
+       ✓ should support async/await
+       ✓ should support mocking
+
+ Test Files  8 passed (8)
+      Tests  140 passed (140)
+   Start at  15:18:24
+   Duration  10.54s
+
+ PASS  Waiting for file changes...
+       press h to show help, press q to quit
+stdout | src/test/API/ExaminerAPI.test.js > ExaminerAPI > Authorization and error handling > should include authorization token in requests
+Authorization header: null
+
+stdout | src/test/API/ManagerAPI.test.js > ManagerAPI > assignExaminer > should assign examiner successfully
+Assigning examiner: {
+  managerId: 1,
+  examinerData: { projectId: 1, examinerId: 1, examinerType: 'internal' }
+}
+Assignment response: {
+  success: true,
+  message: 'Examiner assigned successfully',
+  assignment: { projectId: 1, examinerId: 1, examinerType: 'internal' }
+}
+
+stdout | src/test/API/ManagerAPI.test.js > ManagerAPI > assignExaminer > should handle assignment conflicts
+Assigning examiner: { managerId: 1, examinerData: {} }
+
+stdout | src/test/API/ManagerAPI.test.js > ManagerAPI > Error handling and logging > should consistently log errors to console
+Assigning examiner: { managerId: 1, examinerData: {} }
+
+ ✓ src/test/infrastructure.test.js (6)
+   ✓ Test Infrastructure (6)
+     ✓ Setup and Configuration (4)
+       ✓ should have MSW server running
+       ✓ should clear localStorage between tests
+       ✓ should have cleared localStorage from previous test
+       ✓ should have jsdom environment
+     ✓ Testing Utilities (2)
+       ✓ should support async/await
+       ✓ should support mocking
+ ✓ src/test/API/authAPI.test.js (33)
+   ✓ AuthAPI (33)
+     ✓ login (3)
+       ✓ should login successfully and store token and user data
+       ✓ should handle login failure
+       ✓ should not store data if login unsuccessful
+     ✓ logout (1)
+       ✓ should clear localStorage and remove authorization header
+     ✓ getCurrentUser (3)
+       ✓ should return parsed user data from localStorage
+       ✓ should return null if no user data exists
+       ✓ should return null if user data is invalid JSON
+     ✓ getToken (2)
+       ✓ should return token from localStorage
+       ✓ should return null if no token exists
+     ✓ isAuthenticated (4)
+       ✓ should return true when both token and user exist
+       ✓ should return false when token is missing
+       ✓ should return false when user is missing
+       ✓ should return false when both are missing
+     ✓ initializeAuth (2)
+       ✓ should set authorization header if token exists
+       ✓ should not set authorization header if no token exists
+     ✓ getUserPrimaryRole (4)
+       ✓ should return first role from roles array
+       ✓ should return null for user without roles
+       ✓ should return null for null user
+       ✓ should return null for user with no roles property
+     ✓ hasRole (4)
+       ✓ should return true when user has the specified role
+       ✓ should return false when user does not have the specified role
+       ✓ should return false for null user
+       ✓ should return false for user without roles
+     ✓ getDashboardRoute (7)
+       ✓ should return correct route for Manager
+       ✓ should return correct route for Supervisor
+       ✓ should return correct route for SV (alternative naming)
+       ✓ should return correct route for Moderator
+       ✓ should return correct route for Examiner
+       ✓ should return null for Student (requires additional logic)
+       ✓ should return login route for unknown role
+     ✓ getStudentRoute (3)
+       ✓ should return project-work route when student has active projects
+       ✓ should return choose-path route when student has no projects
+       ✓ should return choose-path route on API error
+ ✓ src/test/API/clientAPI.test.js (3)
+   ✓ ClientAPI (3)
+     ✓ API configuration (1)
+       ✓ should have correct base configuration
+     ✓ Response interceptor (1)
+       ✓ should pass through successful responses
+     ✓ HTTP methods (1)
+       ✓ should make GET requests
+ ✓ src/test/API/ExaminerAPI.test.js (23) 418ms
+   ✓ ExaminerAPI (23) 414ms
+     ✓ getAssignedProjects (2)
+       ✓ should fetch assigned projects successfully
+       ✓ should handle no assigned projects
+     ✓ getProjectDetails (2)
+       ✓ should fetch project details successfully
+       ✓ should handle project not found
+     ✓ getProjectSubmission (2)
+       ✓ should fetch project submission successfully
+       ✓ should handle no submission found
+     ✓ provideExaminationFeedback (2)
+       ✓ should provide examination feedback successfully
+       ✓ should handle invalid feedback data
+     ✓ updateExaminationFeedback (1)
+       ✓ should update examination feedback successfully
+     ✓ getExaminerProfile (1)
+       ✓ should fetch examiner profile successfully
+     ✓ getPreviousEvaluations (2)
+       ✓ should fetch previous evaluations successfully
+       ✓ should handle date range parameters
+     ✓ updateProjectStatus (2)
+       ✓ should update project status successfully
+       ✓ should handle invalid status
+     ✓ getEvaluationStatistics (1)
+       ✓ should fetch evaluation statistics successfully
+     ✓ scheduleExamination (2)
+       ✓ should schedule examination successfully
+       ✓ should handle scheduling conflicts
+     ✓ getScheduledExaminations (2)
+       ✓ should fetch scheduled examinations successfully
+       ✓ should handle date range filtering
+     ✓ requestExtension (2)
+       ✓ should request extension successfully
+       ✓ should handle invalid extension request
+     ✓ Authorization and error handling (2)
+       ✓ should include authorization token in requests
+       ✓ should handle unauthorized requests
+ ✓ src/test/API/ManagerAPI.test.js (17) 647ms
+   ✓ ManagerAPI (17) 641ms
+     ✓ getAllUsers (2)
+       ✓ should fetch all users successfully
+       ✓ should handle API error
+     ✓ updateUserEligibility (2)
+       ✓ should update user eligibility successfully
+       ✓ should handle invalid status
+     ✓ registerUser (2)
+       ✓ should register user successfully
+       ✓ should handle validation errors
+     ✓ getApprovedProjects (1)
+       ✓ should fetch approved projects successfully
+     ✓ assignExaminer (2)
+       ✓ should assign examiner successfully
+       ✓ should handle assignment conflicts
+     ✓ getStudentLogs (1)
+       ✓ should fetch student logs successfully
+     ✓ getRoles (1)
+       ✓ should fetch roles successfully
+     ✓ getExaminers (1)
+       ✓ should fetch examiners successfully
+     ✓ getPreviousProjects (2)
+       ✓ should fetch previous projects successfully
+       ✓ should handle query parameters
+     ✓ deleteUser (2)
+       ✓ should delete user successfully
+       ✓ should handle deletion errors
+     ✓ Error handling and logging (1)
+       ✓ should consistently log errors to console
+ ✓ src/test/API/ModeratorAPI.test.js (14)
+   ✓ ModeratorAPI (14)
+     ✓ getPendingProposals (3)
+       ✓ should fetch pending proposals successfully
+       ✓ should handle empty pending proposals
+       ✓ should handle API error
+     ✓ reviewProposal (5)
+       ✓ should review proposal with approval successfully
+       ✓ should review proposal with rejection successfully
+       ✓ should review proposal with modification request
+       ✓ should handle invalid proposal ID
+       ✓ should handle invalid decision
+     ✓ reviewSupervisorProposal (1)
+       ✓ should review supervisor proposal successfully
+     ✓ getModeratorProfile (1)
+       ✓ should fetch moderator profile successfully
+     ✓ getProposalDetails (1)
+       ✓ should fetch proposal details successfully
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successfully
+     ✓ Authorization and token handling (2)
+       ✓ should include authorization token in requests
+       ✓ should handle unauthorized requests
+ ✓ src/test/API/StudentAPI.test.js (22) 525ms
+   ✓ StudentAPI (22) 519ms
+     ✓ getStudentProfile (2)
+       ✓ should fetch student profile successfully
+       ✓ should handle API error
+     ✓ getStudentProjects (2)
+       ✓ should fetch student projects successfully
+       ✓ should handle no projects case
+     ✓ getStudentProposals (1)
+       ✓ should fetch student proposals successfully
+     ✓ submitProposal (2)
+       ✓ should submit proposal successfully
+       ✓ should handle validation errors
+     ✓ updateProposal (1)
+       ✓ should update proposal successfully
+     ✓ getProposalStatus (1)
+       ✓ should fetch proposal status successfully
+     ✓ getAvailableProjects (1)
+       ✓ should fetch available projects successfully
+     ✓ selectProject (1)
+       ✓ should select project successfully
+     ✓ getProgressLogs (1)
+       ✓ should fetch progress logs successfully
+     ✓ submitProgressLog (1)
+       ✓ should submit progress log successfully
+     ✓ getProgressReports (2)
+       ✓ should fetch progress reports successfully
+       ✓ should handle startDate and endDate parameters
+     ✓ submitProgressReport (1)
+       ✓ should submit progress report successfully
+     ✓ getFeedback (2)
+       ✓ should fetch feedback successfully
+       ✓ should handle different feedback types
+     ✓ hasActiveProject (2)
+       ✓ should return true when student has active project
+       ✓ should return false when student has no active project
+     ✓ getActiveProject (2)
+       ✓ should fetch active project successfully
+       ✓ should handle no active project case
+ ✓ src/test/API/SupervisorAPI.test.js (22) 382ms
+   ✓ SupervisorAPI (22) 376ms
+     ✓ getStudentsBySupervisor (2)
+       ✓ should fetch supervisor students successfully
+       ✓ should handle includePrevious parameter
+     ✓ getProposalsBySupervisor (1)
+       ✓ should fetch supervisor proposals successfully
+     ✓ getSupervisorOwnProposals (1)
+       ✓ should fetch supervisor own proposals successfully
+     ✓ getProposalDetails (1)
+       ✓ should fetch proposal details successfully
+     ✓ submitProposalDecision (2)
+       ✓ should submit proposal decision successfully
+       ✓ should handle rejection with modifications
+     ✓ reviewStudentProposal (1)
+       ✓ should review student proposal successfully
+     ✓ getStudentDetails (1)
+       ✓ should fetch student details successfully
+     ✓ getStudentLogs (2)
+       ✓ should fetch student logs successfully
+       ✓ should handle date range parameters
+     ✓ provideFeedbackOnLog (1)
+       ✓ should provide feedback on log successfully
+     ✓ getStudentReports (2)
+       ✓ should fetch student reports successfully
+       ✓ should handle date range parameters
+     ✓ provideFeedbackOnReport (1)
+       ✓ should provide feedback on report successfully
+     ✓ getPreviousProjects (1)
+       ✓ should fetch previous projects successfully
+     ✓ getProjectDetails (1)
+       ✓ should fetch project details successfully
+     ✓ proposeProject (1)
+       ✓ should propose project successfully
+     ✓ getSupervisorProposal (1)
+       ✓ should fetch supervisor proposal successfully
+     ✓ updateSupervisorProposal (1)
+       ✓ should update supervisor proposal successfully
+     ✓ getAllSupervisors (2)
+       ✓ should fetch all supervisors successfully
+       ✓ should handle empty supervisors list
+
+ Test Files  8 passed (8)
+      Tests  140 passed (140)
+   Start at  15:18:24
+   Duration  9.97s
+
+
+
+
+Backend tests
+---------------------
+
+> backend@1.0.0 test
+> jest
+
+
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-teqsts/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Global test setup file loaded.
+
+      at Object.log (jest-tests/setupTests.js:394:9)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+ PASS  jest-tests/notifications/notifications.test.js
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  Notification System
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+    √ should have tests for notification triggers and retrieval (9 ms)
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Simulating deadline reminder job run...
+
+      at log (jest-tests/tasks/scheduler.test.js:20:11)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Notification sent to student student001 for deadline d1
+
+      at log (jest-tests/tasks/scheduler.test.js:42:13)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Notification sent to student student002 for deadline d2
+
+      at log (jest-tests/tasks/scheduler.test.js:42:13)
+
+  console.log
+    Processed 2 deadline reminders.
+
+      at log (jest-tests/tasks/scheduler.test.js:46:11)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...ts/notifications/notifications.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  console.log
+    Simulating deadline reminder job run...     
+
+      at log (jest-tests/tasks/scheduler.test.js:20:11)
+
+  console.log
+    No upcoming deadlines found.
+
+      at log (jest-tests/tasks/scheduler.test.js:26:13)
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+ PASS  jest-tests/tasks/scheduler.test.js       
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+  Scheduled Tasks (TC-B4.2: Deadline Reminder)  
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+    √ should query for upcoming deadlines and send notifications to relevant students (82 ms)   
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+    √ should do nothing if no upcoming deadlines are found (10 ms)
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  jest-tests/tasks/scheduler.test.js       
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+
+ RUNS  jest-tests/users/users.test.js
+ RUNS  ...-tests/supervisors/supervisors.test.js
+ RUNS  jest-tests/auth/auth.test.js
+ RUNS  jest-tests/projects/projects.test.js     
+ RUNS  jest-tests/reports/reports.test.js       
+ RUNS  jest-tests/proposals/proposals.test.js   
+ RUNS  ...ests/progressLogs/progressLogs.test.js
+ RUNS  jest-tests/admin/admin.test.js
+
+GET /api/supervisors/my/students 200 7.432 ms - 206
+POST /api/users/register 201 3.515 ms - 179
+POST /api/auth/login 200 6.267 ms - 348
+POST /api/projects 201 7.415 ms - 252
+POST /api/admin/students/studentToMakeEligible123/eligibility 200 7.728 ms - 133
+GET /api/supervisors/my/students 200 3.232 ms - 30                                              
+POST /api/users/register 409 1.774 ms - 81      
+POST /api/projects/proj789/logs 201 7.984 ms - 244                                              
+POST /api/proposals 201 7.415 ms - 200          
+POST /api/auth/login 401 0.756 ms - 47          
+POST /api/projects 400 3.736 ms - 47            
+POST /api/projects/proj789/reports 201 20.939 ms - 165                                          
+GET /api/supervisors/my/students 403 2.151 ms - 68                                              
+POST /api/users/register 400 0.538 ms - 108     
+POST /api/users/register 400 0.626 ms - 108     
+POST /api/auth/login 401 0.715 ms - 47          
+POST /api/auth/login 400 0.874 ms - 47          
+POST /api/projects 403 2.874 ms - 67            
+POST /api/admin/students/studentToMakeEligible123/eligibility 200 3.178 ms - 134                
+POST /api/projects/proj789/logs 403 3.948 ms - 76                                               
+POST /api/users/register 400 0.751 ms - 108     
+POST /api/admin/students/nonExistentStudent/eligibility 404 2.927 ms - 45                       
+POST /api/projects/available/projXYZ/select 200 4.560 ms - 58                                   
+POST /api/projects/proj789/logs 400 2.467 ms - 62                                               
+POST /api/users/register 400 0.484 ms - 108     
+POST /api/projects/proj789/reports 403 7.900 ms - 79                                            
+POST /api/proposals 400 3.540 ms - 47           
+POST /api/admin/students/studentToMakeEligible123/eligibility 400 2.267 ms - 98                 
+POST /api/auth/login 400 0.656 ms - 59          
+POST /api/projects/proj789/logs 400 2.184 ms - 58                                               
+POST /api/projects/available/projXYZ/select 400 2.759 ms - 74                                   
+POST /api/auth/login 400 0.464 ms - 59          
+POST /api/admin/students/studentToMakeEligible123/eligibility 400 2.572 ms - 105                
+POST /api/users/register 400 2.105 ms - 97      
+PUT /api/progress-logs/log010/review 200 3.301 ms - 143                                         
+POST /api/projects/proj789/reports 400 3.535 ms - 53                                            
+POST /api/projects/available/projXYZ/select 400 2.608 ms - 67
+POST /api/proposals 403 2.376 ms - 64
+POST /api/auth/login 400 0.452 ms - 48          
+POST /api/users/register 400 0.525 ms - 100     
+POST /api/projects/available/nonExistentProject/select 404 2.599 ms - 47                        
+POST /api/admin/students/studentToMakeEligible123/eligibility 403 3.127 ms - 65
+POST /api/projects/proj789/reports 400 8.429 ms - 47                                            
+PUT /api/proposals/prop123/review 200 3.394 ms - 168                                            
+PUT /api/progress-logs/log010/review 403 2.926 ms - 80                                          
+POST /api/users/register 400 0.748 ms - 82      
+POST /api/auth/logout 200 5.965 ms - 52         
+GET /api/projects/my/archive 200 4.058 ms - 217 
+PUT /api/proposals/nonexistent/review 404 2.798 ms - 48                                         
+PUT /api/progress-logs/nonexistentLog/review 404 2.792 ms - 52                                  
+POST /api/auth/logout 401 0.638 ms - 60         
+GET /api/projects/my/archive 200 2.966 ms - 30  
+PUT /api/proposals/prop123/review 403 2.528 ms - 67                                             
+POST /api/auth/logout 401 1.465 ms - 56         
+GET /api/admin/students/anyStudent456/progress-logs 200 3.549 ms - 183                          
+PUT /api/reports/report010/review 200 2.367 ms - 204                                            
+POST /api/auth/forgot-password 200 1.074 ms - 97
+PUT /api/proposals/prop123/review 400 1.833 ms - 55                                             
+POST /api/projects/projToManage123/assign-examiner 200 2.686 ms - 88                            
+GET /api/admin/students/nonExistentStudent789/progress-logs 200 5.917 ms - 26                   
+ PASS  jest-tests/supervisors/supervisors.test.js (6.958 s)                                     
+  Supervisor Endpoints (F3: Progress Tracking)  
+    GET /api/supervisors/my/students (Supervisor View Current Students)                         
+      √ should allow a supervisor to view their list of currently supervised students (63 ms)   
+      √ should return an empty list if supervisor has no current students (15 ms)               
+      √ should return 403 if a non-supervisor tries to access (17 ms)                           
+                                                
+POST /api/auth/forgot-password 200 1.037 ms - 97
+PUT /api/proposals/prop123/moderate 200 3.562 ms - 158                                          
+POST /api/projects/nonexistentProject/assign-examiner 404 2.992 ms - 45                         
+PUT /api/reports/report010/review 403 2.825 ms - 74                                             
+POST /api/auth/forgot-password 400 0.356 ms - 48
+GET /api/admin/students/anyStudent456/progress-logs 403 3.659 ms - 67
+POST /api/projects/projToManage123/assign-examiner 400 2.422 ms - 61                            
+PUT /api/proposals/prop123/moderate 400 3.191 ms - 63                                           
+POST /api/auth/reset-password 200 0.970 ms - 65 
+PUT /api/reports/nonexistentReport/review 404 2.520 ms - 46                                     
+POST /api/projects/projToManage123/assign-examiner 400 3.193 ms - 54
+POST /api/auth/reset-password 400 0.836 ms - 52
+GET /api/proposals/my 200 3.071 ms - 118        
+GET /api/reports/report010 200 2.080 ms - 192   
+POST /api/projects/projToManage123/assign-moderator 200 2.025 ms - 91
+POST /api/auth/reset-password 400 0.411 ms - 74
+GET /api/proposals/my 200 2.698 ms - 31         
+GET /api/reports/report010 404 3.205 ms - 63    
+POST /api/auth/reset-password 400 0.410 ms - 45 
+GET /api/projects?status=Approved 200 2.563 ms - 99                                             
+GET /api/proposals/prop123 200 2.637 ms - 122   
+GET /api/admin/students/anyStudent789/reports 200 2.556 ms - 222                                
+POST /api/auth/reset-password 400 0.551 ms - 52 
+ PASS  jest-tests/admin/admin.test.js (6.96 s)  
+  Admin Endpoints (F5: Manager Functional Requirements)                                         
+    POST /api/admin/students/:studentId/eligibility (Set Student Eligibility)                   
+      √ should allow a manager to make a student eligible for FYP (92 ms)                       
+      √ should allow a manager to make a student ineligible for FYP (15 ms)                     
+      √ should return 404 if student to modify is not found (14 ms)                             
+      √ should return 400 if is_eligible field is missing or not a boolean (31 ms)              
+      √ should return 403 if a non-manager tries to modify eligibility (20 ms)                  
+                                                
+POST /api/projects/projToManage123/archive 200 3.022 ms - 71                                    
+PUT /api/proposals/prop123 200 3.091 ms - 149   
+GET /api/admin/students/studentWithNoReports/reports 200 3.086 ms - 29                          
+ PASS  jest-tests/users/users.test.js (7.066 s) 
+  User Endpoints (F1: User Account Management)
+    POST /api/users/register (TC-B1.3)          
+      √ should register a new student successfully (89 ms)                                      
+      √ should return 409 if email already exists (16 ms)                                       
+      √ should return 400 for missing required fields (e.g., email, password, name, role) (47 ms)                                               
+      √ should return 400 for invalid email format (26 ms)                                      
+      √ should return 400 for a weak password (if policy exists) (11 ms)                        
+      √ should return 400 or 403 for an invalid role for self-registration (15 ms)              
+                                                
+GET /api/admin/students/anyStudent789/reports 403 2.570 ms - 67                                 
+PUT /api/proposals/prop123 403 2.387 ms - 68    
+PUT /api/proposals/prop123 400 1.603 ms - 78    
+GET /api/proposals 200 1.966 ms - 152
+POST /api/proposals/prop123/comments 201 1.792 ms - 141
+POST /api/proposals/prop123/comments 400 1.392 ms - 58
+ PASS  jest-tests/progressLogs/progressLogs.test.js (7.035 s)                                   
+  Progress Log Endpoints                        
+    POST /api/projects/:projectId/logs (Submit Progress Log)                                    
+      √ should allow a student to submit a progress log (96 ms)                                 
+      √ should return 403 if student submits log for another student project (17 ms)            
+      √ should return 400 for missing required fields (e.g., activity_description, date) (14 ms)
+      √ should return 400 for invalid data types (e.g. hours_spent not a number) (13 ms)        
+    PUT /api/progress-logs/:logId/review (Supervisor Review Log)                                
+      √ should allow assigned supervisor to add feedback and sign a log (16 ms)                 
+      √ should return 403 if supervisor is not assigned to the project of the log (20 ms)       
+      √ should return 404 if log not found (15 ms)                                              
+    GET /api/admin/students/:studentId/progress-logs (Manager View Student Logs)                
+      √ should allow a manager to view progress logs for any student (15 ms)                    
+      √ should return 404 if student not found (or no logs, depending on API design) (18 ms)    
+      √ should return 403 if a non-manager tries to access (14 ms)                              
+                                                
+ PASS  jest-tests/auth/auth.test.js (7.098 s)   
+  Auth Endpoints (F1: User Account Management)  
+    POST /api/auth/login (TC-B1.1)
+      √ should login a user with valid credentials and return a token (79 ms)
+      √ should return 401 for invalid password (18 ms)                                          
+      √ should return 401 or 404 if user not found (14 ms)                                      
+      √ should return 400 if user is inactive (15 ms)                                           
+      √ should return 400 for missing email or password (30 ms)                                 
+      √ should return 400 for malformed email (11 ms)                                           
+    POST /api/auth/logout (TC-B1.2)             
+      √ should return 200 for a successful logout if server handles it (19 ms)                  
+      √ should return 401 if no token is provided for logout (12 ms)                            
+      √ should return 401 if an invalid/expired token is provided for logout (12 ms)            
+    POST /api/auth/forgot-password (TC-B1.4 Part 1)                                             
+      √ should initiate password reset for a valid email and trigger email (mocked) (11 ms)     
+      √ should return 404 or 200 (to prevent enumeration) if email not found (11 ms)            
+      √ should return 400 for invalid email format (11 ms)                                      
+    POST /api/auth/reset-password (TC-B1.4 Part 2)                                              
+      √ should reset password with a valid token and new password (11 ms)                       
+      √ should return 400 for an invalid or expired token (10 ms)                               
+      √ should return 400 for a weak new password (if policy exists) (9 ms)                     
+      √ should return 400 for missing token or new_password (21 ms)                             
+                                                
+ PASS  jest-tests/projects/projects.test.js (7.144 s)                                           
+  Project Endpoints                             
+    POST /api/projects (Supervisor Propose New Project)                                         
+      √ should allow a supervisor to propose a new project (86 ms)                              
+      √ should return 400 for missing required fields (20 ms)                                   
+      √ should return 403 if a non-supervisor tries to propose (16 ms)                          
+    POST /api/projects/available/:projectId/select (Student Select Project)                     
+      √ should allow a student to select an available project (16 ms)                           
+      √ should return 400 if project is not available or at capacity (14 ms)                    
+      √ should return 400 if student already has a project (if limit is 1) (16 ms)              
+      √ should return 404 if project to select is not found (12 ms)                             
+    GET /api/projects/archive (Supervisor Access Past Projects)                                 
+      √ should allow a supervisor to view their archived projects (19 ms)                       
+      √ should return an empty list if no archived projects found for supervisor (13 ms)        
+    Manager Project Endpoints (F5)              
+      POST /api/projects/:projectId/assign-examiner                                             
+        √ should allow a manager to assign an examiner to a project (19 ms)                     
+        √ should return 404 if project not found (13 ms)                                        
+        √ should return 400 if examiner user is invalid or project not in assignable state (24 ms)                                              
+      POST /api/projects/:projectId/assign-moderator                                            
+        √ should allow a manager to assign a moderator to a project (9 ms)                      
+      GET /api/projects?status=Approved (View Approved Projects)                                
+        √ should allow a manager to view all approved projects (13 ms)                          
+      POST /api/projects/:projectId/archive (Archive Project)                                   
+        √ should allow a manager to archive an approved project (12 ms)                         
+                                                
+ PASS  jest-tests/reports/reports.test.js (7.129 s)
+  Report Endpoints
+    POST /api/projects/:projectId/reports (Submit Report)                                       
+      √ should allow a student to submit a report with a file and notify supervisor (96 ms)     
+      √ should return 403 if student tries to submit report for another student project (30 ms) 
+      √ should return 400 if no file is attached (15 ms)                                        
+      √ should return 400 for missing title (19 ms)                                             
+    PUT /api/reports/:reportId/review (Supervisor Review Report)                                
+      √ should allow assigned supervisor to add feedback and grade to a report (43 ms)          
+      √ should return 403 if supervisor is not assigned to the project of the report (19 ms)    
+      √ should return 404 if report not found (12 ms)                                           
+    GET /api/reports/:reportId (Supervisor View Specific Report)                                
+      √ should allow supervisor to view a specific report from their past projects (12 ms)      
+      √ should return 404 if report not found or supervisor not authorized (12 ms)              
+    GET /api/admin/students/:studentId/reports (Manager View Student Reports)                   
+      √ should allow a manager to view reports for any student (12 ms)                          
+      √ should return 200 with an empty list if student has no reports (or student not found, depending on API) (10 ms)                         
+      √ should return 403 if a non-manager tries to access (11 ms)                              
+                                                
+ PASS  jest-tests/proposals/proposals.test.js (7.153 s)
+  Proposal Endpoints (F2: Proposal Management)
+    POST /api/proposals (Submit Proposal)       
+      √ should allow a student to submit a proposal successfully (108 ms)                       
+      √ should return 400 for missing required fields (29 ms)                                   
+      √ should return 403 if a non-student tries to submit (15 ms)                              
+    PUT /api/proposals/:proposalId/review (Supervisor Review)                                   
+      √ should allow an assigned supervisor to approve a proposal (16 ms)                       
+      √ should return 404 if proposal not found (14 ms)                                         
+      √ should return 403 if supervisor is not assigned to the proposal (or student) (14 ms)    
+      √ should return 400 for invalid status transition (12 ms)                                 
+    PUT /api/proposals/:proposalId/moderate (Moderator Action)                                  
+      √ should allow a moderator to approve a proposal (17 ms)                                  
+      √ should return 400 if proposal is not in a state for moderation (14 ms)                  
+    GET /api/proposals/my (Student View Own Proposals)                                          
+      √ should allow a student to view their own proposals (13 ms)                              
+      √ should return empty list if student has no proposals (10 ms)                            
+    GET /api/proposals/:proposalId (Moderator View Specific Proposal)                           
+      √ should allow a moderator to view any proposal details (12 ms)                           
+    PUT /api/proposals/:proposalId (Student Modify Proposal)                                    
+      √ should allow student to modify their proposal if in modifiable state (12 ms)            
+      √ should return 403 if student tries to modify another student proposal (11 ms)           
+      √ should return 400 if proposal is not in a modifiable state (10 ms)                      
+    GET /api/proposals (Moderator View All Proposals)                                           
+      √ should allow moderator to view all proposals (potentially filtered) (10 ms)             
+    POST /api/proposals/:proposalId/comments (Moderator Add Comment)                            
+      √ should allow a moderator to add a comment to a proposal (9 ms)                          
+      √ should return 400 for empty comment text (8 ms)                                         
+                                                
+Test Suites: 10 passed, 10 total
+Tests:       88 passed, 88 total
+Snapshots:   0 total
+Time:        7.752 s
+Ran all test suites.

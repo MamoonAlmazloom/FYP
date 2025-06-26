@@ -1,5 +1,15 @@
 ### Test Notification API endpoints
 
+### Login as Admin (Manager)
+# @name login
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin"
+}
+
 ### Health Check
 GET http://localhost:5000/api/health
 Content-Type: application/json

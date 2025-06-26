@@ -159,10 +159,10 @@ const assignExaminer = async (projectId, examinerId) => {
     const connection = await pool.getConnection();
     await connection.beginTransaction();
     try {
-      // 1. Assign the project to the examiner with status 'Assigned'
+      // 1. Assign the project to the examiner with status 'Pending'
       const [result] = await connection.query(
         `INSERT INTO examiner_assignment (project_id, examiner_id, status)
-         VALUES (?, ?, 'Assigned')`,
+         VALUES (?, ?, 'Pending')`,
         [projectId, examinerId]
       );
 

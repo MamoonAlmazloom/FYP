@@ -46,6 +46,73 @@ const updateUserEligibility = async (req, res, next) => {
 };
 
 /**
+ * Update student eligibility (admin-style route)
+ */
+const updateStudentEligibility = async (req, res, next) => {
+  try {
+    // Check if user is a manager
+    if (!req.user.roles || !req.user.roles.includes("manager")) {
+      return res.status(403).json({
+        success: false,
+        error: "Access denied. Manager role required.",
+      });
+    }
+
+    const studentId = req.params.studentId;
+    const { is_eligible } = req.body;
+
+    if (is_eligible === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: "is_eligible field is required",
+        message: "is_eligible must be provided",
+      });
+    }
+
+    if (typeof is_eligible !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        error: "is_eligible must be a boolean",
+        message: "is_eligible must be a boolean value",
+      });
+    } // Call the userModel to update eligibility
+    const userModel = (await import("../models/userModel.js")).default;
+
+    // First check if user exists
+    const user = await userModel.findUserById(studentId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "Student not found",
+      });
+    }
+
+    const updated = await userModel.updateUserEligibility(
+      studentId,
+      is_eligible
+    );
+
+    if (!updated) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to update student eligibility",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Student eligibility updated successfully`,
+      user: {
+        id: studentId,
+        is_fyp_eligible: is_eligible,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Register a new user
  */
 const registerUser = async (req, res, next) => {
@@ -439,4 +506,5 @@ export default {
   getProjectsByAcademicPeriod,
   getAvailableAcademicPeriods,
   deleteUser,
+  updateStudentEligibility,
 };

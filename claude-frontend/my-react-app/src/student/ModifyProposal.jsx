@@ -22,6 +22,12 @@ const ModifyProposal = () => {
   const [loading, setLoading] = useState(true);
   const [showWarning, setShowWarning] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState({
+    type: "", // 'new' or 'update'
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -135,20 +141,25 @@ const ModifyProposal = () => {
 
       // Use the actual StudentAPI function
       const response = await updateProposal(user.id, proposalId, formData);
-
       if (response.success) {
         if (response.isNewProposal) {
           // New proposal created for approved proposal
-          alert(
-            "A new proposal has been submitted! Your previous approved proposal remains unchanged. You will need to wait for supervisor and moderator approval again."
-          );
-          navigate("/student/choose-path");
+          setSuccessMessage({
+            type: "new",
+            title: "New Proposal Submitted Successfully!",
+            message:
+              "Your new proposal has been created and submitted for review. Your previously approved proposal remains active and unchanged.",
+          });
+          setShowSuccessModal(true);
         } else {
           // Regular update for non-approved proposal
-          alert(
-            "Modified proposal submitted successfully! You will be notified once it's reviewed."
-          );
-          navigate("/student/project-status");
+          setSuccessMessage({
+            type: "update",
+            title: "Proposal Updated Successfully!",
+            message:
+              "Your proposal modifications have been submitted and are now under review.",
+          });
+          setShowSuccessModal(true);
         }
       } else {
         alert(
@@ -170,6 +181,15 @@ const ModifyProposal = () => {
       }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    if (successMessage.type === "new") {
+      navigate("/student/choose-path");
+    } else {
+      navigate("/student/project-status");
     }
   };
 
@@ -480,7 +500,7 @@ const ModifyProposal = () => {
               </span>
             )}
           </button>
-        </form>
+        </form>{" "}
         {/* Back Link */}{" "}
         <div className="text-center mt-6">
           <Link
@@ -506,6 +526,148 @@ const ModifyProposal = () => {
           </Link>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+            {/* Header */}
+            <div className="relative p-6 text-center border-b border-gray-100">
+              {successMessage.type === "new" ? (
+                <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              )}
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {successMessage.title}
+              </h3>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <p className="text-gray-600 leading-relaxed mb-6">
+                {successMessage.message}
+              </p>
+
+              {successMessage.type === "new" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="w-5 h-5 text-blue-500 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-blue-800 mb-1">
+                        What happens next?
+                      </h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>
+                          • Your new proposal will undergo supervisor review
+                        </li>
+                        <li>
+                          • If approved, it will proceed to moderator review
+                        </li>
+                        <li>
+                          • You'll be notified of any decisions or feedback
+                        </li>
+                        <li>• Your current approved proposal remains active</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {successMessage.type === "update" && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="w-5 h-5 text-green-500 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-green-800 mb-1">
+                        Next Steps
+                      </h4>
+                      <ul className="text-sm text-green-700 space-y-1">
+                        <li>• Your updated proposal is now under review</li>
+                        <li>
+                          • You'll receive notifications about the review
+                          progress
+                        </li>
+                        <li>
+                          • Check your proposal status regularly for updates
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100">
+              <button
+                onClick={handleSuccessModalClose}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+              >
+                {successMessage.type === "new"
+                  ? "Continue to Dashboard"
+                  : "View Proposal Status"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

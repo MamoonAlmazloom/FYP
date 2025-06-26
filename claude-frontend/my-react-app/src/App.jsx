@@ -46,6 +46,9 @@ import ApprovedProjectsLogs from "./manager/ApprovedProjectsLogs";
 import ManagerPreviousProjects from "./manager/PreviousProjects";
 import ManagerPreviousProjectDetails from "./manager/PreviousProjectDetails";
 import ViewProjectLog from "./manager/ViewProjectLog";
+import ViewStudentLogs from "./manager/ViewStudentLogs";
+import ManagerNotifications from "./manager/ManagerNotifications";
+import CreateNotification from "./manager/CreateNotification";
 
 // Moderator Components
 import ModeratorDashboard from "./moderator/ModeratorDashboard";
@@ -135,6 +138,11 @@ const ProtectedManagerPreviousProjectDetails = withAuth(
   ["Manager"]
 );
 const ProtectedViewProjectLog = withAuth(ViewProjectLog, ["Manager"]);
+const ProtectedViewStudentLogs = withAuth(ViewStudentLogs, ["Manager"]);
+const ProtectedManagerNotifications = withAuth(ManagerNotifications, [
+  "Manager",
+]);
+const ProtectedCreateNotification = withAuth(CreateNotification, ["Manager"]);
 
 const ProtectedModeratorDashboard = withAuth(ModeratorDashboard, ["Moderator"]);
 const ProtectedModeratorProposedTitles = withAuth(ModeratorProposedTitles, [
@@ -176,7 +184,6 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/notification-test" element={<NotificationTest />} />
-
         {/* Student Routes - Choose A Path (from chooseAPath subfolder) */}
         <Route
           path="/student/choose-path"
@@ -198,7 +205,6 @@ function App() {
           path="/student/propose-project"
           element={<ProtectedStudentProposeProject />}
         />
-
         {/* Student Routes - Project Work (from root student directory) */}
         <Route
           path="/student/project-work"
@@ -234,7 +240,6 @@ function App() {
           element={<ProtectedViewProposal />}
         />
         <Route path="/student/resources" element={<Resources />} />
-
         {/* Supervisor Routes */}
         <Route
           path="/supervisor/dashboard"
@@ -284,11 +289,9 @@ function App() {
           path="/supervisor/view-progress-report/:studentId"
           element={<ProtectedSupervisorViewProgressReport />}
         />
-
         {/* Test Route */}
         <Route path="/test/progress-log" element={<TestViewProgressLog />} />
         <Route path="/test/data-display" element={<DataDisplayTest />} />
-
         {/* Legacy routes for backward compatibility */}
         <Route
           path="/supervisor/student-details"
@@ -314,7 +317,6 @@ function App() {
           path="/supervisor/view-progress-report"
           element={<ProtectedSupervisorViewProgressReport />}
         />
-
         {/* Manager Routes */}
         <Route
           path="/manager/dashboard"
@@ -347,16 +349,27 @@ function App() {
         <Route
           path="/manager/previous-projects"
           element={<ProtectedManagerPreviousProjects />}
-        />
+        />{" "}
         <Route
           path="/manager/previous-project-details"
           element={<ProtectedManagerPreviousProjectDetails />}
-        />
+        />{" "}
         <Route
-          path="/manager/view-project-log"
+          path="/manager/view-project-log/:projectId"
           element={<ProtectedViewProjectLog />}
         />
-
+        <Route
+          path="/manager/view-student-logs/:studentId"
+          element={<ProtectedViewStudentLogs />}
+        />
+        <Route
+          path="/manager/notifications"
+          element={<ProtectedManagerNotifications />}
+        />
+        <Route
+          path="/manager/create-notification"
+          element={<ProtectedCreateNotification />}
+        />
         {/* Examiner Routes */}
         <Route
           path="/examiner/dashboard"
@@ -366,7 +379,6 @@ function App() {
           path="/examiner/project/:projectId"
           element={<ProtectedExaminerProjectDetails />}
         />
-
         {/* Moderator Routes */}
         <Route
           path="/moderator/dashboard"
@@ -388,10 +400,8 @@ function App() {
           path="/moderator/previous-project-details"
           element={<ProtectedModeratorPreviousProjectDetails />}
         />
-
         {/* Default redirect - redirect to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-
         {/* Fallback route for 404 */}
         <Route
           path="*"
