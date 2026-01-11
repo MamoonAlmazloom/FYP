@@ -258,6 +258,6 @@ Special thanks to:
 
 **Status:** ✅ Completed and Tested
 
-<br>
-**Project grade by Universty:** A+
+**Project grade by Universty**: A+
+
 
