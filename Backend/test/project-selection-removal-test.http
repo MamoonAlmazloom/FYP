@@ -1,0 +1,81 @@
+@baseUrl = http://localhost:5000/api
+@supervisorsUrl = {{baseUrl}}/supervisors
+@moderatorsUrl = {{baseUrl}}/moderators
+@studentsUrl = {{baseUrl}}/students
+@authUrl = {{baseUrl}}/auth
+
+#####################################################################
+### PROJECT SELECTION AND REMOVAL TEST ###
+### Testing: When student selects a project, it's removed from available list
+#####################################################################
+
+### Step 1: Login as Student (Nabil)
+# @name studentLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nabil@example.com",
+  "password": "password123"
+}
+
+### Step 2: Store the student token and ID
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Step 3: Get initial list of available projects
+# @name initialProjects
+GET {{studentsUrl}}/{{studentId}}/available-projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 4: Login as Second Student (Alice) for comparison
+# @name student2Login
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "password123"
+}
+
+### Step 5: Store the second student token and ID
+@student2Token = {{student2Login.response.body.token}}
+@student2Id = {{student2Login.response.body.user.id}}
+
+### Step 6: Get available projects for second student (should be same as first)
+# @name student2InitialProjects
+GET {{studentsUrl}}/{{student2Id}}/available-projects
+Content-Type: application/json
+Authorization: Bearer {{student2Token}}
+
+### Step 7: First student selects a project (using first project from the list)
+# Use the first project_id from the initial projects response
+# You'll need to manually copy the project_id from the previous response
+POST {{studentsUrl}}/{{studentId}}/select-project
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+  "project_id": 1
+}
+
+### Step 8: Check first student's available projects (should be reduced)
+GET {{studentsUrl}}/{{studentId}}/available-projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 9: Check second student's available projects (should also be reduced)
+GET {{studentsUrl}}/{{student2Id}}/available-projects
+Content-Type: application/json
+Authorization: Bearer {{student2Token}}
+
+### Step 10: Check first student's proposals (should show the selected project)
+GET {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 11: Check if student has active project
+GET {{studentsUrl}}/{{studentId}}/active-project
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}

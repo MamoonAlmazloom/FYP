@@ -52,6 +52,10 @@ router.get(
   "/:managerId/student-logs/:studentId",
   managerController.getStudentLogs
 );
+router.get(
+  "/:managerId/project-logs/:projectId",
+  managerController.getProjectLogs
+);
 
 // Get all roles
 router.get("/:managerId/roles", managerController.getRoles);

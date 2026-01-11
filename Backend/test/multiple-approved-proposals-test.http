@@ -1,0 +1,107 @@
+@baseUrl = http://localhost:5000/api
+@supervisorsUrl = {{baseUrl}}/supervisors
+@moderatorsUrl = {{baseUrl}}/moderators
+@studentsUrl = {{baseUrl}}/students
+@authUrl = {{baseUrl}}/auth
+
+#####################################################################
+### MULTIPLE APPROVED PROPOSALS TEST ###
+### Testing: Student with multiple approved proposals shows latest as main project
+#####################################################################
+
+### Step 1: Login as Student (Nabil)
+# @name studentLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nabil@example.com",
+  "password": "password123"
+}
+
+### Step 2: Store the student token and ID
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Step 3: Student submits first proposal
+# @name submitProposal1
+POST {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+    "title": "Machine Learning for Healthcare Analytics",
+    "description": "Develop ML models for predicting patient outcomes using healthcare data.",
+    "type": "Research",
+    "specialization": "Machine Learning",
+    "outcome": "A predictive ML system for healthcare applications"
+}
+
+### Step 4: Store the first proposal ID
+@proposal1Id = {{submitProposal1.response.body.proposal_id}}
+
+### Step 5: Login as Moderator
+# @name moderatorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "emily.carter@example.com",
+  "password": "password123"
+}
+
+### Step 6: Store the moderator token and ID
+@moderatorToken = {{moderatorLogin.response.body.token}}
+@moderatorId = {{moderatorLogin.response.body.user.id}}
+
+### Step 7: Moderator approves first proposal
+POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/{{proposal1Id}}
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}
+
+{
+  "decision": "approve",
+  "comments": "Good first proposal. ML in healthcare is a valuable area."
+}
+
+### Step 8: Student submits second proposal (later)
+# @name submitProposal2
+POST {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+    "title": "Advanced Natural Language Processing for Document Analysis",
+    "description": "Build an advanced NLP system for automated document processing and analysis.",
+    "type": "Development",
+    "specialization": "Natural Language Processing",
+    "outcome": "A comprehensive NLP system with document processing capabilities"
+}
+
+### Step 9: Store the second proposal ID
+@proposal2Id = {{submitProposal2.response.body.proposal_id}}
+
+### Step 10: Moderator approves second proposal
+POST {{moderatorsUrl}}/{{moderatorId}}/review-proposal/{{proposal2Id}}
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}
+
+{
+  "decision": "approve",
+  "comments": "Excellent second proposal. NLP for document analysis is very relevant and shows good progression."
+}
+
+### Step 11: Check student's proposals to verify both are approved
+GET {{studentsUrl}}/{{studentId}}/proposals
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 12: Check student's active project (should show the latest approved proposal)
+GET {{studentsUrl}}/{{studentId}}/active-project
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 13: Check student's projects list
+GET {{studentsUrl}}/{{studentId}}/projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}

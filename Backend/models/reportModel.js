@@ -23,10 +23,26 @@ export const addFeedbackToReport = async (
   feedback,
   grade
 ) => {
-  const [result] = await pool.execute(
-    "UPDATE reports SET feedback = ?, grade = ?, reviewer_id = ?, updated_at = NOW() WHERE id = ?",
-    [feedback, grade, supervisorId, reportId]
+  // First check if feedback already exists
+  const [existing] = await pool.execute(
+    "SELECT feedback_id FROM Feedback WHERE report_id = ?",
+    [reportId]
   );
+
+  let result;
+  if (existing.length > 0) {
+    // Update existing feedback
+    [result] = await pool.execute(
+      "UPDATE Feedback SET comments = ?, reviewer_id = ?, grade = ?, created_at = NOW() WHERE report_id = ?",
+      [feedback, supervisorId, grade, reportId]
+    );
+  } else {
+    // Insert new feedback
+    [result] = await pool.execute(
+      "INSERT INTO Feedback (report_id, reviewer_id, comments, grade, created_at) VALUES (?, ?, ?, ?, NOW())",
+      [reportId, supervisorId, feedback, grade]
+    );
+  }
   return result.affectedRows > 0;
 };
 

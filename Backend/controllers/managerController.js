@@ -231,6 +231,20 @@ const getStudentLogs = async (req, res, next) => {
 };
 
 /**
+ * Get project logs
+ */
+const getProjectLogs = async (req, res, next) => {
+  try {
+    const projectId = req.params.projectId;
+    const logs = await managerModel.getProjectLogs(projectId);
+
+    res.status(200).json({ success: true, logs });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Get all roles
  */
 const getRoles = async (req, res, next) => {
@@ -496,6 +510,7 @@ export default {
   getApprovedProjects,
   assignExaminer,
   getStudentLogs,
+  getProjectLogs,
   getRoles,
   getExaminers,
   getPreviousProjects,

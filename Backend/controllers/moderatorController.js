@@ -141,7 +141,7 @@ const reviewSupervisorProposal = async (req, res, next) => {
   try {
     const proposalId = parseInt(req.params.proposalId);
     const { decision, comments } = req.body;
-    const moderatorId = req.user.user_id; // Get from authenticated user
+    const moderatorId = req.user.id; // Get from authenticated user
 
     if (!["approve", "reject", "modify"].includes(decision)) {
       return res.status(400).json({
@@ -173,12 +173,13 @@ const reviewSupervisorProposal = async (req, res, next) => {
       (role) => role.role_name === "Supervisor"
     );
 
-    if (!isSupervisor) {
-      return res.status(400).json({
-        success: false,
-        error: "This proposal was not submitted by a supervisor",
-      });
-    }
+    // Allow both supervisor and student proposals in this endpoint
+    // This provides flexibility for the frontend
+    console.log(
+      `Processing proposal ${proposalId} submitted by ${
+        isSupervisor ? "supervisor" : "student"
+      } (ID: ${proposal.submitted_by})`
+    );
 
     // Update status based on decision
     let statusName;

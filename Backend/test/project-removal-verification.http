@@ -1,0 +1,66 @@
+@baseUrl = http://localhost:5000/api
+@studentsUrl = {{baseUrl}}/students
+@authUrl = {{baseUrl}}/auth
+
+#####################################################################
+### PROJECT REMOVAL TEST ###
+### Testing: Project is removed from list after selection
+#####################################################################
+
+### Step 1: Login as Student
+# @name studentLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nabil@example.com",
+  "password": "password123"
+}
+
+### Step 2: Store student credentials
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Step 3: Get initial count of available projects
+# @name initialProjects
+GET {{studentsUrl}}/{{studentId}}/available-projects
+Authorization: Bearer {{studentToken}}
+
+### Step 4: Select the first project from the list
+# Manually copy project_id from the response above
+POST {{studentsUrl}}/{{studentId}}/select-project
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{
+  "project_id": 1
+}
+
+### Step 5: Check available projects again (should be reduced by 1)
+GET {{studentsUrl}}/{{studentId}}/available-projects
+Authorization: Bearer {{studentToken}}
+
+### Step 6: Login as second student to verify same reduction
+# @name student2Login
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "password123"
+}
+
+### Step 7: Store second student credentials
+@student2Token = {{student2Login.response.body.token}}
+@student2Id = {{student2Login.response.body.user.id}}
+
+### Step 8: Check available projects for second student (should also be reduced)
+GET {{studentsUrl}}/{{student2Id}}/available-projects
+Authorization: Bearer {{student2Token}}
+
+### Step 9: Check first student's proposals (should show selected project)
+GET {{studentsUrl}}/{{studentId}}/proposals
+Authorization: Bearer {{studentToken}}
+
+### Step 10: Verify database state by checking proposals table
+# This would require direct database access, but we can infer from API responses

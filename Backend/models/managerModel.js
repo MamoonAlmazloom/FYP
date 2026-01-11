@@ -234,6 +234,33 @@ const getStudentLogs = async (studentId) => {
 };
 
 /**
+ * Get logs for a specific project
+ * @param {number} projectId - The ID of the project
+ * @returns {Promise<Array>} - Array of project logs
+ */
+const getProjectLogs = async (projectId) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT pl.log_id, pl.project_id, pl.submission_date, pl.details,
+              p.title as project_title,
+              u.name as student_name,
+              pl.student_id
+       FROM progress_log pl
+       JOIN project p ON pl.project_id = p.project_id
+       JOIN user u ON pl.student_id = u.user_id
+       WHERE pl.project_id = ?
+       ORDER BY pl.submission_date DESC`,
+      [projectId]
+    );
+
+    return rows;
+  } catch (error) {
+    console.error("Error in getProjectLogs:", error);
+    throw error;
+  }
+};
+
+/**
  * Get all roles
  * @returns {Promise<Array>} - Array of roles
  */
@@ -451,6 +478,7 @@ export default {
   getExaminers,
   assignExaminer,
   getStudentLogs,
+  getProjectLogs,
   getAllRoles,
   removeDuplicateAssignments,
   getPreviousProjects,

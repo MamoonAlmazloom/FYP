@@ -1,0 +1,28 @@
+# Backend specific ignores
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Database dumps
+*.sql
+dumps/
+
+# Session storage
+sessions/*
+!sessions/.gitkeep
+
+# Log files
+logs/*
+!logs/.gitkeep
+
+# Temporary files
+temp/*
+!temp/.gitkeep
+
+# Debug and test files
+debug-*.js
+delete-*.js
+test-*.js
+verify-*.js
+run-*.js

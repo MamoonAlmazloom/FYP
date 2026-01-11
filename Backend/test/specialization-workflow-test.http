@@ -1,0 +1,99 @@
+@baseUrl = http://localhost:5000/api
+@supervisorsUrl = {{baseUrl}}/supervisors
+@moderatorsUrl = {{baseUrl}}/moderators
+@studentsUrl = {{baseUrl}}/students
+@authUrl = {{baseUrl}}/auth
+
+#####################################################################
+### SPECIALIZATION WORKFLOW TEST ###
+### Testing: Supervisor creates project -> Moderator approves -> Student sees correct specialization
+#####################################################################
+
+### Step 1: Login as Supervisor
+# @name supervisorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "sarah.johnson@example.com",
+  "password": "password123"
+}
+
+### Step 2: Store the supervisor token and ID
+@supervisorToken = {{supervisorLogin.response.body.token}}
+@supervisorId = {{supervisorLogin.response.body.user.id}}
+
+### Step 3: Supervisor creates a new project proposal with specific specialization
+# @name createProposal
+POST {{supervisorsUrl}}/{{supervisorId}}/propose-project
+Content-Type: application/json
+Authorization: Bearer {{supervisorToken}}
+
+{
+    "title": "Advanced Natural Language Processing System",
+    "description": "Develop an advanced NLP system using transformer models for text analysis and generation.",
+    "type": "Research",
+    "specialization": "Natural Language Processing",
+    "outcome": "A working NLP system with transformer-based architecture for text processing tasks"
+}
+
+### Step 4: Store the proposal ID
+@proposalId = {{createProposal.response.body.proposal_id}}
+
+### Step 5: Check supervisor's own proposals
+GET {{supervisorsUrl}}/{{supervisorId}}/my-proposals
+Content-Type: application/json
+Authorization: Bearer {{supervisorToken}}
+
+### Step 6: Login as Moderator
+# @name moderatorLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "emily.carter@example.com",
+  "password": "password123"
+}
+
+### Step 7: Store the moderator token and ID
+@moderatorToken = {{moderatorLogin.response.body.token}}
+@moderatorId = {{moderatorLogin.response.body.user.id}}
+
+### Step 8: Moderator checks pending proposals (including supervisor proposals)
+GET {{moderatorsUrl}}/{{moderatorId}}/pending-proposals
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}
+
+### Step 9: Moderator approves the supervisor proposal
+POST {{moderatorsUrl}}/{{moderatorId}}/review-supervisor-proposal/{{proposalId}}
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}
+
+{
+  "decision": "approve",
+  "comments": "Excellent proposal. The NLP specialization is well-defined and the project scope is appropriate."
+}
+
+### Step 10: Login as Student
+# @name studentLogin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nabil@example.com",
+  "password": "password123"
+}
+
+### Step 11: Store the student token and ID
+@studentToken = {{studentLogin.response.body.token}}
+@studentId = {{studentLogin.response.body.user.id}}
+
+### Step 12: Student gets available projects (should include the approved supervisor proposal)
+GET {{studentsUrl}}/{{studentId}}/available-projects
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+### Step 13: Check specific proposal specialization
+GET {{moderatorsUrl}}/{{moderatorId}}/proposals/{{proposalId}}
+Content-Type: application/json
+Authorization: Bearer {{moderatorToken}}

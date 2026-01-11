@@ -68,7 +68,7 @@ Content-Type: application/json
 ##########################################################
 ### COMPLETE TEST CASE: STUDENT SUBMITTING A PROPOSAL ###
 ##########################################################
-
+GET  {{studentsUrl}}/53/projects
 ### Step 1: Login as Student
 # @name studentLogin
 POST {{authUrl}}/login
